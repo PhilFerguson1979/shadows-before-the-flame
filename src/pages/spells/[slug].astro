@@ -1,0 +1,301 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { spells, getSpellBySlug } from '../../data/spells';
+import { getCollection } from 'astro:content';
+
+export async function getStaticPaths() {
+  return spells.map(spell => ({
+    params: { slug: spell.slug },
+    props: { spell },
+  }));
+}
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const { spell } = Astro.props;
+
+// Find party members who have this spell
+const characters = await getCollection('characters');
+const partyWithSpell = characters.filter(c =>
+  c.data.spells?.some(s => s.name.toLowerCase() === spell.name.toLowerCase())
+);
+
+const levelLabel = spell.level === 0
+  ? 'Cantrip'
+  : `${spell.level}${spell.level === 1 ? 'st' : spell.level === 2 ? 'nd' : spell.level === 3 ? 'rd' : 'th'}-level ${spell.school}`;
+---
+
+<BaseLayout title={spell.name}>
+  <div class="page-container">
+    <div class="back-link"><a href={`${base}/spells`}>← Spell Browser</a></div>
+
+    <div class="spell-header">
+      <h1>{spell.name}</h1>
+      <div class="spell-subtitle">{levelLabel}</div>
+      <div class="spell-tags">
+        {spell.concentration && <span class="spell-tag conc">Concentration</span>}
+        {spell.ritual && <span class="spell-tag ritual">Ritual</span>}
+        <span class="spell-tag source">{spell.source}</span>
+      </div>
+    </div>
+
+    <div class="spell-stats">
+      <div class="stat-row">
+        <span class="stat-label">Casting Time</span>
+        <span class="stat-value">{spell.castingTime}</span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-label">Range</span>
+        <span class="stat-value">{spell.range}</span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-label">Components</span>
+        <span class="stat-value">{spell.components}</span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-label">Duration</span>
+        <span class="stat-value">{spell.duration}</span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-label">School</span>
+        <span class="stat-value">{spell.school}</span>
+      </div>
+    </div>
+
+    <div class="spell-description">
+      <h2>Description</h2>
+      <p>{spell.description}</p>
+      {spell.higherLevels && (
+        <div class="higher-levels">
+          <strong>At Higher Levels.</strong> {spell.higherLevels}
+        </div>
+      )}
+    </div>
+
+    <div class="spell-classes">
+      <h2>Available To</h2>
+      <div class="class-tags">
+        {spell.classes.map(cls => (
+          <span class="class-tag">{cls}</span>
+        ))}
+      </div>
+    </div>
+
+    {partyWithSpell.length > 0 && (
+      <div class="party-section">
+        <h2>Party Members</h2>
+        <div class="party-list">
+          {partyWithSpell.map(c => {
+            const charSpell = c.data.spells?.find(s => s.name.toLowerCase() === spell.name.toLowerCase());
+            return (
+              <a href={`${base}/characters/${c.slug}`} class="party-member-link">
+                {c.data.portrait && (
+                  <img src={`${base}${c.data.portrait}`} alt={c.data.name} class="party-portrait" />
+                )}
+                <div class="party-info">
+                  <span class="party-name">{c.data.name}</span>
+                  <span class="party-class">{c.data.class} · Level {c.data.level}</span>
+                  {charSpell?.notes && <span class="party-notes">{charSpell.notes}</span>}
+                </div>
+              </a>
+            );
+          })}
+        </div>
+      </div>
+    )}
+  </div>
+</BaseLayout>
+
+<style>
+.back-link { margin-bottom: 1.5rem; }
+.back-link a { color: var(--text-muted); font-size: 0.85rem; }
+.back-link a:hover { color: var(--text-gold); }
+
+.spell-header {
+  margin-bottom: 2rem;
+}
+.spell-header h1 {
+  margin-bottom: 0.3rem;
+  color: var(--text-gold-bright);
+}
+.spell-subtitle {
+  font-size: 0.95rem;
+  color: var(--text-muted);
+  font-style: italic;
+  margin-bottom: 0.75rem;
+}
+.spell-tags {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+.spell-tag {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0.15rem 0.5rem;
+  border-radius: 3px;
+  font-weight: bold;
+}
+.spell-tag.conc {
+  background: rgba(200,150,20,0.2);
+  color: #d4a83a;
+  border: 1px solid rgba(200,150,20,0.3);
+}
+.spell-tag.ritual {
+  background: rgba(20,120,200,0.15);
+  color: #6ab0e8;
+  border: 1px solid rgba(20,120,200,0.25);
+}
+.spell-tag.source {
+  background: rgba(100,100,100,0.15);
+  color: var(--text-muted);
+  border: 1px solid rgba(100,100,100,0.25);
+}
+
+.spell-stats {
+  background: rgba(100,80,200,0.06);
+  border: 1px solid rgba(100,80,200,0.2);
+  border-radius: 8px;
+  padding: 1rem 1.25rem;
+  margin-bottom: 2rem;
+}
+.stat-row {
+  display: flex;
+  padding: 0.4rem 0;
+  border-bottom: 1px solid rgba(100,80,200,0.08);
+}
+.stat-row:last-child { border-bottom: none; }
+.stat-label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-gold);
+  min-width: 120px;
+  font-weight: bold;
+}
+.stat-value {
+  font-size: 0.88rem;
+  color: var(--text-parchment);
+}
+
+.spell-description {
+  margin-bottom: 2rem;
+}
+.spell-description h2 {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.3rem;
+  border-bottom: 1px solid rgba(139,105,20,0.3);
+}
+.spell-description p {
+  font-size: 0.92rem;
+  line-height: 1.7;
+  color: var(--text-parchment);
+}
+.higher-levels {
+  margin-top: 1rem;
+  padding: 0.75rem 1rem;
+  background: rgba(100,80,200,0.06);
+  border-left: 3px solid rgba(100,80,200,0.3);
+  border-radius: 0 6px 6px 0;
+  font-size: 0.88rem;
+  line-height: 1.6;
+  color: var(--text-parchment);
+}
+.higher-levels strong {
+  color: var(--text-gold);
+}
+
+.spell-classes {
+  margin-bottom: 2rem;
+}
+.spell-classes h2 {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.3rem;
+  border-bottom: 1px solid rgba(139,105,20,0.3);
+}
+.class-tags {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+.class-tag {
+  font-size: 0.78rem;
+  padding: 0.2rem 0.6rem;
+  background: rgba(139,105,20,0.1);
+  border: 1px solid rgba(139,105,20,0.3);
+  border-radius: 4px;
+  color: var(--text-gold);
+}
+
+.party-section {
+  margin-bottom: 2rem;
+}
+.party-section h2 {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.3rem;
+  border-bottom: 1px solid rgba(139,105,20,0.3);
+}
+.party-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.party-member-link {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.6rem 0.8rem;
+  background: rgba(139,105,20,0.06);
+  border: 1px solid rgba(139,105,20,0.2);
+  border-radius: 6px;
+  text-decoration: none;
+  transition: all 0.15s ease;
+}
+.party-member-link:hover {
+  background: rgba(139,105,20,0.12);
+  border-color: rgba(139,105,20,0.4);
+  transform: translateX(4px);
+}
+.party-portrait {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 2px solid rgba(139,105,20,0.4);
+  object-fit: cover;
+}
+.party-info {
+  display: flex;
+  flex-direction: column;
+}
+.party-name {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--text-parchment);
+}
+.party-class {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+.party-notes {
+  font-size: 0.72rem;
+  color: var(--text-gold);
+  font-style: italic;
+}
+
+@media (max-width: 640px) {
+  .stat-row { flex-direction: column; gap: 0.15rem; }
+  .stat-label { min-width: auto; }
+}
+</style>

@@ -4,6 +4,7 @@ import EquipmentPanel from '../../components/EquipmentPanel.astro';
 import CurrencyDisplay from '../../components/CurrencyDisplay.astro';
 import LevelUpTracker from '../../components/LevelUpTracker.astro';
 import { getCollection } from 'astro:content';
+import { getSpellByName, spellNameToSlug } from '../../data/spells';
 
 export async function getStaticPaths() {
   const characters = await getCollection('characters');
@@ -150,15 +151,21 @@ function modStr(score) {
                 <div class="spell-group">
                   <div class="spell-group-label">Cantrips</div>
                   <div class="spell-list">
-                    {cantrips.map(s => (
-                      <div class="spell-card">
-                        <span class="spell-name">{s.name}</span>
-                        {s.concentration && <span class="spell-tag conc">C</span>}
-                        {s.ritual && <span class="spell-tag ritual">R</span>}
-                        {s.school && <span class="spell-school">{s.school}</span>}
-                        {s.notes && <span class="spell-notes">{s.notes}</span>}
-                      </div>
-                    ))}
+                    {cantrips.map(s => {
+                      const dbSpell = getSpellByName(s.name);
+                      const inner = (
+                        <>
+                          <span class="spell-name">{s.name}</span>
+                          {s.concentration && <span class="spell-tag conc">C</span>}
+                          {s.ritual && <span class="spell-tag ritual">R</span>}
+                          {s.school && <span class="spell-school">{s.school}</span>}
+                          {s.notes && <span class="spell-notes">{s.notes}</span>}
+                        </>
+                      );
+                      return dbSpell
+                        ? <a href={`${base}/spells/${dbSpell.slug}`} class="spell-card spell-card-link">{inner}</a>
+                        : <div class="spell-card">{inner}</div>;
+                    })}
                   </div>
                 </div>
               )}
@@ -166,16 +173,23 @@ function modStr(score) {
                 <div class="spell-group">
                   <div class="spell-group-label">{lvl === 1 ? '1st' : lvl === 2 ? '2nd' : lvl === 3 ? '3rd' : `${lvl}th`} Level</div>
                   <div class="spell-list">
-                    {spells.map(s => (
-                      <div class={`spell-card ${!s.prepared ? 'not-prepared' : ''}`}>
-                        <span class="spell-name">{s.name}</span>
-                        {s.concentration && <span class="spell-tag conc">C</span>}
-                        {s.ritual && <span class="spell-tag ritual">R</span>}
-                        {!s.prepared && <span class="spell-tag unprepared">Not Prepared</span>}
-                        {s.school && <span class="spell-school">{s.school}</span>}
-                        {s.notes && <span class="spell-notes">{s.notes}</span>}
-                      </div>
-                    ))}
+                    {spells.map(s => {
+                      const dbSpell = getSpellByName(s.name);
+                      const cls = `spell-card ${!s.prepared ? 'not-prepared' : ''}`;
+                      const inner = (
+                        <>
+                          <span class="spell-name">{s.name}</span>
+                          {s.concentration && <span class="spell-tag conc">C</span>}
+                          {s.ritual && <span class="spell-tag ritual">R</span>}
+                          {!s.prepared && <span class="spell-tag unprepared">Not Prepared</span>}
+                          {s.school && <span class="spell-school">{s.school}</span>}
+                          {s.notes && <span class="spell-notes">{s.notes}</span>}
+                        </>
+                      );
+                      return dbSpell
+                        ? <a href={`${base}/spells/${dbSpell.slug}`} class={`${cls} spell-card-link`}>{inner}</a>
+                        : <div class={cls}>{inner}</div>;
+                    })}
                   </div>
                 </div>
               ))}
@@ -347,6 +361,16 @@ function modStr(score) {
   border: 1px solid rgba(100,80,200,0.15);
 }
 .spell-card.not-prepared { opacity: 0.45; }
+.spell-card-link {
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.spell-card-link:hover {
+  background: rgba(100,80,200,0.14);
+  border-color: rgba(100,80,200,0.3);
+  transform: translateX(3px);
+}
 .spell-name { font-size: 0.85rem; color: var(--text-parchment); font-weight: 600; }
 .spell-tag {
   font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.05em;

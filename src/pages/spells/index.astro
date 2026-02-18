@@ -1,0 +1,412 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { spells } from '../../data/spells';
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+
+// Group spells by level
+const levels = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+const spellsByLevel = new Map<number, typeof spells>();
+levels.forEach(lvl => {
+  const group = spells.filter(s => s.level === lvl).sort((a, b) => a.name.localeCompare(b.name));
+  if (group.length > 0) spellsByLevel.set(lvl, group);
+});
+
+// Collect all unique classes and schools for filter dropdowns
+const allClasses = [...new Set(spells.flatMap(s => s.classes))].sort();
+const allSchools = [...new Set(spells.map(s => s.school))].sort();
+
+function levelLabel(lvl: number): string {
+  if (lvl === 0) return 'Cantrips';
+  return `${lvl}${lvl === 1 ? 'st' : lvl === 2 ? 'nd' : lvl === 3 ? 'rd' : 'th'} Level`;
+}
+---
+
+<BaseLayout title="Spell Browser">
+  <div class="page-container">
+    <h1>Spell Browser</h1>
+    <p class="spell-count">{spells.length} spells from the D&D 5e library</p>
+
+    <!-- Filter Bar -->
+    <div class="filter-bar">
+      <div class="filter-group">
+        <label for="search-input">Search</label>
+        <input type="text" id="search-input" placeholder="Spell name..." autocomplete="off" />
+      </div>
+      <div class="filter-group">
+        <label for="class-filter">Class</label>
+        <select id="class-filter">
+          <option value="">All Classes</option>
+          {allClasses.map(cls => (
+            <option value={cls}>{cls}</option>
+          ))}
+        </select>
+      </div>
+      <div class="filter-group">
+        <label for="school-filter">School</label>
+        <select id="school-filter">
+          <option value="">All Schools</option>
+          {allSchools.map(school => (
+            <option value={school}>{school}</option>
+          ))}
+        </select>
+      </div>
+      <div class="filter-group filter-toggles">
+        <label>
+          <input type="checkbox" id="conc-filter" /> Concentration
+        </label>
+        <label>
+          <input type="checkbox" id="ritual-filter" /> Ritual
+        </label>
+      </div>
+      <button id="clear-filters" class="clear-btn">Clear</button>
+    </div>
+
+    <div id="no-results" class="no-results" style="display:none;">
+      No spells match your filters.
+    </div>
+
+    <!-- Spell Level Sections -->
+    {[...spellsByLevel.entries()].map(([lvl, levelSpells]) => (
+      <div class="level-section" data-level={lvl}>
+        <button class="level-header" data-toggle={lvl}>
+          <span class="level-label">{levelLabel(lvl)}</span>
+          <span class="level-count">{levelSpells.length} spells</span>
+          <span class="toggle-icon">▼</span>
+        </button>
+        <div class="level-grid" id={`level-${lvl}`}>
+          {levelSpells.map(spell => (
+            <a
+              href={`${base}/spells/${spell.slug}`}
+              class="spell-card"
+              data-name={spell.name.toLowerCase()}
+              data-school={spell.school}
+              data-classes={spell.classes.join(',')}
+              data-concentration={spell.concentration ? 'true' : 'false'}
+              data-ritual={spell.ritual ? 'true' : 'false'}
+              data-level={spell.level}
+            >
+              <div class="spell-card-top">
+                <span class="spell-name">{spell.name}</span>
+                <span class="spell-school">{spell.school}</span>
+              </div>
+              <div class="spell-card-meta">
+                <span class="spell-casting">{spell.castingTime}</span>
+                <span class="spell-range">{spell.range}</span>
+              </div>
+              <div class="spell-card-tags">
+                {spell.concentration && <span class="tag conc">C</span>}
+                {spell.ritual && <span class="tag ritual">R</span>}
+                <span class="tag source">{spell.source}</span>
+              </div>
+            </a>
+          ))}
+        </div>
+      </div>
+    ))}
+  </div>
+</BaseLayout>
+
+<script>
+  const searchInput = document.getElementById('search-input') as HTMLInputElement;
+  const classFilter = document.getElementById('class-filter') as HTMLSelectElement;
+  const schoolFilter = document.getElementById('school-filter') as HTMLSelectElement;
+  const concFilter = document.getElementById('conc-filter') as HTMLInputElement;
+  const ritualFilter = document.getElementById('ritual-filter') as HTMLInputElement;
+  const clearBtn = document.getElementById('clear-filters');
+  const noResults = document.getElementById('no-results');
+
+  // Toggle level sections
+  document.querySelectorAll('.level-header').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const level = (btn as HTMLElement).dataset.toggle;
+      const grid = document.getElementById(`level-${level}`);
+      const icon = btn.querySelector('.toggle-icon');
+      if (grid) {
+        grid.classList.toggle('collapsed');
+        if (icon) icon.textContent = grid.classList.contains('collapsed') ? '▶' : '▼';
+      }
+    });
+  });
+
+  function applyFilters() {
+    const search = searchInput.value.toLowerCase().trim();
+    const cls = classFilter.value;
+    const school = schoolFilter.value;
+    const concOnly = concFilter.checked;
+    const ritualOnly = ritualFilter.checked;
+
+    let totalVisible = 0;
+
+    document.querySelectorAll('.spell-card').forEach(card => {
+      const el = card as HTMLElement;
+      const name = el.dataset.name || '';
+      const cardSchool = el.dataset.school || '';
+      const classes = el.dataset.classes || '';
+      const isConc = el.dataset.concentration === 'true';
+      const isRitual = el.dataset.ritual === 'true';
+
+      let show = true;
+      if (search && !name.includes(search)) show = false;
+      if (cls && !classes.split(',').includes(cls)) show = false;
+      if (school && cardSchool !== school) show = false;
+      if (concOnly && !isConc) show = false;
+      if (ritualOnly && !isRitual) show = false;
+
+      el.style.display = show ? '' : 'none';
+      if (show) totalVisible++;
+    });
+
+    // Hide empty level sections
+    document.querySelectorAll('.level-section').forEach(section => {
+      const cards = section.querySelectorAll('.spell-card');
+      let sectionVisible = 0;
+      cards.forEach(c => {
+        if ((c as HTMLElement).style.display !== 'none') sectionVisible++;
+      });
+      (section as HTMLElement).style.display = sectionVisible > 0 ? '' : 'none';
+
+      // Update count
+      const countEl = section.querySelector('.level-count');
+      if (countEl) {
+        const total = cards.length;
+        countEl.textContent = sectionVisible === total
+          ? `${total} spells`
+          : `${sectionVisible} / ${total} spells`;
+      }
+    });
+
+    if (noResults) {
+      noResults.style.display = totalVisible === 0 ? '' : 'none';
+    }
+  }
+
+  searchInput.addEventListener('input', applyFilters);
+  classFilter.addEventListener('change', applyFilters);
+  schoolFilter.addEventListener('change', applyFilters);
+  concFilter.addEventListener('change', applyFilters);
+  ritualFilter.addEventListener('change', applyFilters);
+
+  clearBtn?.addEventListener('click', () => {
+    searchInput.value = '';
+    classFilter.value = '';
+    schoolFilter.value = '';
+    concFilter.checked = false;
+    ritualFilter.checked = false;
+    applyFilters();
+  });
+</script>
+
+<style>
+h1 { margin-bottom: 0.25rem; }
+.spell-count {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  margin-bottom: 1.5rem;
+}
+
+/* Filter bar */
+.filter-bar {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  margin-bottom: 2rem;
+  padding: 1rem;
+  background: rgba(100,80,200,0.04);
+  border: 1px solid rgba(100,80,200,0.15);
+  border-radius: 8px;
+}
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+.filter-group label {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+}
+.filter-group input[type="text"],
+.filter-group select {
+  padding: 0.4rem 0.6rem;
+  font-size: 0.82rem;
+  background: rgba(0,0,0,0.3);
+  border: 1px solid rgba(139,105,20,0.3);
+  border-radius: 4px;
+  color: var(--text-parchment);
+  min-width: 140px;
+}
+.filter-group input[type="text"]:focus,
+.filter-group select:focus {
+  outline: none;
+  border-color: var(--text-gold);
+}
+.filter-toggles {
+  flex-direction: row;
+  gap: 0.75rem;
+  align-items: center;
+  padding-bottom: 0.2rem;
+}
+.filter-toggles label {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.78rem;
+  cursor: pointer;
+  text-transform: none;
+  letter-spacing: normal;
+}
+.filter-toggles input[type="checkbox"] {
+  accent-color: var(--text-gold);
+}
+.clear-btn {
+  padding: 0.4rem 0.8rem;
+  font-size: 0.78rem;
+  background: rgba(139,105,20,0.15);
+  border: 1px solid rgba(139,105,20,0.3);
+  border-radius: 4px;
+  color: var(--text-gold);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.clear-btn:hover {
+  background: rgba(139,105,20,0.25);
+}
+
+.no-results {
+  text-align: center;
+  padding: 3rem;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+/* Level sections */
+.level-section {
+  margin-bottom: 1.5rem;
+}
+.level-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 0.6rem 0.8rem;
+  background: rgba(100,80,200,0.08);
+  border: 1px solid rgba(100,80,200,0.2);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  color: inherit;
+  font-family: inherit;
+  text-align: left;
+}
+.level-header:hover {
+  background: rgba(100,80,200,0.14);
+}
+.level-label {
+  font-size: 0.88rem;
+  font-weight: bold;
+  color: var(--text-gold);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.level-count {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+.toggle-icon {
+  margin-left: auto;
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  transition: transform 0.2s ease;
+}
+
+/* Spell grid */
+.level-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 0.5rem;
+  padding: 0.75rem 0;
+  transition: all 0.2s ease;
+}
+.level-grid.collapsed {
+  display: none;
+}
+
+/* Spell cards */
+.spell-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  padding: 0.55rem 0.75rem;
+  background: rgba(100,80,200,0.04);
+  border: 1px solid rgba(100,80,200,0.12);
+  border-radius: 5px;
+  text-decoration: none;
+  transition: all 0.15s ease;
+}
+.spell-card:hover {
+  background: rgba(100,80,200,0.1);
+  border-color: rgba(100,80,200,0.3);
+  transform: translateY(-1px);
+}
+.spell-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+.spell-name {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-parchment);
+}
+.spell-school {
+  font-size: 0.65rem;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+}
+.spell-card-meta {
+  display: flex;
+  gap: 0.75rem;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+.spell-card-tags {
+  display: flex;
+  gap: 0.3rem;
+}
+.tag {
+  font-size: 0.58rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 0.08rem 0.3rem;
+  border-radius: 2px;
+  font-weight: bold;
+}
+.tag.conc {
+  background: rgba(200,150,20,0.2);
+  color: #d4a83a;
+  border: 1px solid rgba(200,150,20,0.3);
+}
+.tag.ritual {
+  background: rgba(20,120,200,0.15);
+  color: #6ab0e8;
+  border: 1px solid rgba(20,120,200,0.25);
+}
+.tag.source {
+  background: rgba(100,100,100,0.12);
+  color: var(--text-dim);
+  border: 1px solid rgba(100,100,100,0.2);
+}
+
+@media (max-width: 640px) {
+  .filter-bar { flex-direction: column; align-items: stretch; }
+  .filter-group input[type="text"],
+  .filter-group select { min-width: auto; width: 100%; }
+  .level-grid { grid-template-columns: 1fr; }
+}
+</style>
