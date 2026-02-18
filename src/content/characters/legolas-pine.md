@@ -64,6 +64,14 @@ inventory:
 equipped:
   armor: "Leather Armor"
   mainhand: "Longbow"
+levelHistory:
+  - level: 1
+    sessionNumber: 1
+    hpGained: 12
+    features:
+      - "Favored Enemy: Dragons"
+      - "Natural Explorer: Forest"
+      - "Fighting Style (future)"
 ---
 
 ## Class Features

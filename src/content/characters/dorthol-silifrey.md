@@ -61,6 +61,14 @@ inventory:
     notes: "Session 1 loot — empty"
 equipped:
   mainhand: "Dagger"
+levelHistory:
+  - level: 1
+    sessionNumber: 1
+    hpGained: 15
+    features:
+      - "Spellcasting (CHA-based, DC 15, +7)"
+      - "Lunar Embodiment — bonus spells by moon phase"
+      - "Sorcery Points: 1"
 ---
 
 ## Class Features

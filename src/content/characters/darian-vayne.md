@@ -80,6 +80,14 @@ equipped:
   armor: "Leather Armor"
   mainhand: "Shortsword"
   offhand: "Shortsword"
+levelHistory:
+  - level: 1
+    sessionNumber: 1
+    hpGained: 16
+    features:
+      - "Expertise (Stealth, Thieves' Tools)"
+      - "Sneak Attack 1d6"
+      - "Thieves' Cant"
 ---
 
 ## Class Features

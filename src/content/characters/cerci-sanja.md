@@ -61,6 +61,14 @@ inventory:
 equipped:
   offhand: "Wooden Shield"
   mainhand: "Dagger"
+levelHistory:
+  - level: 1
+    sessionNumber: 1
+    hpGained: 10
+    features:
+      - "Druidic secret language"
+      - "Spellcasting (WIS-based, DC 14, +6)"
+      - "Cantrips: Control Flames, Thorn Whip"
 ---
 
 ## Class Features

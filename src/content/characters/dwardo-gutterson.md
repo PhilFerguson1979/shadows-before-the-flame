@@ -62,6 +62,14 @@ inventory:
 equipped:
   armor: "Leather Armor"
   mainhand: "Dagger"
+levelHistory:
+  - level: 1
+    sessionNumber: 1
+    hpGained: 10
+    features:
+      - "Bardic Inspiration d6 (3/long rest)"
+      - "Spellcasting (CHA-based, DC 13, +5)"
+      - "Kender Taunting, Fearless"
 ---
 
 ## Class Features

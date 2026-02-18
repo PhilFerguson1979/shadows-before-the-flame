@@ -2,7 +2,7 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import EquipmentPanel from '../../components/EquipmentPanel.astro';
 import CurrencyDisplay from '../../components/CurrencyDisplay.astro';
-import LevelTracker from '../../components/LevelTracker.astro';
+import LevelUpTracker from '../../components/LevelUpTracker.astro';
 import { getCollection } from 'astro:content';
 
 export async function getStaticPaths() {
@@ -73,7 +73,7 @@ function modStr(score) {
 
     <hr />
 
-    <!-- Ability Scores row (dynamic, from frontmatter) -->
+    <!-- Ability Scores row -->
     {char.data.str !== undefined && (
       <div class="ability-scores-bar">
         {[
@@ -96,33 +96,24 @@ function modStr(score) {
     <!-- Currency -->
     {char.data.currency && <CurrencyDisplay currency={char.data.currency} />}
 
-    <!-- Level tracker -->
-    {char.data.level && (
-      <LevelTracker
-        currentLevel={char.data.level}
-        charClass={char.data.class}
-        levelHistory={char.data.levelHistory}
-      />
-    )}
-
-    <!-- Equipment Panel (dynamic, interactive) -->
+    <!-- Equipment Panel -->
     {char.data.inventory && char.data.inventory.length > 0 && (
       <EquipmentPanel character={char.data} />
     )}
 
-    <hr />
-
-    <!-- Markdown content (class features, spells, session highlights, personality) -->
-    <div class="prose">
-      <Content />
-    </div>
-
     <!-- Level-up Tracker -->
-    <LevelTracker
-      characterName={char.data.name}
+    <LevelUpTracker
+      characterClass={char.data.class ?? 'Adventurer'}
       currentLevel={char.data.level ?? 1}
       levelHistory={char.data.levelHistory}
     />
+
+    <hr />
+
+    <!-- Markdown content (personality, session highlights, class features, etc.) -->
+    <div class="prose">
+      <Content />
+    </div>
   </div>
 </BaseLayout>
 

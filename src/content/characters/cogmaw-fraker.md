@@ -86,6 +86,14 @@ inventory:
 equipped:
   armor: "Scale Mail"
   mainhand: "Light Crossbow"
+levelHistory:
+  - level: 1
+    sessionNumber: 1
+    hpGained: 11
+    features:
+      - "Magical Tinkering"
+      - "Spellcasting (INT-based, DC 14, +6)"
+      - "Tool Proficiencies: Thieves', Tinker's, Smith's Tools"
 ---
 
 ## Class Features

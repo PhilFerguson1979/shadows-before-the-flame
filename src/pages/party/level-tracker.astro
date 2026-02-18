@@ -1,0 +1,302 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+const characters = await getCollection('characters');
+const sorted = characters
+  .sort((a, b) => (a.data.name ?? '').localeCompare(b.data.name ?? ''));
+
+const classColor: Record<string, string> = {
+  'Rogue': '#c0392b',
+  'Artificer': '#8e44ad',
+  'Druid': '#27ae60',
+  'Ranger': '#16a085',
+  'Bard': '#d35400',
+  'Barbarian': '#e74c3c',
+  'Monk': '#2980b9',
+  'Sorcerer': '#6c3483',
+  'Lunar Sorcerer': '#6c3483',
+};
+
+function profBonus(level: number) {
+  return Math.ceil(level / 4) + 1;
+}
+
+const totalLevels = sorted.reduce((sum, c) => sum + (c.data.level ?? 1), 0);
+const avgLevel = (totalLevels / sorted.length).toFixed(1);
+---
+
+<BaseLayout title="Level Tracker">
+  <div class="page-container">
+    <div class="back-link"><a href="/characters">← The Party</a></div>
+    <div class="section-header">
+      <h1>Level Tracker</h1>
+    </div>
+    <p class="intro-text">Track every level-up, features gained, and HP increases across the party.</p>
+
+    <!-- Party overview -->
+    <div class="party-stats">
+      <div class="ps-stat">
+        <span class="ps-val">{sorted.length}</span>
+        <span class="ps-lbl">Characters</span>
+      </div>
+      <div class="ps-stat">
+        <span class="ps-val">{avgLevel}</span>
+        <span class="ps-lbl">Avg Level</span>
+      </div>
+      <div class="ps-stat">
+        <span class="ps-val">+{profBonus(sorted[0]?.data.level ?? 1)}</span>
+        <span class="ps-lbl">Prof Bonus</span>
+      </div>
+      <div class="ps-stat">
+        <span class="ps-val">{sorted.reduce((s, c) => s + (c.data.maxHp ?? 0), 0)}</span>
+        <span class="ps-lbl">Total Party HP</span>
+      </div>
+    </div>
+
+    <!-- Character level cards -->
+    <div class="char-grid">
+      {sorted.map(c => {
+        const d = c.data;
+        const lvl = d.level ?? 1;
+        const color = classColor[d.class ?? ''] ?? '#8b6914';
+        const history = d.levelHistory ?? [];
+        return (
+          <div class="char-card" style={`--char-color: ${color}`}>
+            <div class="cc-header">
+              <div class="cc-name-block">
+                <div class="cc-name">
+                  <a href={`/characters/${c.slug}`}>{d.name}</a>
+                </div>
+                <div class="cc-sub">{d.player} · {d.race} · {d.class}</div>
+              </div>
+              <div class="cc-level-badge">
+                <span class="cc-lvl-num">{lvl}</span>
+                <span class="cc-lvl-lbl">Level</span>
+              </div>
+            </div>
+
+            <div class="cc-vitals">
+              <div class="cc-vital">
+                <span class="cv-val">{d.maxHp}</span>
+                <span class="cv-lbl">Max HP</span>
+              </div>
+              <div class="cc-vital">
+                <span class="cv-val">+{profBonus(lvl)}</span>
+                <span class="cv-lbl">Prof Bonus</span>
+              </div>
+              <div class="cc-vital">
+                <span class="cv-val">{d.ac}</span>
+                <span class="cv-lbl">AC</span>
+              </div>
+            </div>
+
+            {history.length > 0 && (
+              <div class="cc-history">
+                {history.map(entry => (
+                  <div class="level-entry">
+                    <div class="le-header">
+                      <span class="le-badge">Lvl {entry.level}</span>
+                      {entry.sessionNumber && <span class="le-session">Session {entry.sessionNumber}</span>}
+                      {entry.hpGained && <span class="le-hp">+{entry.hpGained} HP</span>}
+                    </div>
+                    {entry.features && entry.features.length > 0 && (
+                      <ul class="le-features">
+                        {entry.features.map(f => <li>{f}</li>)}
+                      </ul>
+                    )}
+                    {entry.notes && <p class="le-notes">{entry.notes}</p>}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        );
+      })}
+    </div>
+
+    <!-- What to expect at next level -->
+    <div class="next-level-section">
+      <h2>What Happens at Level 2?</h2>
+      <p class="next-level-intro">All characters are currently Level 1. Here's what each class gains at Level 2:</p>
+      <div class="next-level-grid">
+        {[
+          { cls: 'Rogue', player: 'Caden (Darian)', gains: ['Cunning Action — Dash, Disengage, or Hide as bonus action', 'Sneak Attack 1d6 → still 1d6 until level 3'] },
+          { cls: 'Artificer', player: 'Tyler (Cogmaw) & Senada (Vomilia)', gains: ['Infuse Item — imbue items with magical properties (2 infusions known, 2 slots)', 'New Infusion options unlocked'] },
+          { cls: 'Druid', player: 'Keygen (Cerci)', gains: ['Wild Shape (2/rest) — transform into beasts CR 1/4 or lower', 'No flying or swimming beasts yet'] },
+          { cls: 'Lunar Sorcerer', player: 'Daniel (Dorthol)', gains: ['Font of Magic — 2 Sorcery Points', 'Can convert spell slots to sorcery points and back', 'Lunar Embodiment phase spells expand'] },
+          { cls: 'Bard', player: 'Gavin (Dwardo)', gains: ['Jack of All Trades — add half prof bonus to all non-proficient checks', 'Song of Rest — party rolls one HD during short rest + bonus HP'] },
+          { cls: 'Barbarian', player: 'Linzee (Metallyn)', gains: ['Reckless Attack — advantage on all STR attacks (but attackers have advantage vs you)', 'Danger Sense — advantage on DEX saves from visible sources'] },
+          { cls: 'Monk', player: 'Scarlett (Shoto)', gains: ['Ki Points (2) — Flurry of Blows, Patient Defense, Step of the Wind', 'Unarmored Movement +10 ft (40 ft total speed!)', 'Martial Arts die remains d4'] },
+          { cls: 'Ranger', player: 'Jacob (Legolas)', gains: ['Fighting Style — choose Archery (+2 ranged attacks), Defense (+1 AC), or Dueling', 'Spellcasting unlocked — WIS-based (DC 14, +6)', 'Spells known: 2 first-level spells + 2 ranger spell slots'] },
+        ].map(row => (
+          <div class="nl-card" style={`--char-color: ${classColor[row.cls] ?? '#8b6914'}`}>
+            <div class="nl-header">
+              <span class="nl-class">{row.cls}</span>
+              <span class="nl-player">{row.player}</span>
+            </div>
+            <ul class="nl-gains">
+              {row.gains.map(g => <li>{g}</li>)}
+            </ul>
+          </div>
+        ))}
+      </div>
+    </div>
+
+  </div>
+</BaseLayout>
+
+<style>
+.back-link { margin-bottom: 1.5rem; }
+.back-link a { color: var(--text-muted); font-size: 0.85rem; }
+.back-link a:hover { color: var(--text-gold); }
+
+.intro-text { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.5rem; }
+
+/* Party stats */
+.party-stats {
+  display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 2rem;
+}
+.ps-stat {
+  flex: 1; min-width: 80px;
+  background: rgba(139,105,20,0.08);
+  border: 1px solid rgba(139,105,20,0.25);
+  border-radius: 8px; padding: 0.75rem 1rem; text-align: center;
+}
+.ps-val { display: block; font-size: 1.6rem; font-weight: bold; color: var(--text-gold-bright); line-height: 1; }
+.ps-lbl { display: block; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); margin-top: 0.3rem; }
+
+/* Character grid */
+.char-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1rem;
+  margin-bottom: 3rem;
+}
+
+.char-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border-card);
+  border-top: 3px solid var(--char-color, #8b6914);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.cc-header {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  padding: 1rem 1rem 0.75rem;
+  border-bottom: 1px solid rgba(139,105,20,0.15);
+}
+.cc-name a {
+  font-size: 1.05rem; font-weight: bold;
+  color: var(--text-gold-bright); text-decoration: none;
+}
+.cc-name a:hover { text-decoration: underline; }
+.cc-sub { font-size: 0.74rem; color: var(--text-muted); margin-top: 0.2rem; }
+
+.cc-level-badge {
+  display: flex; flex-direction: column; align-items: center;
+  background: var(--char-color, #8b6914);
+  border-radius: 6px; padding: 0.4rem 0.7rem;
+  min-width: 48px;
+}
+.cc-lvl-num { font-size: 1.5rem; font-weight: bold; color: #fff; line-height: 1; }
+.cc-lvl-lbl { font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.08em; color: rgba(255,255,255,0.75); }
+
+/* Vitals row */
+.cc-vitals {
+  display: flex; gap: 0;
+  border-bottom: 1px solid rgba(139,105,20,0.1);
+}
+.cc-vital {
+  flex: 1; text-align: center; padding: 0.6rem 0.5rem;
+  border-right: 1px solid rgba(139,105,20,0.1);
+}
+.cc-vital:last-child { border-right: none; }
+.cv-val { display: block; font-size: 1.1rem; font-weight: bold; color: var(--text-gold); }
+.cv-lbl { display: block; font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); margin-top: 0.1rem; }
+
+/* Level history */
+.cc-history { padding: 0.75rem 1rem; }
+.level-entry { margin-bottom: 0.75rem; }
+.level-entry:last-child { margin-bottom: 0; }
+
+.le-header {
+  display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.35rem;
+  flex-wrap: wrap;
+}
+.le-badge {
+  font-size: 0.72rem; font-weight: bold;
+  background: var(--char-color, #8b6914);
+  color: #fff; border-radius: 4px; padding: 0.15rem 0.45rem;
+}
+.le-session {
+  font-size: 0.68rem; color: var(--text-muted);
+  background: rgba(139,105,20,0.1);
+  border: 1px solid rgba(139,105,20,0.2);
+  border-radius: 3px; padding: 0.1rem 0.35rem;
+}
+.le-hp {
+  font-size: 0.72rem; color: #6ec97a; font-weight: bold;
+  background: rgba(30,120,50,0.1);
+  border: 1px solid rgba(30,120,50,0.25);
+  border-radius: 3px; padding: 0.1rem 0.35rem;
+  margin-left: auto;
+}
+.le-features {
+  list-style: none; padding: 0; margin: 0;
+  display: flex; flex-direction: column; gap: 0.2rem;
+}
+.le-features li {
+  font-size: 0.78rem; color: var(--text-parchment);
+  padding-left: 1rem; position: relative;
+}
+.le-features li::before {
+  content: '◆'; position: absolute; left: 0;
+  color: var(--char-color, #8b6914); font-size: 0.5rem; top: 0.25rem;
+}
+.le-notes { font-size: 0.78rem; color: var(--text-muted); font-style: italic; margin: 0.3rem 0 0; }
+
+/* Next level section */
+.next-level-section { margin-top: 1rem; }
+.next-level-section h2 {
+  font-size: 1.3rem; color: var(--text-gold-bright);
+  margin-bottom: 0.5rem;
+}
+.next-level-intro { color: var(--text-muted); font-size: 0.88rem; margin-bottom: 1.25rem; }
+
+.next-level-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 0.75rem;
+}
+.nl-card {
+  background: var(--card-bg);
+  border: 1px solid rgba(139,105,20,0.2);
+  border-left: 4px solid var(--char-color, #8b6914);
+  border-radius: 0 6px 6px 0;
+  padding: 0.75rem 1rem;
+}
+.nl-header {
+  display: flex; align-items: baseline; gap: 0.5rem; margin-bottom: 0.5rem;
+}
+.nl-class { font-weight: bold; color: var(--text-gold); font-size: 0.95rem; }
+.nl-player { font-size: 0.72rem; color: var(--text-muted); }
+.nl-gains {
+  list-style: none; padding: 0; margin: 0;
+  display: flex; flex-direction: column; gap: 0.3rem;
+}
+.nl-gains li {
+  font-size: 0.8rem; color: var(--text-parchment);
+  padding-left: 1rem; position: relative; line-height: 1.45;
+}
+.nl-gains li::before {
+  content: '→'; position: absolute; left: 0;
+  color: var(--char-color, #8b6914); font-size: 0.75rem;
+}
+
+@media (max-width: 640px) {
+  .char-grid { grid-template-columns: 1fr; }
+  .next-level-grid { grid-template-columns: 1fr; }
+}
+</style>

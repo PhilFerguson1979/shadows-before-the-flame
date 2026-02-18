@@ -60,6 +60,13 @@ inventory:
     notes: "Session 1 loot — empty"
 equipped:
   mainhand: "Quarterstaff"
+levelHistory:
+  - level: 1
+    sessionNumber: 1
+    hpGained: 11
+    features:
+      - "Martial Arts d4 — use DEX for monk weapons, bonus unarmed strike"
+      - "Unarmored Defense (AC = 10 + DEX + WIS)"
 ---
 
 ## Class Features

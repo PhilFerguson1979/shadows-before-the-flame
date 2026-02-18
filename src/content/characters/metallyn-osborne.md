@@ -70,6 +70,13 @@ inventory:
     notes: "Session 1 loot — empty"
 equipped:
   mainhand: "Battleaxe"
+levelHistory:
+  - level: 1
+    sessionNumber: 1
+    hpGained: 15
+    features:
+      - "Rage (2/long rest, +2 damage, resistance to B/P/S)"
+      - "Unarmored Defense (AC = 10 + DEX + CON)"
 ---
 
 ## Class Features
