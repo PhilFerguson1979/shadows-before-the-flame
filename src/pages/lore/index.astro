@@ -3,6 +3,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getCollection } from 'astro:content';
 
 const lore = await getCollection('lore');
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 const byCategory: Record<string, typeof lore> = {};
 lore.forEach(entry => {
   const cat = entry.data.category ?? 'General';
@@ -21,7 +22,7 @@ lore.forEach(entry => {
         <h2 class="lore-cat">{cat}</h2>
         <div class="lore-grid">
           {entries.map(entry => (
-            <a href={`/lore/${entry.slug}`} class="card lore-card">
+            <a href={`${base}/lore/${entry.slug}`} class="card lore-card">
               <div class="lore-title">{entry.data.title}</div>
               {entry.data.category && <div class="lore-cat-badge">{entry.data.category}</div>}
             </a>

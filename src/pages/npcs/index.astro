@@ -9,6 +9,7 @@ const byDisposition = {
   guarded: npcs.filter(n => n.data.disposition === 'guarded'),
   hostile: npcs.filter(n => n.data.disposition === 'hostile'),
 };
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 const dispositionLabel: Record<string, string> = {
   friendly: 'Allies & Friends',
   neutral: 'Neutral / Unknown',
@@ -27,7 +28,7 @@ const dispositionLabel: Record<string, string> = {
         <h2 class={`disp-heading disposition-${disp}`}>{dispositionLabel[disp]}</h2>
         <div class="npc-grid">
           {list.map(npc => (
-            <a href={`/npcs/${npc.slug}`} class="card npc-card">
+            <a href={`${base}/npcs/${npc.slug}`} class="card npc-card">
               <div class="npc-name">{npc.data.name}</div>
               {npc.data.role && <div class="npc-role">{npc.data.role}</div>}
               {npc.data.location && <div class="npc-loc">📍 {npc.data.location}</div>}

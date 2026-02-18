@@ -3,6 +3,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getCollection } from 'astro:content';
 
 const sessions = await getCollection('sessions');
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 const sorted = sessions.sort((a, b) => b.data.sessionNumber - a.data.sessionNumber);
 ---
 
@@ -37,7 +38,7 @@ const sorted = sessions.sort((a, b) => b.data.sessionNumber - a.data.sessionNumb
         const failCount = d.highlights?.filter(h => h.type === 'fail').length ?? 0;
         const epicCount = d.highlights?.filter(h => h.type === 'epic' || h.type === 'kill').length ?? 0;
         return (
-          <a href={`/sessions/${s.slug}`} class="session-card">
+          <a href={`${base}/sessions/${s.slug}`} class="session-card">
             <!-- Session number badge -->
             <div class="sc-number">#{d.sessionNumber}</div>
 

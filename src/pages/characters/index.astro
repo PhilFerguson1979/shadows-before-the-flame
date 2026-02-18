@@ -3,6 +3,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getCollection } from 'astro:content';
 
 const characters = await getCollection('characters');
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 const active = characters.filter(c => c.data.status === 'active')
   .sort((a, b) => a.data.name.localeCompare(b.data.name));
 ---
@@ -23,7 +24,7 @@ const active = characters.filter(c => c.data.status === 'active')
           : 100;
         const hpClass = hpPct > 60 ? 'healthy' : hpPct > 30 ? 'wounded' : '';
         return (
-          <a href={`/characters/${char.slug}`} class="card char-card">
+          <a href={`${base}/characters/${char.slug}`} class="card char-card">
             <div class="char-header">
               <div>
                 <div class="char-name">{char.data.name}</div>

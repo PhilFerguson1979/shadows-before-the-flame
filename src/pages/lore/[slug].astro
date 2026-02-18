@@ -7,13 +7,14 @@ export async function getStaticPaths() {
   return lore.map(entry => ({ params: { slug: entry.slug }, props: { entry } }));
 }
 
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 const { entry } = Astro.props;
 const { Content } = await entry.render();
 ---
 
 <BaseLayout title={entry.data.title}>
   <div class="page-container">
-    <div class="back-link"><a href="/lore">← Lore</a></div>
+    <div class="back-link"><a href={`${base}/lore`}>← Lore</a></div>
     {entry.data.category && <div class="lore-cat">{entry.data.category}</div>}
     <h1>{entry.data.title}</h1>
     <hr />

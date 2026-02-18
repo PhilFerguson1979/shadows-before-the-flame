@@ -3,6 +3,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getCollection } from 'astro:content';
 
 const locations = await getCollection('locations');
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 const sorted = locations.sort((a, b) => a.data.name.localeCompare(b.data.name));
 ---
 
@@ -12,7 +13,7 @@ const sorted = locations.sort((a, b) => a.data.name.localeCompare(b.data.name));
     <p style="color:var(--text-muted);margin-bottom:2rem;">Places visited and known across the world of Krynn.</p>
     <div class="loc-grid">
       {sorted.map(loc => (
-        <a href={`/locations/${loc.slug}`} class="card loc-card">
+        <a href={`${base}/locations/${loc.slug}`} class="card loc-card">
           <div class="loc-name">{loc.data.name}</div>
           {loc.data.region && <div class="loc-region">{loc.data.region}</div>}
           {loc.data.status && <div class="loc-status">{loc.data.status}</div>}

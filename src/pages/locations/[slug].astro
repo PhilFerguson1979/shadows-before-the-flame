@@ -7,13 +7,14 @@ export async function getStaticPaths() {
   return locations.map(loc => ({ params: { slug: loc.slug }, props: { loc } }));
 }
 
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 const { loc } = Astro.props;
 const { Content } = await loc.render();
 ---
 
 <BaseLayout title={loc.data.name}>
   <div class="page-container">
-    <div class="back-link"><a href="/locations">← Locations</a></div>
+    <div class="back-link"><a href={`${base}/locations`}>← Locations</a></div>
     <h1>{loc.data.name}</h1>
     <div class="loc-meta">
       {loc.data.region && <span class="meta-item">{loc.data.region}</span>}

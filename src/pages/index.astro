@@ -5,6 +5,7 @@ import { getCollection } from 'astro:content';
 const characters = await getCollection('characters');
 const sessions = await getCollection('sessions');
 
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 const activeChars = characters.filter(c => c.data.status === 'active');
 const latestSession = sessions.sort((a, b) => b.data.sessionNumber - a.data.sessionNumber)[0];
 ---
@@ -58,7 +59,7 @@ const latestSession = sessions.sort((a, b) => b.data.sessionNumber - a.data.sess
         <div class="section-header">
           <h2>Latest Session</h2>
         </div>
-        <a href={`/sessions/${latestSession.slug}`} class="card session-card">
+        <a href={`${base}/sessions/${latestSession.slug}`} class="card session-card">
           <div class="session-num">Session {latestSession.data.sessionNumber}</div>
           <h3>{latestSession.data.title}</h3>
           {latestSession.data.location && (
@@ -86,7 +87,7 @@ const latestSession = sessions.sort((a, b) => b.data.sessionNumber - a.data.sess
             : 100;
           const hpClass = hpPct > 60 ? 'healthy' : hpPct > 30 ? 'wounded' : '';
           return (
-            <a href={`/characters/${char.slug}`} class="card char-card">
+            <a href={`${base}/characters/${char.slug}`} class="card char-card">
               <div class="char-name">{char.data.name}</div>
               <div class="char-meta">{char.data.player} &bull; {char.data.race} {char.data.class}</div>
               {char.data.hp !== undefined && char.data.maxHp !== undefined && (
@@ -122,22 +123,22 @@ const latestSession = sessions.sort((a, b) => b.data.sessionNumber - a.data.sess
         <h2>Explore</h2>
       </div>
       <div class="quick-grid">
-        <a href="/npcs" class="card quick-card">
+        <a href={`${base}/npcs`} class="card quick-card">
           <div class="quick-icon">👥</div>
           <div class="quick-label">NPCs</div>
           <div class="quick-sub">Allies, enemies, and the mysterious</div>
         </a>
-        <a href="/locations" class="card quick-card">
+        <a href={`${base}/locations`} class="card quick-card">
           <div class="quick-icon">🗺️</div>
           <div class="quick-label">Locations</div>
           <div class="quick-sub">Places visited and known</div>
         </a>
-        <a href="/inventory" class="card quick-card">
+        <a href={`${base}/inventory`} class="card quick-card">
           <div class="quick-icon">🎒</div>
           <div class="quick-label">Inventory</div>
           <div class="quick-sub">Party loot and treasures</div>
         </a>
-        <a href="/lore" class="card quick-card">
+        <a href={`${base}/lore`} class="card quick-card">
           <div class="quick-icon">📖</div>
           <div class="quick-label">Lore</div>
           <div class="quick-sub">The world of Krynn</div>

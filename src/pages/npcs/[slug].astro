@@ -7,13 +7,14 @@ export async function getStaticPaths() {
   return npcs.map(npc => ({ params: { slug: npc.slug }, props: { npc } }));
 }
 
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 const { npc } = Astro.props;
 const { Content } = await npc.render();
 ---
 
 <BaseLayout title={npc.data.name}>
   <div class="page-container">
-    <div class="back-link"><a href="/npcs">← NPCs</a></div>
+    <div class="back-link"><a href={`${base}/npcs`}>← NPCs</a></div>
     <h1>{npc.data.name}</h1>
     <div class="npc-meta">
       {npc.data.role && <span class="meta-item">{npc.data.role}</span>}

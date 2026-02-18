@@ -2,6 +2,7 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getCollection } from 'astro:content';
 
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 const characters = await getCollection('characters');
 const sorted = characters
   .sort((a, b) => (a.data.name ?? '').localeCompare(b.data.name ?? ''));
@@ -28,7 +29,7 @@ const avgLevel = (totalLevels / sorted.length).toFixed(1);
 
 <BaseLayout title="Level Tracker">
   <div class="page-container">
-    <div class="back-link"><a href="/characters">← The Party</a></div>
+    <div class="back-link"><a href={`${base}/characters`}>← The Party</a></div>
     <div class="section-header">
       <h1>Level Tracker</h1>
     </div>
@@ -66,7 +67,7 @@ const avgLevel = (totalLevels / sorted.length).toFixed(1);
             <div class="cc-header">
               <div class="cc-name-block">
                 <div class="cc-name">
-                  <a href={`/characters/${c.slug}`}>{d.name}</a>
+                  <a href={`${base}/characters/${c.slug}`}>{d.name}</a>
                 </div>
                 <div class="cc-sub">{d.player} · {d.race} · {d.class}</div>
               </div>

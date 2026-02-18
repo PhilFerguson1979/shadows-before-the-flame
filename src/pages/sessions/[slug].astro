@@ -7,6 +7,7 @@ export async function getStaticPaths() {
   return sessions.map(s => ({ params: { slug: s.slug }, props: { session: s } }));
 }
 
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 const { session } = Astro.props;
 const { Content } = await session.render();
 const d = session.data;
@@ -23,7 +24,7 @@ const typeConfig = {
 
 <BaseLayout title={`Session ${d.sessionNumber} — ${d.title}`}>
   <div class="page-container">
-    <div class="back-link"><a href="/sessions">← All Sessions</a></div>
+    <div class="back-link"><a href={`${base}/sessions`}>← All Sessions</a></div>
 
     <!-- Session Hero -->
     <div class="session-hero">
