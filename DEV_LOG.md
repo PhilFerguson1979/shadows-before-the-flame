@@ -346,12 +346,20 @@ cc292f8  Fix all internal links to use BASE_URL for GitHub Pages
 
 **Git state after this session:**
 ```
+f8db20d  Update DEV_LOG with Session 6: spell browser, spell detail pages, clickable spell links
 964934a  Add spell browser, spell detail pages, and clickable spell links
 fcfc590  Update DEV_LOG with Session 5: portraits, initiative tracker, conditions, spell tracking
 a85668e  Add portraits, initiative tracker, conditions, and spell tracking
 bbd3024  Update DEV_LOG with Session 4: force push fix, BASE_URL routing fix
 cc292f8  Fix all internal links to use BASE_URL for GitHub Pages
 ```
+
+**Live site verified after deploy:**
+- `/spells` — Spell browser loads with 223 spells, level grouping, and all filters working
+- `/spells/fireball` — Spell detail page displays full stat block, description, class tags
+- `/characters/dorthol-silifrey` — Spell cards (Fire Bolt, Light, Mage Hand, Shield, Magic Missile, etc.) are clickable links to spell detail pages
+- "Spells" nav link visible in top navigation
+- GitHub Actions deploy #7 succeeded
 
 ---
 
@@ -374,13 +382,16 @@ cc292f8  Fix all internal links to use BASE_URL for GitHub Pages
 - [x] ~~Spell browser~~ — 200+ spell database, filterable browser page, spell detail pages with full stat blocks
 - [x] ~~Clickable spell links~~ — character page spell cards link to spell detail pages (graceful fallback for homebrew)
 - [x] ~~Spells nav link~~ — "Spells" added to top navigation bar
-- [ ] **Verify the live site** — check all pages at `https://philferguson1979.github.io/shadows-before-the-flame/`
-- [ ] **Expand spell database** — add more spells from supplemental books (currently 200+, D&D 5e has ~500+ total)
-- [ ] **Replace placeholder portraits** — swap SVG placeholders with actual character art when available
-- [ ] **Add spells to Legolas Pine** — Ranger spells unlocked at Level 2 (no spells at Level 1)
-- [ ] **Session 2 content** — add session 2 `.md` file to `src/content/sessions/` when it happens
-- [ ] **Level up characters** — when party hits Level 2, update each character's `level`, `maxHp`, `hp`, and add a `levelHistory` entry with features gained
-- [ ] **Share site with players** — site is live, share the URL
+- [x] ~~Verify the live site~~ — all pages tested 2026-02-18: spells browser, spell detail, character spell links, nav
+- [ ] **Expand spell database** — add more spells from supplemental books (currently 223, D&D 5e has ~500+ total). Priority: fill gaps in 2nd-4th level where party spells will grow next. See plan file for approach.
+- [ ] **Replace placeholder portraits** — swap SVG placeholders with actual character art when players provide images
+- [ ] **Add spells to Legolas Pine** — Ranger spells unlocked at Level 2 (no spells at Level 1). Add Hunter's Mark, Cure Wounds, or other Ranger picks when level-up happens.
+- [ ] **Session 2 content** — add session 2 `.md` file to `src/content/sessions/` after next game session
+- [ ] **Level up characters** — when party hits Level 2, update each character's `level`, `maxHp`, `hp`, `profBonus`, add `levelHistory` entry with features gained, add new spells/spell slots for casters
+- [ ] **Share site with players** — site is live at `https://philferguson1979.github.io/shadows-before-the-flame/`
+- [ ] **Homepage refresh** — update `index.astro` to feature recent session, party overview, and quick links to new features (spells, combat)
+- [ ] **NPC & Location content** — populate NPC and location entries from Session 1 encounters (Ispin Greenshield, Inn of the Last Home, etc.)
+- [ ] **DM screen / quick reference** — create a DM-facing page with party stats at a glance, conditions reference, quick dice roller
 
 ---
 
