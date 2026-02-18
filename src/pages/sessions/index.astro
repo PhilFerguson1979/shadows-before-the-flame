@@ -8,28 +8,258 @@ const sorted = sessions.sort((a, b) => b.data.sessionNumber - a.data.sessionNumb
 
 <BaseLayout title="Sessions">
   <div class="page-container">
-    <div class="section-header"><h1>Session Notes</h1></div>
-    <p style="color:var(--text-muted);margin-bottom:2rem;">A record of every session — the glorious moments, the disasters, and everything in between.</p>
+    <div class="section-header"><h1>Session Archive</h1></div>
+    <p class="intro-text">Every session, recorded — the glorious moments, the disasters, and everything in between.</p>
+
+    <!-- Campaign stats bar -->
+    <div class="campaign-stats">
+      <div class="cs-stat">
+        <span class="cs-val">{sorted.length}</span>
+        <span class="cs-lbl">Sessions</span>
+      </div>
+      <div class="cs-stat">
+        <span class="cs-val">{sorted.reduce((t, s) => t + (s.data.totalKills ?? 0), 0)}</span>
+        <span class="cs-lbl">Total Kills</span>
+      </div>
+      <div class="cs-stat">
+        <span class="cs-val">{sorted.reduce((t, s) => t + (s.data.xp ?? 0), 0)}</span>
+        <span class="cs-lbl">Total XP</span>
+      </div>
+      <div class="cs-stat">
+        <span class="cs-val">{sorted.reduce((t, s) => t + (s.data.casualties?.length ?? 0), 0)}</span>
+        <span class="cs-lbl">Times Downed</span>
+      </div>
+    </div>
+
     <div class="session-list">
-      {sorted.map(s => (
-        <a href={`/sessions/${s.slug}`} class="card session-card">
-          <div class="session-num">Session {s.data.sessionNumber}</div>
-          <h3>{s.data.title}</h3>
-          {s.data.location && <div class="session-loc">📍 {s.data.location}</div>}
-          {s.data.summary && <p class="session-summary">{s.data.summary}</p>}
-          <span class="read-more">Read →</span>
-        </a>
-      ))}
+      {sorted.map(s => {
+        const d = s.data;
+        const failCount = d.highlights?.filter(h => h.type === 'fail').length ?? 0;
+        const epicCount = d.highlights?.filter(h => h.type === 'epic' || h.type === 'kill').length ?? 0;
+        return (
+          <a href={`/sessions/${s.slug}`} class="session-card">
+            <!-- Session number badge -->
+            <div class="sc-number">#{d.sessionNumber}</div>
+
+            <div class="sc-body">
+              <div class="sc-top">
+                <h3 class="sc-title">{d.title}</h3>
+                <div class="sc-pills">
+                  {d.date && <span class="sc-pill">📅 {d.date}</span>}
+                  {d.location && <span class="sc-pill">📍 {d.location}</span>}
+                  {d.level && <span class="sc-pill">⚔️ Lvl {d.level}</span>}
+                  {d.xp && <span class="sc-pill sc-pill-xp">✨ {d.xp} XP</span>}
+                  {d.totalKills && <span class="sc-pill sc-pill-kills">💀 {d.totalKills} kills</span>}
+                </div>
+              </div>
+
+              {d.summary && <p class="sc-summary">{d.summary}</p>}
+
+              <!-- Snapshot row: MVP, casualties, highlights count -->
+              <div class="sc-snapshot">
+                {d.mvp && (
+                  <div class="sc-snap-item snap-mvp">
+                    <span class="snap-icon">⭐</span>
+                    <span class="snap-label">MVP</span>
+                    <span class="snap-val">{d.mvp}</span>
+                  </div>
+                )}
+                {d.casualties && d.casualties.map(c => (
+                  <div class="sc-snap-item snap-down">
+                    <span class="snap-icon">💀</span>
+                    <span class="snap-label">Fell</span>
+                    <span class="snap-val">{c}</span>
+                  </div>
+                ))}
+                {epicCount > 0 && (
+                  <div class="sc-snap-item snap-epic">
+                    <span class="snap-icon">⚡</span>
+                    <span class="snap-val">{epicCount} epic moments</span>
+                  </div>
+                )}
+                {failCount > 0 && (
+                  <div class="sc-snap-item snap-fail">
+                    <span class="snap-icon">🎲</span>
+                    <span class="snap-val">{failCount} disasters</span>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div class="sc-arrow">→</div>
+          </a>
+        );
+      })}
     </div>
   </div>
 </BaseLayout>
 
 <style>
-.session-list { display: flex; flex-direction: column; gap: 1rem; }
-.session-card { display: block; text-decoration: none; }
-.session-num { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); margin-bottom: 0.25rem; }
-.session-card h3 { color: var(--text-gold); margin-bottom: 0.4rem; }
-.session-loc { font-size: 0.82rem; color: var(--text-muted); margin-bottom: 0.5rem; }
-.session-summary { color: var(--text-parchment); font-size: 0.88rem; line-height: 1.6; margin-bottom: 0.75rem; }
-.read-more { color: var(--text-gold); font-size: 0.82rem; }
+.intro-text {
+  color: var(--text-muted);
+  margin-bottom: 1.5rem;
+  font-size: 0.9rem;
+}
+
+/* Campaign stats bar */
+.campaign-stats {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+}
+.cs-stat {
+  flex: 1;
+  min-width: 80px;
+  background: rgba(139,105,20,0.08);
+  border: 1px solid rgba(139,105,20,0.25);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  text-align: center;
+}
+.cs-val {
+  display: block;
+  font-size: 1.6rem;
+  font-weight: bold;
+  color: var(--text-gold-bright);
+  line-height: 1;
+}
+.cs-lbl {
+  display: block;
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+  margin-top: 0.3rem;
+}
+
+/* Session cards */
+.session-list { display: flex; flex-direction: column; gap: 0.75rem; }
+
+.session-card {
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  background: var(--card-bg);
+  border: 1px solid var(--border-card);
+  border-radius: 8px;
+  text-decoration: none;
+  overflow: hidden;
+  transition: border-color 0.2s, transform 0.15s;
+}
+.session-card:hover {
+  border-color: var(--border-gold);
+  transform: translateY(-1px);
+}
+
+.sc-number {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 56px;
+  background: rgba(139,105,20,0.12);
+  border-right: 1px solid rgba(139,105,20,0.2);
+  font-size: 1rem;
+  font-weight: bold;
+  color: var(--text-gold);
+  flex-shrink: 0;
+}
+
+.sc-body {
+  flex: 1;
+  padding: 1rem 1.1rem;
+  min-width: 0;
+}
+
+.sc-top { margin-bottom: 0.5rem; }
+.sc-title {
+  font-size: 1.05rem;
+  color: var(--text-gold-bright);
+  margin: 0 0 0.4rem 0;
+}
+.sc-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+.sc-pill {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  background: rgba(139,105,20,0.08);
+  border: 1px solid rgba(139,105,20,0.2);
+  border-radius: 20px;
+  padding: 0.15rem 0.55rem;
+}
+.sc-pill-xp { border-color: rgba(100,180,80,0.3); color: #8dc87a; }
+.sc-pill-kills { border-color: rgba(180,50,50,0.3); color: #e07070; }
+
+.sc-summary {
+  font-size: 0.83rem;
+  color: var(--text-parchment);
+  line-height: 1.6;
+  margin: 0.4rem 0 0.6rem 0;
+  opacity: 0.85;
+}
+
+/* Snapshot row */
+.sc-snapshot {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 0.5rem;
+}
+.sc-snap-item {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.74rem;
+  padding: 0.2rem 0.55rem;
+  border-radius: 4px;
+  border: 1px solid;
+}
+.snap-icon { font-size: 0.8rem; }
+.snap-label {
+  font-size: 0.62rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  opacity: 0.6;
+}
+.snap-val { font-weight: 600; }
+.snap-mvp {
+  background: rgba(212,168,58,0.08);
+  border-color: rgba(212,168,58,0.25);
+  color: var(--text-gold);
+}
+.snap-down {
+  background: rgba(139,32,32,0.1);
+  border-color: rgba(139,32,32,0.3);
+  color: #e88;
+}
+.snap-epic {
+  background: rgba(20,80,160,0.1);
+  border-color: rgba(20,80,160,0.25);
+  color: #7ab0e8;
+}
+.snap-fail {
+  background: rgba(160,90,0,0.1);
+  border-color: rgba(160,90,0,0.25);
+  color: #e0a060;
+}
+
+.sc-arrow {
+  display: flex;
+  align-items: center;
+  padding: 0 1rem;
+  color: var(--text-muted);
+  font-size: 1.1rem;
+  flex-shrink: 0;
+  transition: color 0.2s;
+}
+.session-card:hover .sc-arrow { color: var(--text-gold); }
+
+@media (max-width: 640px) {
+  .sc-number { min-width: 40px; font-size: 0.85rem; }
+  .sc-arrow { display: none; }
+  .sc-snapshot { gap: 0.3rem; }
+}
 </style>
