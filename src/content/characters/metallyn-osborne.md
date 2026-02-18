@@ -10,6 +10,7 @@ ac: 14
 speed: 30
 profBonus: 2
 status: "active"
+portrait: "/portraits/metallyn-osborne.svg"
 str: 18
 dex: 14
 con: 15

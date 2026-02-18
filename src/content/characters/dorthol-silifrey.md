@@ -10,6 +10,7 @@ ac: 12
 speed: 30
 profBonus: 2
 status: "active"
+portrait: "/portraits/dorthol-silifrey.svg"
 str: 10
 dex: 14
 con: 16
@@ -69,6 +70,41 @@ levelHistory:
       - "Spellcasting (CHA-based, DC 15, +7)"
       - "Lunar Embodiment — bonus spells by moon phase"
       - "Sorcery Points: 1"
+spellSlots:
+  - level: 1
+    total: 2
+    used: 0
+spells:
+  - name: "Fire Bolt"
+    level: 0
+    school: "Evocation"
+    notes: "1d10 fire, 120 ft range"
+  - name: "Light"
+    level: 0
+    school: "Evocation"
+  - name: "Mage Hand"
+    level: 0
+    school: "Conjuration"
+  - name: "Prestidigitation"
+    level: 0
+    school: "Transmutation"
+  - name: "Sacred Flame"
+    level: 0
+    school: "Evocation"
+    notes: "Lunar bonus cantrip (Full Moon)"
+  - name: "Shield"
+    level: 1
+    school: "Abjuration"
+    notes: "+5 AC reaction"
+  - name: "Magic Missile"
+    level: 1
+    school: "Evocation"
+    notes: "3 darts, 1d4+1 each, auto-hit"
+  - name: "Faerie Fire"
+    level: 1
+    school: "Evocation"
+    concentration: true
+    notes: "Lunar bonus spell (Full Moon)"
 ---
 
 ## Class Features

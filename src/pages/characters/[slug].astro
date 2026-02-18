@@ -38,6 +38,11 @@ function modStr(score) {
 
     <!-- Hero Header -->
     <div class="char-hero">
+      {char.data.portrait && (
+        <div class="char-portrait">
+          <img src={`${base}${char.data.portrait}`} alt={char.data.name} />
+        </div>
+      )}
       <div class="char-hero-left">
         <h1>{char.data.name}</h1>
         <div class="char-meta">
@@ -100,6 +105,84 @@ function modStr(score) {
     <!-- Equipment Panel -->
     {char.data.inventory && char.data.inventory.length > 0 && (
       <EquipmentPanel character={char.data} />
+    )}
+
+    <!-- Active Conditions -->
+    {char.data.conditions && char.data.conditions.length > 0 && (
+      <div class="conditions-bar">
+        <span class="conditions-label">Conditions</span>
+        {char.data.conditions.map(c => (
+          <span class="condition-tag">{c}</span>
+        ))}
+      </div>
+    )}
+
+    <!-- Spells -->
+    {char.data.spells && char.data.spells.length > 0 && (
+      <div class="spells-section">
+        <h2 class="section-title">Spells</h2>
+        {char.data.spellSlots && char.data.spellSlots.length > 0 && (
+          <div class="spell-slots-bar">
+            {char.data.spellSlots.map(slot => (
+              <div class="spell-slot-group">
+                <span class="slot-label">{slot.level === 1 ? '1st' : slot.level === 2 ? '2nd' : slot.level === 3 ? '3rd' : `${slot.level}th`}</span>
+                <div class="slot-pips">
+                  {Array.from({ length: slot.total }).map((_, i) => (
+                    <span class={`slot-pip ${i < (slot.used ?? 0) ? 'used' : ''}`}></span>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+        {(() => {
+          const cantrips = char.data.spells.filter(s => s.level === 0);
+          const leveled = char.data.spells.filter(s => s.level > 0);
+          const grouped = new Map();
+          leveled.forEach(s => {
+            const key = s.level;
+            if (!grouped.has(key)) grouped.set(key, []);
+            grouped.get(key).push(s);
+          });
+          return (
+            <>
+              {cantrips.length > 0 && (
+                <div class="spell-group">
+                  <div class="spell-group-label">Cantrips</div>
+                  <div class="spell-list">
+                    {cantrips.map(s => (
+                      <div class="spell-card">
+                        <span class="spell-name">{s.name}</span>
+                        {s.concentration && <span class="spell-tag conc">C</span>}
+                        {s.ritual && <span class="spell-tag ritual">R</span>}
+                        {s.school && <span class="spell-school">{s.school}</span>}
+                        {s.notes && <span class="spell-notes">{s.notes}</span>}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {[...grouped.entries()].sort((a, b) => a[0] - b[0]).map(([lvl, spells]) => (
+                <div class="spell-group">
+                  <div class="spell-group-label">{lvl === 1 ? '1st' : lvl === 2 ? '2nd' : lvl === 3 ? '3rd' : `${lvl}th`} Level</div>
+                  <div class="spell-list">
+                    {spells.map(s => (
+                      <div class={`spell-card ${!s.prepared ? 'not-prepared' : ''}`}>
+                        <span class="spell-name">{s.name}</span>
+                        {s.concentration && <span class="spell-tag conc">C</span>}
+                        {s.ritual && <span class="spell-tag ritual">R</span>}
+                        {!s.prepared && <span class="spell-tag unprepared">Not Prepared</span>}
+                        {s.school && <span class="spell-school">{s.school}</span>}
+                        {s.notes && <span class="spell-notes">{s.notes}</span>}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </>
+          );
+        })()}
+      </div>
     )}
 
     <!-- Level-up Tracker -->
@@ -198,9 +281,87 @@ function modStr(score) {
   margin-top: 0.15rem;
 }
 
+/* Portrait */
+.char-portrait { flex-shrink: 0; }
+.char-portrait img {
+  width: 100px; height: 100px; border-radius: 50%;
+  border: 3px solid rgba(139,105,20,0.5);
+  object-fit: cover;
+  box-shadow: 0 0 20px rgba(139,105,20,0.15);
+}
+
+/* Conditions */
+.conditions-bar {
+  display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;
+  margin: 1rem 0; padding: 0.6rem 1rem;
+  background: rgba(139,32,32,0.08);
+  border: 1px solid rgba(139,32,32,0.3);
+  border-radius: 6px;
+}
+.conditions-label {
+  font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.1em;
+  color: var(--text-muted); margin-right: 0.25rem;
+}
+.condition-tag {
+  font-size: 0.78rem; font-weight: bold;
+  color: #e88; background: rgba(139,32,32,0.2);
+  border: 1px solid rgba(139,32,32,0.4);
+  padding: 0.15rem 0.55rem; border-radius: 4px;
+}
+
+/* Spells */
+.spells-section { margin: 1.5rem 0; }
+.section-title {
+  font-size: 1rem; text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--text-muted); margin-bottom: 1rem; padding-bottom: 0.4rem;
+  border-bottom: 1px solid rgba(139,105,20,0.3);
+}
+.spell-slots-bar {
+  display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 1rem;
+}
+.spell-slot-group { display: flex; align-items: center; gap: 0.4rem; }
+.slot-label {
+  font-size: 0.7rem; color: var(--text-muted); min-width: 24px;
+}
+.slot-pips { display: flex; gap: 0.25rem; }
+.slot-pip {
+  width: 14px; height: 14px; border-radius: 50%;
+  border: 2px solid rgba(100,80,200,0.5);
+  background: rgba(100,80,200,0.15);
+}
+.slot-pip.used {
+  background: rgba(100,80,200,0.08);
+  border-color: rgba(100,80,200,0.2);
+  opacity: 0.4;
+}
+.spell-group { margin-bottom: 1rem; }
+.spell-group-label {
+  font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--text-gold); margin-bottom: 0.4rem; font-weight: bold;
+}
+.spell-list { display: flex; flex-direction: column; gap: 0.3rem; }
+.spell-card {
+  display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;
+  padding: 0.4rem 0.75rem; border-radius: 5px;
+  background: rgba(100,80,200,0.06);
+  border: 1px solid rgba(100,80,200,0.15);
+}
+.spell-card.not-prepared { opacity: 0.45; }
+.spell-name { font-size: 0.85rem; color: var(--text-parchment); font-weight: 600; }
+.spell-tag {
+  font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.05em;
+  padding: 0.1rem 0.35rem; border-radius: 3px; font-weight: bold;
+}
+.spell-tag.conc { background: rgba(200,150,20,0.2); color: #d4a83a; border: 1px solid rgba(200,150,20,0.3); }
+.spell-tag.ritual { background: rgba(20,120,200,0.15); color: #6ab0e8; border: 1px solid rgba(20,120,200,0.25); }
+.spell-tag.unprepared { background: rgba(100,100,100,0.15); color: var(--text-dim); border: 1px solid rgba(100,100,100,0.25); }
+.spell-school { font-size: 0.68rem; color: var(--text-dim); margin-left: auto; }
+.spell-notes { font-size: 0.72rem; color: var(--text-muted); font-style: italic; width: 100%; }
+
 @media (max-width: 640px) {
   .char-hero { flex-direction: column; }
   .char-vitals { width: 100%; }
+  .char-portrait img { width: 80px; height: 80px; }
   .ability-block { min-width: 50px; padding: 0.4rem 0.5rem; }
   .ability-score { font-size: 1.2rem; }
 }

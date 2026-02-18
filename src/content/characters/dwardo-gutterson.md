@@ -10,6 +10,7 @@ ac: 13
 speed: 30
 profBonus: 2
 status: "active"
+portrait: "/portraits/dwardo-gutterson.svg"
 str: 8
 dex: 15
 con: 14
@@ -70,6 +71,35 @@ levelHistory:
       - "Bardic Inspiration d6 (3/long rest)"
       - "Spellcasting (CHA-based, DC 13, +5)"
       - "Kender Taunting, Fearless"
+spellSlots:
+  - level: 1
+    total: 2
+    used: 0
+spells:
+  - name: "Vicious Mockery"
+    level: 0
+    school: "Enchantment"
+    notes: "1d4 psychic, disadvantage on next attack"
+  - name: "Minor Illusion"
+    level: 0
+    school: "Illusion"
+  - name: "Healing Word"
+    level: 1
+    school: "Evocation"
+    notes: "1d4+CHA bonus action heal, 60 ft"
+  - name: "Dissonant Whispers"
+    level: 1
+    school: "Enchantment"
+    notes: "3d6 psychic, target must flee"
+  - name: "Faerie Fire"
+    level: 1
+    school: "Evocation"
+    concentration: true
+    notes: "Advantage on attacks vs affected creatures"
+  - name: "Thunderwave"
+    level: 1
+    school: "Evocation"
+    notes: "2d8 thunder, push 10 ft"
 ---
 
 ## Class Features

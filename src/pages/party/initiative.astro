@@ -1,0 +1,403 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const characters = await getCollection('characters');
+const sorted = characters
+  .filter(c => c.data.status === 'active')
+  .sort((a, b) => (a.data.name ?? '').localeCompare(b.data.name ?? ''));
+
+const classColor: Record<string, string> = {
+  'Rogue': '#c0392b',
+  'Artificer': '#8e44ad',
+  'Druid': '#27ae60',
+  'Ranger': '#16a085',
+  'Bard': '#d35400',
+  'Barbarian': '#e74c3c',
+  'Monk': '#2980b9',
+  'Sorcerer': '#6c3483',
+  'Lunar Sorcerer': '#6c3483',
+};
+
+function mod(score: number | undefined) {
+  if (!score) return 0;
+  return Math.floor((score - 10) / 2);
+}
+---
+
+<BaseLayout title="Initiative Tracker">
+  <div class="page-container">
+    <div class="back-link"><a href={`${base}/characters`}>&larr; The Party</a></div>
+    <div class="section-header">
+      <h1>Initiative Tracker</h1>
+    </div>
+    <p class="intro-text">Roll initiative, add enemies, and track combat rounds. Fully client-side &mdash; nothing is saved.</p>
+
+    <!-- Controls -->
+    <div class="controls">
+      <button id="rollAll" class="btn btn-primary">Roll All Initiative</button>
+      <button id="addEnemy" class="btn btn-secondary">+ Add Enemy</button>
+      <button id="nextTurn" class="btn btn-accent" disabled>Next Turn</button>
+      <button id="resetCombat" class="btn btn-muted">Reset</button>
+      <div class="round-display">Round <span id="roundNum">0</span></div>
+    </div>
+
+    <!-- Initiative order list (populated by JS) -->
+    <div id="initiativeList" class="initiative-list">
+      {sorted.map(c => {
+        const d = c.data;
+        const color = classColor[d.class ?? ''] ?? '#8b6914';
+        const dexMod = mod(d.dex);
+        return (
+          <div
+            class="init-card"
+            data-name={d.name}
+            data-dex={dexMod}
+            data-ac={d.ac}
+            data-hp={d.maxHp}
+            data-max-hp={d.maxHp}
+            data-color={color}
+            data-type="pc"
+            data-portrait={d.portrait ? `${base}${d.portrait}` : ''}
+            style={`--card-color: ${color}`}
+          >
+            <div class="init-roll">
+              <span class="init-value">--</span>
+              <span class="init-label">INIT</span>
+            </div>
+            {d.portrait && (
+              <img class="init-portrait" src={`${base}${d.portrait}`} alt={d.name} />
+            )}
+            <div class="init-info">
+              <div class="init-name">{d.name}</div>
+              <div class="init-sub">{d.class} &bull; AC {d.ac} &bull; DEX {dexMod >= 0 ? `+${dexMod}` : dexMod}</div>
+            </div>
+            <div class="init-hp-block">
+              <div class="init-hp-bar-wrap">
+                <div class="init-hp-bar" style="width: 100%"></div>
+              </div>
+              <div class="init-hp-text">{d.maxHp} / {d.maxHp}</div>
+            </div>
+            <div class="init-actions">
+              <button class="hp-btn hp-dmg" title="Damage">-</button>
+              <button class="hp-btn hp-heal" title="Heal">+</button>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+
+    <!-- Enemy template (hidden) -->
+    <template id="enemyTemplate">
+      <div class="init-card enemy-card" data-type="enemy" style="--card-color: #666">
+        <div class="init-roll">
+          <span class="init-value">--</span>
+          <span class="init-label">INIT</span>
+        </div>
+        <div class="init-info">
+          <input class="enemy-name-input" type="text" placeholder="Enemy name..." />
+          <div class="enemy-fields">
+            <label>AC <input type="number" class="enemy-ac" value="12" min="0" max="30" /></label>
+            <label>HP <input type="number" class="enemy-hp" value="20" min="1" max="999" /></label>
+            <label>DEX <input type="number" class="enemy-dex" value="0" min="-5" max="10" /></label>
+            <button class="enemy-remove" title="Remove">&times;</button>
+          </div>
+        </div>
+        <div class="init-hp-block">
+          <div class="init-hp-bar-wrap">
+            <div class="init-hp-bar" style="width: 100%"></div>
+          </div>
+          <div class="init-hp-text">20 / 20</div>
+        </div>
+        <div class="init-actions">
+          <button class="hp-btn hp-dmg" title="Damage">-</button>
+          <button class="hp-btn hp-heal" title="Heal">+</button>
+        </div>
+      </div>
+    </template>
+  </div>
+</BaseLayout>
+
+<script>
+  const list = document.getElementById('initiativeList')!;
+  const rollAllBtn = document.getElementById('rollAll')!;
+  const addEnemyBtn = document.getElementById('addEnemy')!;
+  const nextTurnBtn = document.getElementById('nextTurn')!;
+  const resetBtn = document.getElementById('resetCombat')!;
+  const roundNum = document.getElementById('roundNum')!;
+  const template = document.getElementById('enemyTemplate') as HTMLTemplateElement;
+
+  let round = 0;
+  let currentIndex = -1;
+  let combatStarted = false;
+
+  function d20() { return Math.floor(Math.random() * 20) + 1; }
+
+  function getAllCards(): HTMLElement[] {
+    return Array.from(list.querySelectorAll('.init-card'));
+  }
+
+  function rollInitiative(card: HTMLElement) {
+    const dex = parseInt(card.dataset.dex ?? '0');
+    const roll = d20() + dex;
+    card.dataset.init = String(roll);
+    card.querySelector('.init-value')!.textContent = String(roll);
+  }
+
+  function sortByInitiative() {
+    const cards = getAllCards();
+    cards.sort((a, b) => {
+      const ai = parseInt(a.dataset.init ?? '0');
+      const bi = parseInt(b.dataset.init ?? '0');
+      if (bi !== ai) return bi - ai;
+      const ad = parseInt(a.dataset.dex ?? '0');
+      const bd = parseInt(b.dataset.dex ?? '0');
+      return bd - ad;
+    });
+    cards.forEach(card => list.appendChild(card));
+  }
+
+  function updateHP(card: HTMLElement, delta: number) {
+    const maxHp = parseInt(card.dataset.maxHp ?? '20');
+    let hp = parseInt(card.dataset.hp ?? String(maxHp));
+    hp = Math.max(0, Math.min(maxHp, hp + delta));
+    card.dataset.hp = String(hp);
+    const pct = Math.round((hp / maxHp) * 100);
+    const bar = card.querySelector('.init-hp-bar') as HTMLElement;
+    const text = card.querySelector('.init-hp-text')!;
+    bar.style.width = `${pct}%`;
+    bar.style.background = pct > 60 ? '#27ae60' : pct > 30 ? '#f39c12' : '#c0392b';
+    text.textContent = `${hp} / ${maxHp}`;
+    card.classList.toggle('downed', hp === 0);
+  }
+
+  function highlightCurrent() {
+    const cards = getAllCards();
+    cards.forEach(c => c.classList.remove('active-turn'));
+    if (currentIndex >= 0 && currentIndex < cards.length) {
+      cards[currentIndex].classList.add('active-turn');
+      cards[currentIndex].scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+  }
+
+  // Roll all
+  rollAllBtn.addEventListener('click', () => {
+    getAllCards().forEach(card => rollInitiative(card));
+    sortByInitiative();
+    combatStarted = true;
+    round = 1;
+    currentIndex = 0;
+    roundNum.textContent = String(round);
+    nextTurnBtn.removeAttribute('disabled');
+    highlightCurrent();
+  });
+
+  // Next turn
+  nextTurnBtn.addEventListener('click', () => {
+    if (!combatStarted) return;
+    const cards = getAllCards();
+    currentIndex++;
+    if (currentIndex >= cards.length) {
+      currentIndex = 0;
+      round++;
+      roundNum.textContent = String(round);
+    }
+    highlightCurrent();
+  });
+
+  // Add enemy
+  addEnemyBtn.addEventListener('click', () => {
+    const clone = template.content.cloneNode(true) as DocumentFragment;
+    const card = clone.querySelector('.init-card') as HTMLElement;
+
+    card.querySelector('.enemy-remove')!.addEventListener('click', () => card.remove());
+
+    const acInput = card.querySelector('.enemy-ac') as HTMLInputElement;
+    const hpInput = card.querySelector('.enemy-hp') as HTMLInputElement;
+    const dexInput = card.querySelector('.enemy-dex') as HTMLInputElement;
+    const nameInput = card.querySelector('.enemy-name-input') as HTMLInputElement;
+
+    hpInput.addEventListener('change', () => {
+      const hp = parseInt(hpInput.value);
+      card.dataset.hp = String(hp);
+      card.dataset.maxHp = String(hp);
+      card.querySelector('.init-hp-text')!.textContent = `${hp} / ${hp}`;
+      (card.querySelector('.init-hp-bar') as HTMLElement).style.width = '100%';
+    });
+    dexInput.addEventListener('change', () => {
+      card.dataset.dex = dexInput.value;
+    });
+    nameInput.addEventListener('input', () => {
+      card.dataset.name = nameInput.value;
+    });
+
+    card.dataset.hp = '20';
+    card.dataset.maxHp = '20';
+    card.dataset.dex = '0';
+    card.dataset.ac = '12';
+
+    setupHPButtons(card);
+    list.appendChild(card);
+    nameInput.focus();
+  });
+
+  // Reset
+  resetBtn.addEventListener('click', () => {
+    combatStarted = false;
+    round = 0;
+    currentIndex = -1;
+    roundNum.textContent = '0';
+    nextTurnBtn.setAttribute('disabled', '');
+    const cards = getAllCards();
+    cards.forEach(card => {
+      card.classList.remove('active-turn', 'downed');
+      card.querySelector('.init-value')!.textContent = '--';
+      card.dataset.init = '0';
+      if (card.dataset.type === 'enemy') {
+        card.remove();
+      } else {
+        const maxHp = parseInt(card.dataset.maxHp ?? '20');
+        card.dataset.hp = String(maxHp);
+        const bar = card.querySelector('.init-hp-bar') as HTMLElement;
+        bar.style.width = '100%';
+        bar.style.background = '#27ae60';
+        card.querySelector('.init-hp-text')!.textContent = `${maxHp} / ${maxHp}`;
+      }
+    });
+  });
+
+  // HP buttons
+  function setupHPButtons(card: HTMLElement) {
+    card.querySelector('.hp-dmg')!.addEventListener('click', () => {
+      const amt = prompt('Damage amount:');
+      if (amt && !isNaN(parseInt(amt))) updateHP(card, -Math.abs(parseInt(amt)));
+    });
+    card.querySelector('.hp-heal')!.addEventListener('click', () => {
+      const amt = prompt('Heal amount:');
+      if (amt && !isNaN(parseInt(amt))) updateHP(card, Math.abs(parseInt(amt)));
+    });
+  }
+
+  getAllCards().forEach(card => setupHPButtons(card));
+</script>
+
+<style>
+.back-link { margin-bottom: 1.5rem; }
+.back-link a { color: var(--text-muted); font-size: 0.85rem; }
+.back-link a:hover { color: var(--text-gold); }
+.intro-text { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.5rem; }
+
+/* Controls */
+.controls {
+  display: flex; align-items: center; gap: 0.75rem;
+  flex-wrap: wrap; margin-bottom: 1.5rem;
+}
+.btn {
+  padding: 0.5rem 1rem; border: 1px solid; border-radius: 6px;
+  font-size: 0.85rem; font-weight: bold; cursor: pointer;
+  transition: all 0.2s;
+}
+.btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.btn-primary { background: rgba(139,105,20,0.2); border-color: var(--border-gold); color: var(--text-gold-bright); }
+.btn-primary:hover:not(:disabled) { background: rgba(139,105,20,0.35); }
+.btn-secondary { background: rgba(100,100,100,0.15); border-color: rgba(100,100,100,0.3); color: var(--text-parchment); }
+.btn-secondary:hover { background: rgba(100,100,100,0.25); }
+.btn-accent { background: rgba(39,174,96,0.15); border-color: rgba(39,174,96,0.4); color: #6ec97a; }
+.btn-accent:hover:not(:disabled) { background: rgba(39,174,96,0.3); }
+.btn-muted { background: rgba(100,100,100,0.08); border-color: rgba(100,100,100,0.2); color: var(--text-muted); }
+.btn-muted:hover { background: rgba(100,100,100,0.15); }
+
+.round-display {
+  margin-left: auto; font-size: 0.85rem; color: var(--text-muted);
+  background: rgba(139,105,20,0.08); border: 1px solid rgba(139,105,20,0.2);
+  padding: 0.4rem 0.9rem; border-radius: 6px;
+}
+.round-display span { color: var(--text-gold-bright); font-weight: bold; font-size: 1.1rem; }
+
+/* Initiative list */
+.initiative-list { display: flex; flex-direction: column; gap: 0.5rem; }
+
+.init-card {
+  display: flex; align-items: center; gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  background: var(--card-bg);
+  border: 1px solid var(--border-card);
+  border-left: 4px solid var(--card-color, #8b6914);
+  border-radius: 8px;
+  transition: all 0.3s;
+}
+.init-card.active-turn {
+  border-color: var(--card-color, #8b6914);
+  background: rgba(139,105,20,0.12);
+  box-shadow: 0 0 15px rgba(139,105,20,0.2);
+}
+.init-card.downed { opacity: 0.4; }
+
+.init-roll {
+  display: flex; flex-direction: column; align-items: center;
+  min-width: 44px; flex-shrink: 0;
+}
+.init-value { font-size: 1.6rem; font-weight: bold; color: var(--text-gold-bright); line-height: 1; }
+.init-label { font-size: 0.55rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); }
+
+.init-portrait {
+  width: 40px; height: 40px; border-radius: 50%;
+  border: 2px solid var(--card-color, #8b6914);
+  flex-shrink: 0; object-fit: cover;
+}
+
+.init-info { flex: 1; min-width: 0; }
+.init-name { font-size: 0.95rem; font-weight: bold; color: var(--text-gold); }
+.init-sub { font-size: 0.72rem; color: var(--text-muted); }
+
+.init-hp-block { min-width: 100px; }
+.init-hp-bar-wrap {
+  height: 6px; background: rgba(100,100,100,0.2); border-radius: 3px;
+  overflow: hidden; margin-bottom: 0.2rem;
+}
+.init-hp-bar { height: 100%; background: #27ae60; border-radius: 3px; transition: width 0.3s; }
+.init-hp-text { font-size: 0.7rem; color: var(--text-muted); text-align: center; }
+
+.init-actions { display: flex; gap: 0.3rem; flex-shrink: 0; }
+.hp-btn {
+  width: 28px; height: 28px; border-radius: 50%; border: 1px solid;
+  font-size: 1rem; font-weight: bold; cursor: pointer; line-height: 1;
+  display: flex; align-items: center; justify-content: center;
+}
+.hp-dmg { background: rgba(192,57,43,0.15); border-color: rgba(192,57,43,0.4); color: #e74c3c; }
+.hp-dmg:hover { background: rgba(192,57,43,0.3); }
+.hp-heal { background: rgba(39,174,96,0.15); border-color: rgba(39,174,96,0.4); color: #27ae60; }
+.hp-heal:hover { background: rgba(39,174,96,0.3); }
+
+/* Enemy cards */
+.enemy-name-input {
+  background: transparent; border: none; border-bottom: 1px solid rgba(139,105,20,0.3);
+  color: var(--text-gold); font-size: 0.95rem; font-weight: bold;
+  padding: 0.2rem 0; width: 100%; outline: none;
+}
+.enemy-name-input:focus { border-color: var(--border-gold); }
+.enemy-fields {
+  display: flex; align-items: center; gap: 0.5rem; margin-top: 0.3rem;
+  font-size: 0.72rem; color: var(--text-muted);
+}
+.enemy-fields input {
+  width: 40px; background: rgba(100,100,100,0.15); border: 1px solid rgba(100,100,100,0.3);
+  color: var(--text-parchment); border-radius: 3px; padding: 0.15rem 0.3rem;
+  font-size: 0.75rem; text-align: center;
+}
+.enemy-remove {
+  background: rgba(192,57,43,0.15); border: 1px solid rgba(192,57,43,0.3);
+  color: #e74c3c; border-radius: 3px; cursor: pointer;
+  font-size: 1rem; padding: 0 0.4rem; line-height: 1.2;
+}
+.enemy-remove:hover { background: rgba(192,57,43,0.3); }
+
+@media (max-width: 640px) {
+  .init-card { flex-wrap: wrap; gap: 0.5rem; }
+  .init-portrait { width: 32px; height: 32px; }
+  .init-hp-block { width: 100%; order: 10; }
+  .controls { gap: 0.5rem; }
+  .btn { padding: 0.4rem 0.75rem; font-size: 0.78rem; }
+}
+</style>

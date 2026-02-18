@@ -10,6 +10,7 @@ ac: 14
 speed: 35
 profBonus: 2
 status: "active"
+portrait: "/portraits/cerci-sanja.svg"
 str: 13
 dex: 17
 con: 15
@@ -69,6 +70,31 @@ levelHistory:
       - "Druidic secret language"
       - "Spellcasting (WIS-based, DC 14, +6)"
       - "Cantrips: Control Flames, Thorn Whip"
+spellSlots:
+  - level: 1
+    total: 2
+    used: 0
+spells:
+  - name: "Druidcraft"
+    level: 0
+    school: "Transmutation"
+  - name: "Produce Flame"
+    level: 0
+    school: "Conjuration"
+    notes: "1d8 fire, 30 ft range"
+  - name: "Healing Word"
+    level: 1
+    school: "Evocation"
+    notes: "1d4+WIS bonus action heal, 60 ft"
+  - name: "Entangle"
+    level: 1
+    school: "Conjuration"
+    concentration: true
+    notes: "Restrain creatures in 20 ft square"
+  - name: "Thunderwave"
+    level: 1
+    school: "Evocation"
+    notes: "2d8 thunder, push 10 ft"
 ---
 
 ## Class Features

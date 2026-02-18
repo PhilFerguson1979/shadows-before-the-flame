@@ -60,6 +60,24 @@ const characters = defineCollection({
       features: z.array(z.string()).optional(),
       notes: z.string().optional(),
     })).optional(),
+    // Active conditions (poisoned, frightened, etc.)
+    conditions: z.array(z.string()).optional(),
+    // Spells known / prepared
+    spells: z.array(z.object({
+      name: z.string(),
+      level: z.number(),                          // 0 = cantrip
+      school: z.string().optional(),               // evocation, abjuration, etc.
+      prepared: z.boolean().optional().default(true),
+      concentration: z.boolean().optional().default(false),
+      ritual: z.boolean().optional().default(false),
+      notes: z.string().optional(),
+    })).optional(),
+    // Spell slot tracking
+    spellSlots: z.array(z.object({
+      level: z.number(),
+      total: z.number(),
+      used: z.number().optional().default(0),
+    })).optional(),
   }),
 });
 const sessions = defineCollection({

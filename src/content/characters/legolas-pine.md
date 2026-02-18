@@ -10,6 +10,7 @@ ac: 15
 speed: 35
 profBonus: 2
 status: "active"
+portrait: "/portraits/legolas-pine.svg"
 str: 12
 dex: 20
 con: 14

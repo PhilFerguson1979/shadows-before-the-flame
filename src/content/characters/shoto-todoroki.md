@@ -10,6 +10,7 @@ ac: 17
 speed: 30
 profBonus: 2
 status: "active"
+portrait: "/portraits/shoto-todoroki.svg"
 str: 12
 dex: 19
 con: 17

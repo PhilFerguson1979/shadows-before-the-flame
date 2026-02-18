@@ -10,6 +10,7 @@ ac: 16
 speed: 25
 profBonus: 2
 status: "active"
+portrait: "/portraits/cogmaw-fraker.svg"
 str: 9
 dex: 13
 con: 14
