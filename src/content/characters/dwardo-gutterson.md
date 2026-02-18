@@ -75,6 +75,8 @@ spellSlots:
   - level: 1
     total: 2
     used: 0
+spellcastingAbility: "cha"
+casterType: "known"
 spells:
   - name: "Vicious Mockery"
     level: 0

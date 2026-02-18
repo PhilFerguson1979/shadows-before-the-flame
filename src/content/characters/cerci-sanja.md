@@ -74,6 +74,8 @@ spellSlots:
   - level: 1
     total: 2
     used: 0
+spellcastingAbility: "wis"
+casterType: "prepared"
 spells:
   - name: "Druidcraft"
     level: 0

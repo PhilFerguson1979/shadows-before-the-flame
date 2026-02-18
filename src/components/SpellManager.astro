@@ -1,0 +1,864 @@
+---
+import { getSpellsByClass, getSpellByName, spellNameToSlug, type Spell } from '../data/spells';
+
+interface CharSpell {
+  name: string;
+  level: number;
+  school?: string;
+  prepared?: boolean;
+  concentration?: boolean;
+  ritual?: boolean;
+  notes?: string;
+}
+
+interface SpellSlot {
+  level: number;
+  total: number;
+  used?: number;
+}
+
+interface Props {
+  characterName: string;
+  characterSlug: string;
+  characterClass: string;
+  characterLevel: number;
+  str?: number;
+  dex?: number;
+  con?: number;
+  int?: number;
+  wis?: number;
+  cha?: number;
+  spells: CharSpell[];
+  spellSlots?: SpellSlot[];
+  spellcastingAbility?: string;
+  casterType?: string;
+  baseUrl: string;
+}
+
+const {
+  characterName, characterSlug, characterClass, characterLevel,
+  str, dex, con, int, wis, cha,
+  spells: charSpells, spellSlots,
+  spellcastingAbility, casterType, baseUrl
+} = Astro.props;
+
+// --- Infer caster type from class if not explicitly set ---
+const PREPARED_CLASSES = ['cleric', 'druid', 'paladin', 'wizard', 'artificer'];
+const KNOWN_CLASSES = ['bard', 'sorcerer', 'warlock', 'ranger'];
+const ABILITY_MAP: Record<string, string> = {
+  cleric: 'wis', druid: 'wis', ranger: 'wis', monk: 'wis',
+  wizard: 'int', artificer: 'int',
+  bard: 'cha', sorcerer: 'cha', warlock: 'cha', paladin: 'cha',
+};
+
+const classLower = (characterClass ?? '').toLowerCase();
+const resolvedCasterType = casterType ??
+  (PREPARED_CLASSES.some(c => classLower.includes(c)) ? 'prepared' :
+   KNOWN_CLASSES.some(c => classLower.includes(c)) ? 'known' : 'none');
+
+const matchedClassKey = Object.keys(ABILITY_MAP).find(k => classLower.includes(k));
+const resolvedAbility = spellcastingAbility ?? (matchedClassKey ? ABILITY_MAP[matchedClassKey] : 'cha');
+
+// --- Compute ability modifier ---
+function mod(score: number | undefined): number {
+  if (!score) return 0;
+  return Math.floor((score - 10) / 2);
+}
+const abilityScores: Record<string, number | undefined> = { str, dex, con, int, wis, cha };
+const spellAbilityMod = mod(abilityScores[resolvedAbility]);
+
+// --- Max prepared spells (only for prepared casters) ---
+const maxPrepared = Math.max(1, spellAbilityMod + characterLevel);
+
+// --- Is this a Warlock? (short rest recovers all slots) ---
+const isWarlock = classLower.includes('warlock');
+
+// --- Get full class spell list from database (for prepared casters) ---
+const baseClassName = matchedClassKey ?? characterClass;
+const maxSpellLevel = Math.ceil(characterLevel / 2);
+const classSpellsFromDB: Spell[] = resolvedCasterType === 'prepared'
+  ? getSpellsByClass(baseClassName).filter(s => s.level > 0 && s.level <= maxSpellLevel)
+  : [];
+
+// --- Resolve which character spells exist in database (for linking) ---
+const spellDbLookup = charSpells.map(s => {
+  const dbSpell = getSpellByName(s.name);
+  return {
+    name: s.name,
+    level: s.level,
+    school: s.school,
+    prepared: s.prepared ?? true,
+    concentration: s.concentration ?? false,
+    ritual: s.ritual ?? false,
+    notes: s.notes,
+    dbSlug: dbSpell ? dbSpell.slug : null,
+  };
+});
+
+// --- Serialize for client JS ---
+const charSpellsJson = JSON.stringify(spellDbLookup);
+const spellSlotsJson = JSON.stringify(spellSlots ?? []);
+const classSpellsJson = JSON.stringify(classSpellsFromDB.map(s => ({
+  name: s.name, slug: s.slug, level: s.level, school: s.school,
+  concentration: s.concentration, ritual: s.ritual,
+})));
+const configJson = JSON.stringify({
+  characterSlug,
+  characterClass: classLower,
+  casterType: resolvedCasterType,
+  maxPrepared,
+  spellAbilityMod,
+  characterLevel,
+  baseUrl,
+  isWarlock,
+});
+
+// --- Helper for level labels ---
+function lvlLabel(n: number): string {
+  if (n === 1) return '1st';
+  if (n === 2) return '2nd';
+  if (n === 3) return '3rd';
+  return `${n}th`;
+}
+---
+
+<section class="spell-mgr">
+  <h2 class="sm-title">Spells</h2>
+
+  <!-- Spell Slot Pips (interactive) -->
+  {spellSlots && spellSlots.length > 0 && (
+    <div class="sm-slots-bar">
+      {spellSlots.map(slot => (
+        <div class="sm-slot-group" data-slot-level={slot.level}>
+          <span class="sm-slot-label">{lvlLabel(slot.level)}</span>
+          <div class="sm-slot-pips">
+            {Array.from({ length: slot.total }).map((_, i) => (
+              <button
+                class={`sm-pip ${i < (slot.used ?? 0) ? 'used' : 'available'}`}
+                data-slot-level={slot.level}
+                data-pip-index={i}
+                title={`${lvlLabel(slot.level)} level spell slot ${i + 1}`}
+              />
+            ))}
+          </div>
+          <span class="sm-slot-count" data-slot-level={slot.level}>
+            {slot.total - (slot.used ?? 0)}/{slot.total}
+          </span>
+        </div>
+      ))}
+      <div class="sm-rest-buttons">
+        {isWarlock && (
+          <button class="sm-rest-btn sm-short-rest" id="short-rest-btn" title="Warlock: Regain all spell slots">
+            Short Rest
+          </button>
+        )}
+        <button class="sm-rest-btn sm-long-rest" id="long-rest-btn" title="Restore all spell slots">
+          Long Rest
+        </button>
+      </div>
+    </div>
+  )}
+
+  <!-- Prepared Caster: Preparation Counter + Toggle -->
+  {resolvedCasterType === 'prepared' && (
+    <div class="sm-prep-bar">
+      <span class="sm-prep-label">Prepared Spells</span>
+      <span class="sm-prep-count" id="prep-count">
+        {charSpells.filter(s => s.level > 0 && s.prepared !== false).length} / {maxPrepared}
+      </span>
+      <button class="sm-prep-toggle" id="prep-toggle">Change Prepared Spells</button>
+    </div>
+  )}
+
+  <!-- Known Caster: Simple label -->
+  {resolvedCasterType === 'known' && (
+    <div class="sm-known-bar">
+      <span class="sm-known-label">Known Spells</span>
+      <span class="sm-known-info">All known spells are always prepared</span>
+    </div>
+  )}
+
+  <!-- Preparation Panel (prepared casters only, hidden by default) -->
+  {resolvedCasterType === 'prepared' && (
+    <div class="sm-prep-panel" id="prep-panel" style="display:none;">
+      <!-- Populated by client JS with checkboxes from classSpellsFromDB -->
+    </div>
+  )}
+
+  <!-- Spell List — rendered by client JS so it reacts to preparation changes -->
+  <div id="spell-list-container">
+    <!-- Populated on DOMContentLoaded -->
+  </div>
+</section>
+
+<script define:vars={{ charSpellsJson, spellSlotsJson, classSpellsJson, configJson }}>
+  const charSpells = JSON.parse(charSpellsJson);
+  const slotData = JSON.parse(spellSlotsJson);
+  const classSpells = JSON.parse(classSpellsJson);
+  const config = JSON.parse(configJson);
+
+  // ─── State ────────────────────────────────────────────
+  const STORAGE_KEY = `sbtf-spells-${config.characterSlug}`;
+
+  let state = {
+    slots: {},           // { [level]: [true, true, false] } — true = used
+    preparedSpells: [],  // spell names (prepared caster only)
+    shortRestUsed: false,
+  };
+
+  // Initialize slot states from frontmatter defaults
+  slotData.forEach(slot => {
+    state.slots[slot.level] = Array.from({ length: slot.total }, (_, i) => i < (slot.used ?? 0));
+  });
+
+  // Initialize prepared spells from frontmatter
+  if (config.casterType === 'prepared') {
+    state.preparedSpells = charSpells
+      .filter(s => s.level > 0 && s.prepared !== false)
+      .map(s => s.name);
+  }
+
+  // ─── localStorage ─────────────────────────────────────
+  function loadState() {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed.slots) state.slots = parsed.slots;
+        if (parsed.preparedSpells && config.casterType === 'prepared') {
+          state.preparedSpells = parsed.preparedSpells;
+        }
+        if (typeof parsed.shortRestUsed === 'boolean') {
+          state.shortRestUsed = parsed.shortRestUsed;
+        }
+      }
+    } catch (e) { /* ignore corrupt data */ }
+  }
+
+  function saveState() {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    } catch (e) { /* storage full or unavailable */ }
+  }
+
+  // ─── Pip Click ────────────────────────────────────────
+  function handlePipClick(level, index) {
+    const slots = state.slots[level];
+    if (!slots) return;
+    slots[index] = !slots[index];
+    saveState();
+    updateAll();
+  }
+
+  // ─── Long Rest: Full reset ────────────────────────────
+  function handleLongRest() {
+    Object.keys(state.slots).forEach(level => {
+      state.slots[level] = state.slots[level].map(() => false);
+    });
+    state.shortRestUsed = false;
+    saveState();
+    updateAll();
+  }
+
+  // ─── Short Rest (Warlock: restore all) ────────────────
+  function handleShortRest() {
+    if (config.isWarlock) {
+      // Warlocks regain ALL slots on short rest
+      Object.keys(state.slots).forEach(level => {
+        state.slots[level] = state.slots[level].map(() => false);
+      });
+    }
+    state.shortRestUsed = true;
+    saveState();
+    updateAll();
+  }
+
+  // ─── Preparation Panel Toggle ─────────────────────────
+  function togglePrepPanel() {
+    const panel = document.getElementById('prep-panel');
+    if (panel) panel.style.display = panel.style.display === 'none' ? '' : 'none';
+  }
+
+  // ─── Preparation Checkbox ─────────────────────────────
+  function handlePrepChange(spellName, checked) {
+    if (checked) {
+      if (!state.preparedSpells.includes(spellName)) {
+        state.preparedSpells.push(spellName);
+      }
+    } else {
+      state.preparedSpells = state.preparedSpells.filter(n => n !== spellName);
+    }
+    saveState();
+    updateAll();
+  }
+
+  // ─── Central Render ───────────────────────────────────
+  function updateAll() {
+    updatePips();
+    updatePrepCount();
+    updatePrepPanel();
+    renderSpellList();
+    updateRestButtons();
+  }
+
+  function updatePips() {
+    Object.entries(state.slots).forEach(([level, slots]) => {
+      const pips = document.querySelectorAll(`button.sm-pip[data-slot-level="${level}"]`);
+      let usedCount = 0;
+      pips.forEach((pip, i) => {
+        const isUsed = slots[i] ?? false;
+        pip.classList.toggle('used', isUsed);
+        pip.classList.toggle('available', !isUsed);
+        if (isUsed) usedCount++;
+      });
+      const countEl = document.querySelector(`span.sm-slot-count[data-slot-level="${level}"]`);
+      if (countEl) countEl.textContent = `${slots.length - usedCount}/${slots.length}`;
+    });
+  }
+
+  function updatePrepCount() {
+    const countEl = document.getElementById('prep-count');
+    if (!countEl) return;
+    const current = state.preparedSpells.length;
+    const max = config.maxPrepared;
+    countEl.textContent = `${current} / ${max}`;
+    countEl.classList.toggle('over-limit', current > max);
+  }
+
+  function updateRestButtons() {
+    const shortBtn = document.getElementById('short-rest-btn');
+    if (shortBtn && state.shortRestUsed && !config.isWarlock) {
+      shortBtn.disabled = true;
+      shortBtn.title = 'Already used — resets on Long Rest';
+    } else if (shortBtn) {
+      shortBtn.disabled = false;
+    }
+  }
+
+  function updatePrepPanel() {
+    if (config.casterType !== 'prepared') return;
+    const panel = document.getElementById('prep-panel');
+    if (!panel || panel.style.display === 'none') return;
+
+    // Group class spells by level
+    const grouped = {};
+    classSpells.forEach(s => {
+      if (!grouped[s.level]) grouped[s.level] = [];
+      grouped[s.level].push(s);
+    });
+
+    // Also include character's own spells that might not be in DB
+    charSpells.filter(s => s.level > 0).forEach(cs => {
+      const inDB = classSpells.some(ds => ds.name.toLowerCase() === cs.name.toLowerCase());
+      if (!inDB) {
+        if (!grouped[cs.level]) grouped[cs.level] = [];
+        grouped[cs.level].push({
+          name: cs.name, level: cs.level, school: cs.school,
+          slug: cs.dbSlug, concentration: cs.concentration, ritual: cs.ritual,
+        });
+      }
+    });
+
+    let html = '';
+    Object.keys(grouped).sort((a, b) => Number(a) - Number(b)).forEach(lvl => {
+      const lvlLabel = lvl == 1 ? '1st' : lvl == 2 ? '2nd' : lvl == 3 ? '3rd' : `${lvl}th`;
+      html += `<div class="prep-level-group"><div class="prep-level-label">${lvlLabel} Level</div>`;
+      grouped[lvl].sort((a, b) => a.name.localeCompare(b.name)).forEach(s => {
+        const checked = state.preparedSpells.includes(s.name) ? 'checked' : '';
+        const isCharSpell = charSpells.some(cs => cs.name.toLowerCase() === s.name.toLowerCase());
+        html += `
+          <label class="prep-spell-row ${isCharSpell ? 'in-list' : ''}">
+            <input type="checkbox" data-spell-name="${s.name}" ${checked} />
+            <span class="prep-spell-name">${s.name}</span>
+            <span class="prep-spell-school">${s.school || ''}</span>
+            ${s.concentration ? '<span class="sm-tag conc">C</span>' : ''}
+            ${s.ritual ? '<span class="sm-tag ritual">R</span>' : ''}
+          </label>`;
+      });
+      html += '</div>';
+    });
+    panel.innerHTML = html;
+
+    // Attach checkbox listeners
+    panel.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+      cb.addEventListener('change', (e) => {
+        handlePrepChange(e.target.dataset.spellName, e.target.checked);
+      });
+    });
+  }
+
+  function renderSpellList() {
+    const container = document.getElementById('spell-list-container');
+    if (!container) return;
+
+    const cantrips = charSpells.filter(s => s.level === 0);
+    const leveled = charSpells.filter(s => s.level > 0);
+
+    // For prepared casters, merge in any newly-prepared spells from classSpells
+    let allLeveled = [...leveled];
+    if (config.casterType === 'prepared') {
+      state.preparedSpells.forEach(name => {
+        const alreadyInList = allLeveled.some(s => s.name.toLowerCase() === name.toLowerCase());
+        if (!alreadyInList) {
+          const dbSpell = classSpells.find(s => s.name === name);
+          if (dbSpell) {
+            allLeveled.push({
+              name: dbSpell.name, level: dbSpell.level, school: dbSpell.school,
+              concentration: dbSpell.concentration, ritual: dbSpell.ritual,
+              prepared: true, dbSlug: dbSpell.slug, notes: null,
+            });
+          }
+        }
+      });
+    }
+
+    // Group leveled by level
+    const grouped = {};
+    allLeveled.forEach(s => {
+      if (!grouped[s.level]) grouped[s.level] = [];
+      const isPrepared = config.casterType === 'known' ? true : state.preparedSpells.includes(s.name);
+      grouped[s.level].push({ ...s, isPrepared });
+    });
+
+    let html = '';
+
+    // Cantrips (always ready, no slot cost)
+    if (cantrips.length > 0) {
+      html += '<div class="sm-spell-group"><div class="sm-spell-group-label">Cantrips</div><div class="sm-spell-list">';
+      cantrips.forEach(s => {
+        const href = s.dbSlug ? `${config.baseUrl}/spells/${s.dbSlug}` : null;
+        const tag = href ? 'a' : 'div';
+        const hrefAttr = href ? ` href="${href}"` : '';
+        const cls = href ? 'sm-spell-card sm-spell-link' : 'sm-spell-card';
+        html += `<${tag}${hrefAttr} class="${cls}">
+          <span class="sm-spell-name">${s.name}</span>
+          ${s.concentration ? '<span class="sm-tag conc">C</span>' : ''}
+          ${s.ritual ? '<span class="sm-tag ritual">R</span>' : ''}
+          ${s.school ? `<span class="sm-spell-school">${s.school}</span>` : ''}
+          ${s.notes ? `<span class="sm-spell-notes">${s.notes}</span>` : ''}
+        </${tag}>`;
+      });
+      html += '</div></div>';
+    }
+
+    // Leveled spells
+    Object.keys(grouped).sort((a, b) => Number(a) - Number(b)).forEach(lvl => {
+      const label = lvl == 1 ? '1st' : lvl == 2 ? '2nd' : lvl == 3 ? '3rd' : `${lvl}th`;
+      html += `<div class="sm-spell-group"><div class="sm-spell-group-label">${label} Level</div><div class="sm-spell-list">`;
+      grouped[lvl].forEach(s => {
+        const href = s.dbSlug ? `${config.baseUrl}/spells/${s.dbSlug}` : null;
+        const tag = href ? 'a' : 'div';
+        const hrefAttr = href ? ` href="${href}"` : '';
+        const notPrepCls = !s.isPrepared ? ' not-prepared' : '';
+        const linkCls = href ? ' sm-spell-link' : '';
+        const cls = `sm-spell-card${notPrepCls}${linkCls}`;
+        html += `<${tag}${hrefAttr} class="${cls}">
+          <span class="sm-spell-name">${s.name}</span>
+          ${s.concentration ? '<span class="sm-tag conc">C</span>' : ''}
+          ${s.ritual ? '<span class="sm-tag ritual">R</span>' : ''}
+          ${!s.isPrepared ? '<span class="sm-tag unprepared">Not Prepared</span>' : ''}
+          ${s.school ? `<span class="sm-spell-school">${s.school}</span>` : ''}
+          ${s.notes ? `<span class="sm-spell-notes">${s.notes}</span>` : ''}
+        </${tag}>`;
+      });
+      html += '</div></div>';
+    });
+
+    container.innerHTML = html;
+  }
+
+  // ─── Init ─────────────────────────────────────────────
+  document.addEventListener('DOMContentLoaded', () => {
+    loadState();
+
+    // Pip click handlers
+    document.querySelectorAll('button.sm-pip').forEach(pip => {
+      pip.addEventListener('click', () => {
+        const level = parseInt(pip.dataset.slotLevel);
+        const index = parseInt(pip.dataset.pipIndex);
+        handlePipClick(level, index);
+      });
+    });
+
+    // Rest buttons
+    const longBtn = document.getElementById('long-rest-btn');
+    if (longBtn) longBtn.addEventListener('click', handleLongRest);
+
+    const shortBtn = document.getElementById('short-rest-btn');
+    if (shortBtn) shortBtn.addEventListener('click', handleShortRest);
+
+    // Prep panel toggle
+    const prepToggle = document.getElementById('prep-toggle');
+    if (prepToggle) prepToggle.addEventListener('click', togglePrepPanel);
+
+    updateAll();
+  });
+</script>
+
+<style>
+  /* ═══════════════════════════════════════════════════════
+     SpellManager — Scoped Styles
+     ═══════════════════════════════════════════════════════ */
+
+  .spell-mgr { margin: 1.5rem 0; }
+
+  .sm-title {
+    font-size: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-muted);
+    margin-bottom: 1rem;
+    padding-bottom: 0.4rem;
+    border-bottom: 1px solid rgba(139,105,20,0.3);
+  }
+
+  /* ── Spell Slot Pips ────────────────────────────────── */
+  .sm-slots-bar {
+    display: flex;
+    gap: 1.25rem;
+    flex-wrap: wrap;
+    align-items: center;
+    margin-bottom: 1rem;
+    padding: 0.6rem 1rem;
+    background: rgba(100,80,200,0.04);
+    border: 1px solid rgba(100,80,200,0.15);
+    border-radius: 8px;
+  }
+
+  .sm-slot-group {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .sm-slot-label {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    min-width: 28px;
+    font-weight: bold;
+    text-transform: uppercase;
+  }
+
+  .sm-slot-pips {
+    display: flex;
+    gap: 0.35rem;
+  }
+
+  .sm-pip {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    border: 2.5px solid rgba(100,80,200,0.6);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    padding: 0;
+    outline: none;
+  }
+
+  .sm-pip.available {
+    background: rgba(100,80,200,0.5);
+    box-shadow: 0 0 8px rgba(100,80,200,0.35);
+  }
+
+  .sm-pip.available:hover {
+    background: rgba(100,80,200,0.7);
+    box-shadow: 0 0 12px rgba(100,80,200,0.55);
+    transform: scale(1.15);
+  }
+
+  .sm-pip.used {
+    background: rgba(100,80,200,0.08);
+    border-color: rgba(100,80,200,0.25);
+    opacity: 0.45;
+  }
+
+  .sm-pip.used:hover {
+    opacity: 0.7;
+    transform: scale(1.15);
+  }
+
+  .sm-slot-count {
+    font-size: 0.72rem;
+    color: var(--text-dim);
+    min-width: 30px;
+  }
+
+  .sm-rest-buttons {
+    margin-left: auto;
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .sm-rest-btn {
+    font-size: 0.72rem;
+    padding: 0.3rem 0.7rem;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    font-family: Georgia, serif;
+  }
+
+  .sm-long-rest {
+    background: rgba(100,80,200,0.1);
+    border: 1px solid rgba(100,80,200,0.25);
+    color: rgba(100,80,200,0.8);
+  }
+
+  .sm-long-rest:hover {
+    background: rgba(100,80,200,0.2);
+    border-color: rgba(100,80,200,0.4);
+  }
+
+  .sm-short-rest {
+    background: rgba(50,180,120,0.1);
+    border: 1px solid rgba(50,180,120,0.25);
+    color: rgba(50,180,120,0.85);
+  }
+
+  .sm-short-rest:hover {
+    background: rgba(50,180,120,0.2);
+    border-color: rgba(50,180,120,0.4);
+  }
+
+  .sm-short-rest:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  /* ── Prepared Caster Bar ────────────────────────────── */
+  .sm-prep-bar {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+    padding: 0.5rem 0.75rem;
+    background: rgba(100,80,200,0.04);
+    border: 1px solid rgba(100,80,200,0.12);
+    border-radius: 6px;
+  }
+
+  .sm-prep-label {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-muted);
+    font-weight: bold;
+  }
+
+  .sm-prep-count {
+    font-size: 0.88rem;
+    font-weight: bold;
+    color: var(--text-gold-bright);
+  }
+
+  .sm-prep-count.over-limit {
+    color: #e88;
+  }
+
+  .sm-prep-toggle {
+    margin-left: auto;
+    font-size: 0.72rem;
+    padding: 0.3rem 0.7rem;
+    background: rgba(100,80,200,0.12);
+    border: 1px solid rgba(100,80,200,0.25);
+    border-radius: 4px;
+    color: var(--text-parchment);
+    cursor: pointer;
+    font-family: Georgia, serif;
+    transition: all 0.15s;
+  }
+
+  .sm-prep-toggle:hover {
+    background: rgba(100,80,200,0.22);
+    border-color: rgba(100,80,200,0.4);
+  }
+
+  /* ── Known Caster Bar ───────────────────────────────── */
+  .sm-known-bar {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+    padding: 0.5rem 0.75rem;
+    background: rgba(100,80,200,0.04);
+    border: 1px solid rgba(100,80,200,0.12);
+    border-radius: 6px;
+  }
+
+  .sm-known-label {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-muted);
+    font-weight: bold;
+  }
+
+  .sm-known-info {
+    font-size: 0.78rem;
+    color: var(--text-dim);
+    font-style: italic;
+  }
+
+  /* ── Preparation Panel ──────────────────────────────── */
+  .sm-prep-panel {
+    margin-bottom: 1rem;
+    padding: 1rem;
+    background: rgba(100,80,200,0.04);
+    border: 1px solid rgba(100,80,200,0.18);
+    border-radius: 8px;
+    max-height: 400px;
+    overflow-y: auto;
+  }
+
+  .sm-prep-panel .prep-level-group {
+    margin-bottom: 0.75rem;
+  }
+
+  .sm-prep-panel .prep-level-label {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-gold);
+    font-weight: bold;
+    margin-bottom: 0.3rem;
+    padding-bottom: 0.2rem;
+    border-bottom: 1px solid rgba(100,80,200,0.1);
+  }
+
+  .sm-prep-panel .prep-spell-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.3rem 0.5rem;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.1s;
+  }
+
+  .sm-prep-panel .prep-spell-row:hover {
+    background: rgba(100,80,200,0.08);
+  }
+
+  .sm-prep-panel .prep-spell-row.in-list {
+    border-left: 2px solid rgba(100,80,200,0.3);
+  }
+
+  .sm-prep-panel .prep-spell-row input[type="checkbox"] {
+    accent-color: rgba(100,80,200,0.8);
+    width: 16px;
+    height: 16px;
+  }
+
+  .sm-prep-panel .prep-spell-name {
+    font-size: 0.82rem;
+    color: var(--text-parchment);
+  }
+
+  .sm-prep-panel .prep-spell-school {
+    font-size: 0.68rem;
+    color: var(--text-dim);
+    margin-left: auto;
+  }
+
+  /* ── Spell List ─────────────────────────────────────── */
+  .sm-spell-group {
+    margin-bottom: 1rem;
+  }
+
+  .sm-spell-group-label {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-gold);
+    margin-bottom: 0.4rem;
+    font-weight: bold;
+  }
+
+  .sm-spell-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+  }
+
+  .sm-spell-card {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    padding: 0.4rem 0.75rem;
+    border-radius: 5px;
+    background: rgba(100,80,200,0.06);
+    border: 1px solid rgba(100,80,200,0.15);
+  }
+
+  .sm-spell-card.not-prepared {
+    opacity: 0.45;
+  }
+
+  .sm-spell-link {
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .sm-spell-link:hover {
+    background: rgba(100,80,200,0.14);
+    border-color: rgba(100,80,200,0.3);
+    transform: translateX(3px);
+  }
+
+  .sm-spell-name {
+    font-size: 0.85rem;
+    color: var(--text-parchment);
+    font-weight: 600;
+  }
+
+  .sm-tag {
+    font-size: 0.6rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.1rem 0.35rem;
+    border-radius: 3px;
+    font-weight: bold;
+  }
+
+  .sm-tag.conc {
+    background: rgba(200,150,20,0.2);
+    color: #d4a83a;
+    border: 1px solid rgba(200,150,20,0.3);
+  }
+
+  .sm-tag.ritual {
+    background: rgba(20,120,200,0.15);
+    color: #6ab0e8;
+    border: 1px solid rgba(20,120,200,0.25);
+  }
+
+  .sm-tag.unprepared {
+    background: rgba(100,100,100,0.15);
+    color: var(--text-dim);
+    border: 1px solid rgba(100,100,100,0.25);
+  }
+
+  .sm-spell-school {
+    font-size: 0.68rem;
+    color: var(--text-dim);
+    margin-left: auto;
+  }
+
+  .sm-spell-notes {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    font-style: italic;
+    width: 100%;
+  }
+
+  /* ── Responsive ─────────────────────────────────────── */
+  @media (max-width: 640px) {
+    .sm-pip { width: 22px; height: 22px; }
+    .sm-slots-bar { gap: 0.75rem; padding: 0.5rem 0.6rem; }
+    .sm-rest-buttons { margin-left: 0; width: 100%; justify-content: flex-end; }
+    .sm-prep-bar { flex-wrap: wrap; }
+    .sm-prep-toggle { margin-left: 0; }
+  }
+</style>
