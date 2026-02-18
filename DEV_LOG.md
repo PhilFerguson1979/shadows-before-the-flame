@@ -33,6 +33,8 @@
 
 ## Project Structure
 ```
+public/
+  portraits/                 ← 9 SVG character portrait placeholders (class-themed)
 src/
   components/
     EquipmentPanel.astro     ← dynamic D&D equipment system (interactive JS)
@@ -50,10 +52,11 @@ src/
     BaseLayout.astro         ← nav, header, footer wrapper
   pages/
     index.astro              ← homepage
-    characters/[slug].astro  ← character detail page
+    characters/[slug].astro  ← character detail (portrait, stats, spells, conditions, equipment)
     sessions/[slug].astro    ← rich session log page
     sessions/index.astro     ← session archive with campaign stats
     party/level-tracker.astro ← full party level overview + Level 2 preview
+    party/initiative.astro   ← combat initiative tracker (roll, sort, damage, enemies)
     npcs/[slug].astro
     locations/[slug].astro
     lore/[slug].astro
@@ -78,6 +81,11 @@ inventory:
 equipped: { armor, mainhand, offhand, helmet, cloak, gloves, boots, ring1, ring2, amulet }
 levelHistory:
   - level, sessionNumber, date, hpGained, features[], notes
+conditions: [string]            # poisoned, frightened, prone, etc.
+spells:
+  - name, level (0=cantrip), school, prepared, concentration, ritual, notes
+spellSlots:
+  - level, total, used
 ```
 
 **Item types:** `armor`, `weapon`, `shield`, `helmet`, `cloak`, `magic`, `gloves`, `boots`, `ring`, `amulet`, `tool`, `pack`, `misc`, `ammo`
@@ -207,6 +215,81 @@ cc292f8  Fix all internal links to use BASE_URL for GitHub Pages
 17f522b  Initial commit: Astro character sheet site with equipment system, currency display, level tracker, session logs
 ```
 
+### Session 5 — Portraits, Initiative Tracker, Conditions & Spell Tracking
+**Date:** 2026-02-18
+
+**Character Portraits:**
+- Created 9 SVG placeholder portraits in `public/portraits/` — one per character
+- Each portrait has a class-themed icon and matching color scheme:
+  - Darian Vayne (Rogue) — dagger, crimson
+  - Cogmaw Fraker (Artificer) — gear, copper
+  - Vomilia Fraker (Artificer) — gear, teal
+  - Cerci Sanja (Druid) — leaf, forest green
+  - Metallyn Osborne (Barbarian) — axe, blood red
+  - Shoto Todoroki (Monk) — fist, sky blue
+  - Dorthol Silifrey (Lunar Sorcerer) — crescent moon, deep purple
+  - Dwardo Gutterson (Bard) — lute, warm gold
+  - Legolas Pine (Ranger) — bow and arrow, teal
+- Added `portrait: "/portraits/<slug>.svg"` to all 9 character `.md` files
+- Portraits display as circular images on both the party grid (index) and character detail pages
+
+**Initiative Tracker (`src/pages/party/initiative.astro`)** — **NEW:**
+- Full combat management page accessible via "Combat" nav link
+- Server-renders all 9 party members with DEX modifiers, AC, HP, and portrait
+- Client-side JavaScript features:
+  - Roll All — rolls d20+DEX for each character, sorts by initiative
+  - Add Enemy — custom name, AC, HP, DEX input for monsters
+  - Next Turn — advances turn marker with round counter
+  - Reset — clears all initiative values and enemies
+  - Damage/Heal buttons per combatant with HP bar updates
+- Enemy cards can be removed mid-combat
+- Uses `<template>` element for enemy card creation
+
+**Condition Tracking:**
+- Added `conditions: z.array(z.string()).optional()` to character schema in `config.ts`
+- Conditions display as red-bordered tags on the character detail page
+- Supports any D&D 5e condition string (poisoned, frightened, prone, etc.)
+
+**Spell Tracking:**
+- Added to character schema in `config.ts`:
+  - `spells[]` — name, level (0=cantrip), school, prepared, concentration, ritual, notes
+  - `spellSlots[]` — level, total, used
+- Character detail page shows:
+  - Spell slot pip tracker (filled/empty circles per slot level)
+  - Cantrips section
+  - Leveled spells grouped by level with:
+    - **C** tag for concentration spells
+    - **R** tag for ritual spells
+    - "Not Prepared" tag with dimmed style for unprepared spells
+    - School of magic label
+    - Optional notes
+- Added Level 1 spells to three casters:
+  - **Dorthol Silifrey** (Lunar Sorcerer) — 4 cantrips + 2 known 1st-level spells, 2 spell slots
+  - **Cerci Sanja** (Druid) — 2 cantrips + full druid prepared list (8 spells), 2 spell slots
+  - **Dwardo Gutterson** (Bard) — 2 cantrips + 4 known 1st-level spells, 2 spell slots
+
+**Navigation update:**
+- Added "Combat" link to `BaseLayout.astro` nav pointing to `/party/initiative`
+
+**Files changed (23 files, +870 lines):**
+- `src/content/config.ts` — conditions, spells, spellSlots schemas
+- `src/layouts/BaseLayout.astro` — Combat nav link
+- `src/pages/characters/index.astro` — portrait display in card grid
+- `src/pages/characters/[slug].astro` — portrait hero, conditions bar, full spell UI
+- `src/pages/party/initiative.astro` — **NEW** combat tracker page
+- `public/portraits/*.svg` — **9 NEW** character portrait placeholders
+- `src/content/characters/*.md` — portrait field added to all 9, spells added to 3 casters
+
+**Git state after this session:**
+```
+a85668e  Add portraits, initiative tracker, conditions, and spell tracking
+bbd3024  Update DEV_LOG with Session 4: force push fix, BASE_URL routing fix
+cc292f8  Fix all internal links to use BASE_URL for GitHub Pages
+9c585fb  Add LevelUpTracker component, level-tracker page, fix session schema, clean up [slug].astro
+224175c  Session 4: richer session archive, level-up tracker, Levels nav link, devlog
+17f522b  Initial commit: Astro character sheet site
+```
+
 ---
 
 ## Deployment Status
@@ -221,13 +304,15 @@ cc292f8  Fix all internal links to use BASE_URL for GitHub Pages
 
 - [x] ~~Push to GitHub~~ — force pushed 2026-02-18, resolved history divergence
 - [x] ~~Fix 404 on subpages~~ — all links now use `import.meta.env.BASE_URL` prefix
+- [x] ~~Add portraits~~ — 9 SVG placeholders with class-themed icons, wired into cards + detail pages
+- [x] ~~Initiative tracker~~ — full combat page with roll, sort, add enemies, damage/heal, round tracking
+- [x] ~~Condition tracking~~ — `conditions[]` schema + red tag display on character detail pages
+- [x] ~~Spell tracking~~ — spells/spellSlots schema, full UI with slot pips, grouping, C/R tags; 3 casters populated
 - [ ] **Verify the live site** — check all pages at `https://philferguson1979.github.io/shadows-before-the-flame/`
+- [ ] **Replace placeholder portraits** — swap SVG placeholders with actual character art when available
+- [ ] **Add spells to Legolas Pine** — Ranger spells unlocked at Level 2 (no spells at Level 1)
 - [ ] **Session 2 content** — add session 2 `.md` file to `src/content/sessions/` when it happens
 - [ ] **Level up characters** — when party hits Level 2, update each character's `level`, `maxHp`, `hp`, and add a `levelHistory` entry with features gained
-- [ ] **Add portraits** — character portrait images in `public/portraits/` and set `portrait:` field in frontmatter
-- [ ] **Spell tracking** — add spells known/prepared to character schema (especially Dorthol, Cerci, Dwardo, Legolas post-level-2)
-- [ ] **Condition tracking** — add `conditions[]` field to characters (poisoned, frightened, etc.)
-- [ ] **Initiative tracker** — optional combat tool page
 - [ ] **Share site with players** — site is live, share the URL
 
 ---
