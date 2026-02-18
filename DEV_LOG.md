@@ -48,6 +48,8 @@ src/
     lore/                    ← lore articles
     inventory/               ← (placeholder, unused)
     config.ts                ← Zod schemas for all collections
+  data/
+    spells.ts                ← master spell database (200+ D&D 5e spells, TypeScript)
   layouts/
     BaseLayout.astro         ← nav, header, footer wrapper
   pages/
@@ -55,6 +57,8 @@ src/
     characters/[slug].astro  ← character detail (portrait, stats, spells, conditions, equipment)
     sessions/[slug].astro    ← rich session log page
     sessions/index.astro     ← session archive with campaign stats
+    spells/index.astro       ← spell browser with level groups + filter bar
+    spells/[slug].astro      ← spell detail pages (stat block, description, party cross-ref)
     party/level-tracker.astro ← full party level overview + Level 2 preview
     party/initiative.astro   ← combat initiative tracker (roll, sort, damage, enemies)
     npcs/[slug].astro
@@ -290,6 +294,65 @@ cc292f8  Fix all internal links to use BASE_URL for GitHub Pages
 17f522b  Initial commit: Astro character sheet site
 ```
 
+### Session 6 — Spell Browser & Spell Detail Pages
+**Date:** 2026-02-18
+
+**Spell Database (`src/data/spells.ts`)** — **NEW** (~4000+ lines):
+- Master TypeScript spell database with 200+ D&D 5e spells covering cantrips through 9th level
+- Sources: PHB, XGE (Xanathar's Guide), TCE (Tasha's Cauldron)
+- Each spell has: name, slug, level, school, castingTime, range, components, duration, concentration, ritual, classes[], description, higherLevels, source
+- Chose TypeScript data file approach over Content Collections — spells are tabular reference data, not authored content
+- Helper functions: `getSpellBySlug()`, `getSpellByName()`, `getSpellsByLevel()`, `getSpellsByClass()`, `spellNameToSlug()`
+
+**Spell Browser (`src/pages/spells/index.astro`)** — **NEW:**
+- Full browsable spell index grouped by level (Cantrips, 1st Level, 2nd Level, ... 9th Level)
+- Each level section is collapsible/expandable with toggle buttons
+- Filter bar with:
+  - Text search (spell name)
+  - Class dropdown (all D&D classes extracted from spell data)
+  - School dropdown (all 8 schools of magic)
+  - Concentration toggle
+  - Ritual toggle
+  - Clear filters button
+- Client-side JavaScript filtering using `data-*` attributes on pre-rendered spell cards
+- "No spells match your filters" message when filters return empty
+- Spell count display per level section updates dynamically with filters
+- Each spell card links to its detail page
+
+**Spell Detail Pages (`src/pages/spells/[slug].astro`)** — **NEW:**
+- Uses `getStaticPaths()` to generate a page for every spell in the database at build time
+- Full spell stat block: casting time, range, components, duration, school
+- Full description text explaining how the spell works
+- Higher-level casting section (when applicable)
+- "Available To" section with class tags
+- "Party Members" cross-reference — queries character collection and shows party members who have the spell, with portrait, class, level, and any spell notes
+- Purple-blue spell accent theme matching existing spell UI
+
+**Clickable Spell Links on Character Pages (`src/pages/characters/[slug].astro`)** — **MODIFIED:**
+- Imported `getSpellByName` and `spellNameToSlug` from spell database
+- Cantrip and leveled spell cards now wrapped in `<a>` tags linking to `/spells/{slug}` when a database match exists
+- Graceful fallback: homebrew or unrecognized spells render as non-clickable `<div>` cards (no broken links)
+- Added `.spell-card-link` hover effect (background glow, border highlight, subtle slide-right transform)
+
+**Navigation Update (`src/layouts/BaseLayout.astro`)** — **MODIFIED:**
+- Added "Spells" nav link between Lore and Levels in the top navigation bar
+
+**Files changed (5 files, +4,269 lines):**
+- `src/data/spells.ts` — **NEW** master spell database (200+ spells)
+- `src/pages/spells/index.astro` — **NEW** spell browser with level groups + filtering
+- `src/pages/spells/[slug].astro` — **NEW** spell detail pages with party cross-reference
+- `src/pages/characters/[slug].astro` — spell cards now clickable links
+- `src/layouts/BaseLayout.astro` — "Spells" nav link added
+
+**Git state after this session:**
+```
+964934a  Add spell browser, spell detail pages, and clickable spell links
+fcfc590  Update DEV_LOG with Session 5: portraits, initiative tracker, conditions, spell tracking
+a85668e  Add portraits, initiative tracker, conditions, and spell tracking
+bbd3024  Update DEV_LOG with Session 4: force push fix, BASE_URL routing fix
+cc292f8  Fix all internal links to use BASE_URL for GitHub Pages
+```
+
 ---
 
 ## Deployment Status
@@ -308,7 +371,11 @@ cc292f8  Fix all internal links to use BASE_URL for GitHub Pages
 - [x] ~~Initiative tracker~~ — full combat page with roll, sort, add enemies, damage/heal, round tracking
 - [x] ~~Condition tracking~~ — `conditions[]` schema + red tag display on character detail pages
 - [x] ~~Spell tracking~~ — spells/spellSlots schema, full UI with slot pips, grouping, C/R tags; 3 casters populated
+- [x] ~~Spell browser~~ — 200+ spell database, filterable browser page, spell detail pages with full stat blocks
+- [x] ~~Clickable spell links~~ — character page spell cards link to spell detail pages (graceful fallback for homebrew)
+- [x] ~~Spells nav link~~ — "Spells" added to top navigation bar
 - [ ] **Verify the live site** — check all pages at `https://philferguson1979.github.io/shadows-before-the-flame/`
+- [ ] **Expand spell database** — add more spells from supplemental books (currently 200+, D&D 5e has ~500+ total)
 - [ ] **Replace placeholder portraits** — swap SVG placeholders with actual character art when available
 - [ ] **Add spells to Legolas Pine** — Ranger spells unlocked at Level 2 (no spells at Level 1)
 - [ ] **Session 2 content** — add session 2 `.md` file to `src/content/sessions/` when it happens
