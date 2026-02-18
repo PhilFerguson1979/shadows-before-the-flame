@@ -1,0 +1,213 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+const characters = await getCollection('characters');
+const sessions = await getCollection('sessions');
+
+const activeChars = characters.filter(c => c.data.status === 'active');
+const latestSession = sessions.sort((a, b) => b.data.sessionNumber - a.data.sessionNumber)[0];
+---
+
+<BaseLayout title="Campaign Home">
+  <div class="page-container">
+
+    <!-- Hero -->
+    <section class="hero">
+      <h1>Shadows Before The Flame</h1>
+      <p class="hero-sub">A Dragonlance 5e Campaign &mdash; Krynn, Age of Despair</p>
+      <p class="hero-desc">
+        The Dragon Army marches on Ansalon. The Seekers hold Solace in their grip.
+        Nine adventurers answered a dead friend's final call — and now the fate of Krynn
+        may rest in their chaotic, flour-dusted hands.
+      </p>
+    </section>
+
+    <hr />
+
+    <!-- Campaign Status -->
+    <section>
+      <div class="section-header">
+        <h2>Campaign Status</h2>
+      </div>
+      <div class="status-grid">
+        <div class="card status-card">
+          <div class="status-label">Current Session</div>
+          <div class="status-value">{latestSession?.data.sessionNumber ?? 1}</div>
+        </div>
+        <div class="card status-card">
+          <div class="status-label">Party Level</div>
+          <div class="status-value">{latestSession?.data.level ?? 1}</div>
+        </div>
+        <div class="card status-card">
+          <div class="status-label">Last Location</div>
+          <div class="status-value location-val">Solace — Great Lift</div>
+        </div>
+        <div class="card status-card">
+          <div class="status-label">Party Size</div>
+          <div class="status-value">{activeChars.length}</div>
+        </div>
+      </div>
+    </section>
+
+    <hr />
+
+    <!-- Latest Session -->
+    {latestSession && (
+      <section>
+        <div class="section-header">
+          <h2>Latest Session</h2>
+        </div>
+        <a href={`/sessions/${latestSession.slug}`} class="card session-card">
+          <div class="session-num">Session {latestSession.data.sessionNumber}</div>
+          <h3>{latestSession.data.title}</h3>
+          {latestSession.data.location && (
+            <div class="session-loc">📍 {latestSession.data.location}</div>
+          )}
+          {latestSession.data.summary && (
+            <p class="session-summary">{latestSession.data.summary}</p>
+          )}
+          <span class="read-more">Read Session Notes →</span>
+        </a>
+      </section>
+    )}
+
+    <hr />
+
+    <!-- Party Roster -->
+    <section>
+      <div class="section-header">
+        <h2>The Party</h2>
+      </div>
+      <div class="char-grid">
+        {activeChars.map(char => {
+          const hpPct = char.data.hp && char.data.maxHp
+            ? Math.round((char.data.hp / char.data.maxHp) * 100)
+            : 100;
+          const hpClass = hpPct > 60 ? 'healthy' : hpPct > 30 ? 'wounded' : '';
+          return (
+            <a href={`/characters/${char.slug}`} class="card char-card">
+              <div class="char-name">{char.data.name}</div>
+              <div class="char-meta">{char.data.player} &bull; {char.data.race} {char.data.class}</div>
+              {char.data.hp !== undefined && char.data.maxHp !== undefined && (
+                <div class="char-hp">
+                  <div class="hp-label">
+                    <span>HP</span>
+                    <span>{char.data.hp} / {char.data.maxHp}</span>
+                  </div>
+                  <div class="hp-bar">
+                    <div class={`hp-bar-fill ${hpClass}`} style={`width: ${hpPct}%`}></div>
+                  </div>
+                </div>
+              )}
+              <div class="char-stats">
+                {char.data.ac !== undefined && (
+                  <div class="stat-badge"><span class="value">{char.data.ac}</span><span class="label">AC</span></div>
+                )}
+                {char.data.level !== undefined && (
+                  <div class="stat-badge"><span class="value">{char.data.level}</span><span class="label">Level</span></div>
+                )}
+              </div>
+            </a>
+          );
+        })}
+      </div>
+    </section>
+
+    <hr />
+
+    <!-- Quick Links -->
+    <section>
+      <div class="section-header">
+        <h2>Explore</h2>
+      </div>
+      <div class="quick-grid">
+        <a href="/npcs" class="card quick-card">
+          <div class="quick-icon">👥</div>
+          <div class="quick-label">NPCs</div>
+          <div class="quick-sub">Allies, enemies, and the mysterious</div>
+        </a>
+        <a href="/locations" class="card quick-card">
+          <div class="quick-icon">🗺️</div>
+          <div class="quick-label">Locations</div>
+          <div class="quick-sub">Places visited and known</div>
+        </a>
+        <a href="/inventory" class="card quick-card">
+          <div class="quick-icon">🎒</div>
+          <div class="quick-label">Inventory</div>
+          <div class="quick-sub">Party loot and treasures</div>
+        </a>
+        <a href="/lore" class="card quick-card">
+          <div class="quick-icon">📖</div>
+          <div class="quick-label">Lore</div>
+          <div class="quick-sub">The world of Krynn</div>
+        </a>
+      </div>
+    </section>
+
+  </div>
+</BaseLayout>
+
+<style>
+.hero { text-align: center; padding: 3rem 0 2rem; }
+.hero h1 { margin-bottom: 0.5rem; }
+.hero-sub {
+  color: var(--text-muted);
+  font-style: italic;
+  font-size: 1rem;
+  margin-bottom: 1.5rem;
+  letter-spacing: 0.05em;
+}
+.hero-desc {
+  max-width: 640px;
+  margin: 0 auto;
+  color: var(--text-parchment);
+  font-size: 1rem;
+  line-height: 1.8;
+}
+
+.status-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 1rem;
+}
+.status-card { text-align: center; padding: 1.25rem 1rem; }
+.status-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); margin-bottom: 0.5rem; }
+.status-value { font-size: 1.6rem; font-weight: bold; color: var(--text-gold-bright); line-height: 1.2; }
+.location-val { font-size: 1rem; padding-top: 0.3rem; }
+
+.session-card { display: block; text-decoration: none; }
+.session-num { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); margin-bottom: 0.25rem; }
+.session-card h3 { color: var(--text-gold); margin-bottom: 0.5rem; }
+.session-loc { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.75rem; }
+.session-summary { color: var(--text-parchment); font-size: 0.9rem; line-height: 1.7; margin-bottom: 1rem; }
+.read-more { color: var(--text-gold); font-size: 0.85rem; }
+
+.char-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1rem;
+}
+.char-card { display: block; text-decoration: none; }
+.char-name { font-size: 1rem; font-weight: bold; color: var(--text-gold); margin-bottom: 0.2rem; }
+.char-meta { font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.75rem; }
+.char-hp { margin-bottom: 0.75rem; }
+.hp-label { display: flex; justify-content: space-between; font-size: 0.7rem; color: var(--text-muted); margin-bottom: 0.3rem; text-transform: uppercase; letter-spacing: 0.05em; }
+.char-stats { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+
+.quick-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 1rem;
+}
+.quick-card { display: block; text-decoration: none; text-align: center; padding: 1.5rem 1rem; }
+.quick-icon { font-size: 2rem; margin-bottom: 0.5rem; }
+.quick-label { font-size: 1rem; font-weight: bold; color: var(--text-gold); margin-bottom: 0.25rem; }
+.quick-sub { font-size: 0.78rem; color: var(--text-muted); }
+
+@media (max-width: 640px) {
+  .hero { padding: 2rem 0 1.5rem; }
+  .char-grid { grid-template-columns: 1fr 1fr; }
+  .quick-grid { grid-template-columns: 1fr 1fr; }
+}
+</style>

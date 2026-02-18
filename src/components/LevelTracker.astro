@@ -1,0 +1,249 @@
+---
+// LevelTracker.astro
+// Displays level-up history and current level for a character
+
+interface LevelEntry {
+  level: number;
+  sessionNumber?: number;
+  date?: string;
+  hpGained?: number;
+  features?: string[];
+  notes?: string;
+}
+
+interface Props {
+  characterName: string;
+  currentLevel: number;
+  levelHistory?: LevelEntry[];
+}
+
+const { characterName, currentLevel, levelHistory } = Astro.props;
+
+// D&D 5e proficiency bonus by level
+function profBonus(level: number): number {
+  return Math.ceil(level / 4) + 1;
+}
+
+// Build a full level table (levels 1–20) showing what's unlocked vs upcoming
+const MAX_DISPLAY = Math.min(currentLevel + 3, 20); // show 3 levels ahead
+const levels = Array.from({ length: MAX_DISPLAY }, (_, i) => i + 1);
+---
+
+<section class="level-tracker">
+  <h2 class="lt-title">Level Progression</h2>
+
+  <!-- Current level badge -->
+  <div class="lt-current">
+    <div class="lt-level-badge">
+      <span class="lt-level-num">{currentLevel}</span>
+      <span class="lt-level-lbl">Current Level</span>
+    </div>
+    <div class="lt-prof-badge">
+      <span class="lt-prof-val">+{profBonus(currentLevel)}</span>
+      <span class="lt-prof-lbl">Prof Bonus</span>
+    </div>
+    {currentLevel < 20 && (
+      <div class="lt-next-badge">
+        <span class="lt-next-val">Level {currentLevel + 1}</span>
+        <span class="lt-next-lbl">Next Milestone</span>
+      </div>
+    )}
+  </div>
+
+  <!-- Level history entries -->
+  {levelHistory && levelHistory.length > 0 && (
+    <div class="lt-history">
+      <h3 class="lt-section-title">Level-Up History</h3>
+      <div class="lt-entries">
+        {levelHistory.sort((a, b) => b.level - a.level).map(entry => (
+          <div class="lt-entry">
+            <div class="lt-entry-badge">
+              <span class="lt-entry-level">Lvl {entry.level}</span>
+              <span class="lt-entry-prof">+{profBonus(entry.level)} prof</span>
+            </div>
+            <div class="lt-entry-body">
+              <div class="lt-entry-meta">
+                {entry.sessionNumber && <span class="lt-meta-pill">Session {entry.sessionNumber}</span>}
+                {entry.date && <span class="lt-meta-pill">📅 {entry.date}</span>}
+                {entry.hpGained && <span class="lt-meta-pill lt-hp-pill">+{entry.hpGained} HP</span>}
+              </div>
+              {entry.features && entry.features.length > 0 && (
+                <ul class="lt-features">
+                  {entry.features.map(f => <li class="lt-feature">{f}</li>)}
+                </ul>
+              )}
+              {entry.notes && <p class="lt-notes">{entry.notes}</p>}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  )}
+
+  {(!levelHistory || levelHistory.length === 0) && (
+    <p class="lt-empty">Level-up history will appear here as the campaign progresses.</p>
+  )}
+</section>
+
+<style>
+.level-tracker {
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid rgba(139,105,20,0.2);
+}
+.lt-title {
+  font-size: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+  margin-bottom: 1rem;
+}
+
+/* Current level badges */
+.lt-current {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+.lt-level-badge, .lt-prof-badge, .lt-next-badge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0.75rem 1.25rem;
+  border-radius: 8px;
+  min-width: 90px;
+}
+.lt-level-badge {
+  background: rgba(212,168,58,0.15);
+  border: 2px solid var(--border-gold-bright);
+}
+.lt-prof-badge {
+  background: rgba(26,58,92,0.2);
+  border: 1px solid rgba(41,128,185,0.4);
+}
+.lt-next-badge {
+  background: rgba(80,40,120,0.15);
+  border: 1px dashed rgba(155,89,182,0.5);
+}
+.lt-level-num {
+  font-size: 2.2rem;
+  font-weight: bold;
+  color: var(--text-gold-bright);
+  line-height: 1;
+}
+.lt-level-lbl, .lt-prof-lbl, .lt-next-lbl {
+  font-size: 0.62rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  margin-top: 0.2rem;
+}
+.lt-prof-val {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #5dade2;
+  line-height: 1;
+}
+.lt-next-val {
+  font-size: 1rem;
+  font-weight: bold;
+  color: #c39bd3;
+  line-height: 1;
+}
+
+/* Section title */
+.lt-section-title {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+  border-bottom: 1px solid rgba(139,105,20,0.25);
+  padding-bottom: 0.4rem;
+  margin-bottom: 0.75rem;
+}
+
+/* History entries */
+.lt-entries {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+.lt-entry {
+  display: flex;
+  gap: 1rem;
+  background: rgba(139,105,20,0.06);
+  border: 1px solid rgba(139,105,20,0.2);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  align-items: flex-start;
+}
+.lt-entry-badge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: rgba(212,168,58,0.12);
+  border: 1px solid rgba(212,168,58,0.3);
+  border-radius: 6px;
+  padding: 0.4rem 0.75rem;
+  flex-shrink: 0;
+  min-width: 65px;
+}
+.lt-entry-level {
+  font-size: 0.95rem;
+  font-weight: bold;
+  color: var(--text-gold-bright);
+}
+.lt-entry-prof {
+  font-size: 0.62rem;
+  color: var(--text-muted);
+  margin-top: 0.1rem;
+}
+.lt-entry-body { flex: 1; }
+.lt-entry-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin-bottom: 0.5rem;
+}
+.lt-meta-pill {
+  font-size: 0.72rem;
+  padding: 0.1rem 0.5rem;
+  background: rgba(139,105,20,0.1);
+  border: 1px solid rgba(139,105,20,0.25);
+  border-radius: 20px;
+  color: var(--text-muted);
+}
+.lt-hp-pill {
+  background: rgba(30,120,50,0.15);
+  border-color: rgba(39,174,96,0.4);
+  color: #82e0aa;
+}
+.lt-features {
+  padding-left: 1.1rem;
+  margin: 0 0 0.35rem;
+}
+.lt-feature {
+  font-size: 0.84rem;
+  color: var(--text-parchment);
+  margin-bottom: 0.2rem;
+  line-height: 1.4;
+}
+.lt-notes {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  font-style: italic;
+  margin: 0.25rem 0 0;
+}
+.lt-empty {
+  color: var(--text-dim);
+  font-style: italic;
+  font-size: 0.85rem;
+  margin: 0;
+}
+
+@media (max-width: 640px) {
+  .lt-entry { flex-direction: column; gap: 0.5rem; }
+  .lt-entry-badge { flex-direction: row; gap: 0.75rem; width: 100%; justify-content: flex-start; }
+}
+</style>

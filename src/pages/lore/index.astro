@@ -1,0 +1,42 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+const lore = await getCollection('lore');
+const byCategory: Record<string, typeof lore> = {};
+lore.forEach(entry => {
+  const cat = entry.data.category ?? 'General';
+  if (!byCategory[cat]) byCategory[cat] = [];
+  byCategory[cat].push(entry);
+});
+---
+
+<BaseLayout title="Lore">
+  <div class="page-container">
+    <div class="section-header"><h1>Lore</h1></div>
+    <p style="color:var(--text-muted);margin-bottom:2rem;">The world of Krynn — its history, factions, artifacts, and mysteries.</p>
+
+    {Object.entries(byCategory).map(([cat, entries]) => (
+      <section class="lore-section">
+        <h2 class="lore-cat">{cat}</h2>
+        <div class="lore-grid">
+          {entries.map(entry => (
+            <a href={`/lore/${entry.slug}`} class="card lore-card">
+              <div class="lore-title">{entry.data.title}</div>
+              {entry.data.category && <div class="lore-cat-badge">{entry.data.category}</div>}
+            </a>
+          ))}
+        </div>
+      </section>
+    ))}
+  </div>
+</BaseLayout>
+
+<style>
+.lore-section { margin-bottom: 2.5rem; }
+.lore-cat { font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); margin-bottom: 1rem; padding-bottom: 0.4rem; border-bottom: 1px solid var(--border-gold); opacity: 0.7; }
+.lore-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 0.75rem; }
+.lore-card { display: block; text-decoration: none; padding: 1rem; }
+.lore-title { font-size: 0.95rem; font-weight: bold; color: var(--text-gold); margin-bottom: 0.3rem; }
+.lore-cat-badge { font-size: 0.7rem; color: var(--text-dim); }
+</style>

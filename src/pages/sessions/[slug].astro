@@ -1,0 +1,279 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+export async function getStaticPaths() {
+  const sessions = await getCollection('sessions');
+  return sessions.map(s => ({ params: { slug: s.slug }, props: { session: s } }));
+}
+
+const { session } = Astro.props;
+const { Content } = await session.render();
+const d = session.data;
+
+const typeConfig = {
+  epic:   { icon: '⭐', label: 'Epic Moment', cls: 'highlight-epic' },
+  kill:   { icon: '💀', label: 'Kill',        cls: 'highlight-kill' },
+  fail:   { icon: '🎲', label: 'Disaster',    cls: 'highlight-fail' },
+  social: { icon: '🗣️', label: 'Social',      cls: 'highlight-social' },
+  loot:   { icon: '💰', label: 'Loot',        cls: 'highlight-loot' },
+  death:  { icon: '☠️', label: 'Fell',        cls: 'highlight-death' },
+};
+---
+
+<BaseLayout title={`Session ${d.sessionNumber} — ${d.title}`}>
+  <div class="page-container">
+    <div class="back-link"><a href="/sessions">← All Sessions</a></div>
+
+    <!-- Session Hero -->
+    <div class="session-hero">
+      <div class="session-eyebrow">Session {d.sessionNumber}</div>
+      <h1 class="session-title">{d.title}</h1>
+      <div class="session-meta-row">
+        {d.date && <span class="session-meta-pill">📅 {d.date}</span>}
+        {d.location && <span class="session-meta-pill">📍 {d.location}</span>}
+        {d.level && <span class="session-meta-pill">⚔️ Level {d.level}</span>}
+        {d.xp && <span class="session-meta-pill">✨ {d.xp} XP</span>}
+        {d.totalKills && <span class="session-meta-pill">💀 {d.totalKills} kills</span>}
+      </div>
+    </div>
+
+    <!-- Summary block -->
+    {d.summary && (
+      <div class="session-summary-block">
+        <p>{d.summary}</p>
+      </div>
+    )}
+
+    <!-- MVP + Casualties row -->
+    {(d.mvp || (d.casualties && d.casualties.length > 0)) && (
+      <div class="session-badges-row">
+        {d.mvp && (
+          <div class="session-badge badge-mvp">
+            <span class="badge-icon">⭐</span>
+            <div class="badge-content">
+              <span class="badge-label">Session MVP</span>
+              <span class="badge-name">{d.mvp}</span>
+            </div>
+          </div>
+        )}
+        {d.casualties && d.casualties.map(c => (
+          <div class="session-badge badge-casualty">
+            <span class="badge-icon">💀</span>
+            <div class="badge-content">
+              <span class="badge-label">Went Down</span>
+              <span class="badge-name">{c}</span>
+            </div>
+          </div>
+        ))}
+      </div>
+    )}
+
+    <hr />
+
+    <!-- Highlights -->
+    {d.highlights && d.highlights.length > 0 && (
+      <section class="session-section">
+        <div class="section-label">Session Highlights</div>
+        <div class="highlights-list">
+          {d.highlights.map(h => {
+            const cfg = typeConfig[h.type ?? 'epic'] ?? typeConfig.epic;
+            return (
+              <div class={`highlight-card ${cfg.cls}`}>
+                <div class="highlight-header">
+                  <span class="highlight-icon">{cfg.icon}</span>
+                  <span class="highlight-who">{h.who}</span>
+                  <span class="highlight-tag">{cfg.label}</span>
+                </div>
+                <p class="highlight-what">{h.what}</p>
+              </div>
+            );
+          })}
+        </div>
+      </section>
+    )}
+
+    <!-- Loot Table -->
+    {d.loot && d.loot.length > 0 && (
+      <section class="session-section">
+        <div class="section-label">Loot</div>
+        <div class="loot-table">
+          {d.loot.map(l => (
+            <div class="loot-row">
+              <span class="loot-icon">💰</span>
+              <div class="loot-info">
+                <span class="loot-item">{l.item}</span>
+                {l.notes && <span class="loot-notes">{l.notes}</span>}
+              </div>
+              <span class="loot-who">{l.who}</span>
+            </div>
+          ))}
+        </div>
+      </section>
+    )}
+
+    <hr />
+
+    <!-- Narrative content from markdown -->
+    <div class="prose session-prose">
+      <Content />
+    </div>
+
+    <!-- Cliffhanger -->
+    {d.nextSession && (
+      <div class="cliffhanger">
+        <div class="cliffhanger-label">⏳ To Be Continued...</div>
+        <p class="cliffhanger-text">{d.nextSession}</p>
+      </div>
+    )}
+  </div>
+</BaseLayout>
+
+<style>
+.back-link { margin-bottom: 1.5rem; }
+.back-link a { color: var(--text-muted); font-size: 0.85rem; }
+.back-link a:hover { color: var(--text-gold); }
+
+/* Hero */
+.session-hero { margin-bottom: 1.5rem; }
+.session-eyebrow {
+  font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.15em;
+  color: var(--text-muted); margin-bottom: 0.4rem;
+}
+.session-title {
+  font-size: clamp(1.8rem, 4vw, 2.6rem);
+  color: var(--text-gold-bright);
+  margin-bottom: 0.75rem;
+  line-height: 1.15;
+}
+.session-meta-row { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.session-meta-pill {
+  font-size: 0.78rem; color: var(--text-muted);
+  background: rgba(139,105,20,0.1);
+  border: 1px solid rgba(139,105,20,0.3);
+  border-radius: 20px; padding: 0.2rem 0.75rem;
+}
+
+/* Summary */
+.session-summary-block {
+  background: rgba(139,105,20,0.07);
+  border-left: 3px solid var(--border-gold);
+  padding: 1rem 1.25rem;
+  border-radius: 0 6px 6px 0;
+  margin-bottom: 1.5rem;
+}
+.session-summary-block p {
+  color: var(--text-parchment); font-size: 0.95rem;
+  line-height: 1.7; margin: 0;
+}
+
+/* MVP / Casualties */
+.session-badges-row { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 1.5rem; }
+.session-badge {
+  display: flex; align-items: center; gap: 0.75rem;
+  padding: 0.75rem 1.1rem; border-radius: 8px; border: 1px solid;
+}
+.badge-mvp {
+  background: rgba(212,168,58,0.1);
+  border-color: var(--border-gold-bright);
+}
+.badge-casualty {
+  background: rgba(139,32,32,0.12);
+  border-color: rgba(139,32,32,0.5);
+}
+.badge-icon { font-size: 1.4rem; }
+.badge-label {
+  font-size: 0.62rem; text-transform: uppercase;
+  letter-spacing: 0.1em; color: var(--text-muted); display: block;
+}
+.badge-name { font-size: 0.95rem; font-weight: bold; color: var(--text-gold-bright); }
+.badge-casualty .badge-name { color: #e88; }
+
+/* Section label */
+.session-section { margin-bottom: 2rem; }
+.section-label {
+  font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.12em;
+  color: var(--text-muted);
+  border-bottom: 1px solid rgba(139,105,20,0.3);
+  padding-bottom: 0.5rem; margin-bottom: 1rem;
+}
+
+/* Highlights */
+.highlights-list { display: flex; flex-direction: column; gap: 0.6rem; }
+.highlight-card {
+  border-radius: 6px; padding: 0.75rem 1rem;
+  border: 1px solid; border-left: 4px solid;
+}
+.highlight-epic   { background: rgba(212,168,58,0.07); border-color: rgba(212,168,58,0.2); border-left-color: var(--border-gold-bright); }
+.highlight-kill   { background: rgba(100,20,20,0.12); border-color: rgba(139,32,32,0.3); border-left-color: #c0392b; }
+.highlight-fail   { background: rgba(100,60,0,0.1); border-color: rgba(160,90,0,0.3); border-left-color: #e67e22; }
+.highlight-social { background: rgba(20,60,100,0.12); border-color: rgba(26,80,140,0.3); border-left-color: #2980b9; }
+.highlight-loot   { background: rgba(20,100,40,0.1); border-color: rgba(30,120,50,0.3); border-left-color: #27ae60; }
+.highlight-death  { background: rgba(60,0,80,0.12); border-color: rgba(80,0,100,0.3); border-left-color: #9b59b6; }
+
+.highlight-header {
+  display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.35rem;
+}
+.highlight-icon { font-size: 1rem; }
+.highlight-who { font-weight: bold; color: var(--text-gold); font-size: 0.9rem; }
+.highlight-tag {
+  margin-left: auto; font-size: 0.65rem; text-transform: uppercase;
+  letter-spacing: 0.08em; color: var(--text-muted);
+  background: rgba(255,255,255,0.05); padding: 0.1rem 0.4rem; border-radius: 3px;
+}
+.highlight-what { font-size: 0.85rem; color: var(--text-parchment); margin: 0; line-height: 1.5; }
+
+/* Loot table */
+.loot-table { display: flex; flex-direction: column; gap: 0.4rem; }
+.loot-row {
+  display: flex; align-items: flex-start; gap: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  background: rgba(30,100,50,0.06);
+  border: 1px solid rgba(30,120,50,0.15);
+  border-radius: 5px;
+}
+.loot-icon { font-size: 0.9rem; flex-shrink: 0; margin-top: 2px; }
+.loot-info { flex: 1; display: flex; flex-direction: column; gap: 0.1rem; }
+.loot-item { font-size: 0.88rem; color: var(--text-parchment); font-weight: bold; }
+.loot-notes { font-size: 0.75rem; color: var(--text-muted); font-style: italic; }
+.loot-who {
+  font-size: 0.78rem; color: var(--text-gold); white-space: nowrap;
+  background: rgba(139,105,20,0.1); padding: 0.15rem 0.5rem;
+  border-radius: 3px; align-self: flex-start; margin-top: 2px;
+}
+
+/* Prose section */
+.session-prose { margin-top: 0.5rem; }
+.session-prose h2 { margin-top: 2rem; margin-bottom: 0.75rem; }
+.session-prose h3 {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-top: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+/* Cliffhanger */
+.cliffhanger {
+  margin-top: 2.5rem;
+  background: rgba(139,32,32,0.08);
+  border: 1px solid rgba(139,32,32,0.3);
+  border-top: 3px solid #c0392b;
+  border-radius: 0 0 8px 8px;
+  padding: 1.25rem 1.5rem;
+}
+.cliffhanger-label {
+  font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.12em;
+  color: var(--text-muted); margin-bottom: 0.5rem;
+}
+.cliffhanger-text {
+  font-size: 0.95rem; color: var(--text-parchment);
+  font-style: italic; margin: 0; line-height: 1.6;
+}
+
+@media (max-width: 640px) {
+  .session-badges-row { flex-direction: column; }
+  .highlight-tag { display: none; }
+}
+</style>

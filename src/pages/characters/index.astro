@@ -1,0 +1,86 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+const characters = await getCollection('characters');
+const active = characters.filter(c => c.data.status === 'active')
+  .sort((a, b) => a.data.name.localeCompare(b.data.name));
+---
+
+<BaseLayout title="The Party">
+  <div class="page-container">
+    <div class="section-header">
+      <h1>The Party</h1>
+    </div>
+    <p style="color: var(--text-muted); margin-bottom: 2rem;">
+      Nine adventurers united by a dead man's final letter. Level {active[0]?.data.level ?? 1}, somewhere between heroic and catastrophically unlucky.
+    </p>
+
+    <div class="char-grid">
+      {active.map(char => {
+        const hpPct = char.data.hp && char.data.maxHp
+          ? Math.round((char.data.hp / char.data.maxHp) * 100)
+          : 100;
+        const hpClass = hpPct > 60 ? 'healthy' : hpPct > 30 ? 'wounded' : '';
+        return (
+          <a href={`/characters/${char.slug}`} class="card char-card">
+            <div class="char-header">
+              <div>
+                <div class="char-name">{char.data.name}</div>
+                <div class="char-player">Player: {char.data.player}</div>
+              </div>
+              <div class="char-class-badge">{char.data.class}</div>
+            </div>
+            <div class="char-race">{char.data.race}</div>
+
+            {char.data.hp !== undefined && char.data.maxHp !== undefined && (
+              <div class="char-hp">
+                <div class="hp-label">
+                  <span>HP</span>
+                  <span>{char.data.hp} / {char.data.maxHp}</span>
+                </div>
+                <div class="hp-bar">
+                  <div class={`hp-bar-fill ${hpClass}`} style={`width: ${hpPct}%`}></div>
+                </div>
+              </div>
+            )}
+
+            <div class="char-stats">
+              {char.data.ac !== undefined && (
+                <div class="stat-badge"><span class="value">{char.data.ac}</span><span class="label">AC</span></div>
+              )}
+              {char.data.level !== undefined && (
+                <div class="stat-badge"><span class="value">{char.data.level}</span><span class="label">Lvl</span></div>
+              )}
+            </div>
+          </a>
+        );
+      })}
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+.char-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 1rem;
+}
+.char-card { display: block; text-decoration: none; }
+.char-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.25rem; }
+.char-name { font-size: 1.05rem; font-weight: bold; color: var(--text-gold); }
+.char-player { font-size: 0.72rem; color: var(--text-muted); margin-top: 0.1rem; }
+.char-class-badge {
+  font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.08em;
+  background: rgba(139,105,20,0.2); border: 1px solid var(--border-gold);
+  color: var(--text-gold); padding: 0.2rem 0.5rem; border-radius: 3px; white-space: nowrap;
+}
+.char-race { font-size: 0.78rem; color: var(--text-muted); margin-bottom: 0.75rem; }
+.char-hp { margin-bottom: 0.75rem; }
+.hp-label { display: flex; justify-content: space-between; font-size: 0.7rem; color: var(--text-muted); margin-bottom: 0.3rem; }
+.char-stats { display: flex; gap: 0.5rem; }
+
+@media (max-width: 640px) {
+  .char-grid { grid-template-columns: 1fr 1fr; }
+}
+</style>

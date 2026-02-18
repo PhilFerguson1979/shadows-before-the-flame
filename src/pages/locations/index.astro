@@ -1,0 +1,33 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+const locations = await getCollection('locations');
+const sorted = locations.sort((a, b) => a.data.name.localeCompare(b.data.name));
+---
+
+<BaseLayout title="Locations">
+  <div class="page-container">
+    <div class="section-header"><h1>Locations</h1></div>
+    <p style="color:var(--text-muted);margin-bottom:2rem;">Places visited and known across the world of Krynn.</p>
+    <div class="loc-grid">
+      {sorted.map(loc => (
+        <a href={`/locations/${loc.slug}`} class="card loc-card">
+          <div class="loc-name">{loc.data.name}</div>
+          {loc.data.region && <div class="loc-region">{loc.data.region}</div>}
+          {loc.data.status && <div class="loc-status">{loc.data.status}</div>}
+          {loc.data.firstVisited && <div class="loc-visited">First visited: {loc.data.firstVisited}</div>}
+        </a>
+      ))}
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+.loc-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1rem; }
+.loc-card { display: block; text-decoration: none; }
+.loc-name { font-size: 1rem; font-weight: bold; color: var(--text-gold); margin-bottom: 0.25rem; }
+.loc-region { font-size: 0.78rem; color: var(--text-muted); margin-bottom: 0.25rem; }
+.loc-status { font-size: 0.72rem; color: var(--accent-red-bright); margin-bottom: 0.2rem; }
+.loc-visited { font-size: 0.7rem; color: var(--text-dim); }
+</style>

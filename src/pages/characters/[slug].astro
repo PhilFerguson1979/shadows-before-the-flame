@@ -1,0 +1,215 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import EquipmentPanel from '../../components/EquipmentPanel.astro';
+import CurrencyDisplay from '../../components/CurrencyDisplay.astro';
+import LevelTracker from '../../components/LevelTracker.astro';
+import { getCollection } from 'astro:content';
+
+export async function getStaticPaths() {
+  const characters = await getCollection('characters');
+  return characters.map(char => ({
+    params: { slug: char.slug },
+    props: { char },
+  }));
+}
+
+const { char } = Astro.props;
+const { Content } = await char.render();
+
+const hpPct = char.data.hp && char.data.maxHp
+  ? Math.round((char.data.hp / char.data.maxHp) * 100)
+  : 100;
+const hpClass = hpPct > 60 ? 'healthy' : hpPct > 30 ? 'wounded' : '';
+
+function mod(score) {
+  if (!score) return 0;
+  return Math.floor((score - 10) / 2);
+}
+function modStr(score) {
+  const m = mod(score);
+  return m >= 0 ? `+${m}` : `${m}`;
+}
+---
+
+<BaseLayout title={char.data.name}>
+  <div class="page-container">
+    <div class="back-link"><a href="/characters">← The Party</a></div>
+
+    <!-- Hero Header -->
+    <div class="char-hero">
+      <div class="char-hero-left">
+        <h1>{char.data.name}</h1>
+        <div class="char-meta">
+          {char.data.player && <span class="meta-item player">🎲 {char.data.player}</span>}
+          {char.data.race && <span class="meta-item">{char.data.race}</span>}
+          {char.data.class && <span class="meta-item">{char.data.class}</span>}
+          {char.data.level && <span class="meta-item">Level {char.data.level}</span>}
+        </div>
+      </div>
+
+      <div class="char-vitals">
+        {char.data.hp !== undefined && char.data.maxHp !== undefined && (
+          <div class="vitals-hp">
+            <div class="vital-label">Hit Points</div>
+            <div class="vital-value">
+              {char.data.hp} <span class="vital-max">/ {char.data.maxHp}</span>
+            </div>
+            <div class="hp-bar">
+              <div class={`hp-bar-fill ${hpClass}`} style={`width: ${hpPct}%`}></div>
+            </div>
+          </div>
+        )}
+        {char.data.ac !== undefined && (
+          <div class="stat-badge"><span class="value">{char.data.ac}</span><span class="label">AC</span></div>
+        )}
+        {char.data.speed !== undefined && (
+          <div class="stat-badge"><span class="value">{char.data.speed}</span><span class="label">Speed</span></div>
+        )}
+        {char.data.profBonus !== undefined && (
+          <div class="stat-badge"><span class="value">+{char.data.profBonus}</span><span class="label">Prof</span></div>
+        )}
+      </div>
+    </div>
+
+    <hr />
+
+    <!-- Ability Scores row (dynamic, from frontmatter) -->
+    {char.data.str !== undefined && (
+      <div class="ability-scores-bar">
+        {[
+          { key: 'STR', val: char.data.str },
+          { key: 'DEX', val: char.data.dex },
+          { key: 'CON', val: char.data.con },
+          { key: 'INT', val: char.data.int },
+          { key: 'WIS', val: char.data.wis },
+          { key: 'CHA', val: char.data.cha },
+        ].map(({ key, val }) => (
+          <div class="ability-block">
+            <span class="ability-label">{key}</span>
+            <span class="ability-score">{val}</span>
+            <span class="ability-mod">{modStr(val)}</span>
+          </div>
+        ))}
+      </div>
+    )}
+
+    <!-- Currency -->
+    {char.data.currency && <CurrencyDisplay currency={char.data.currency} />}
+
+    <!-- Level tracker -->
+    {char.data.level && (
+      <LevelTracker
+        currentLevel={char.data.level}
+        charClass={char.data.class}
+        levelHistory={char.data.levelHistory}
+      />
+    )}
+
+    <!-- Equipment Panel (dynamic, interactive) -->
+    {char.data.inventory && char.data.inventory.length > 0 && (
+      <EquipmentPanel character={char.data} />
+    )}
+
+    <hr />
+
+    <!-- Markdown content (class features, spells, session highlights, personality) -->
+    <div class="prose">
+      <Content />
+    </div>
+
+    <!-- Level-up Tracker -->
+    <LevelTracker
+      characterName={char.data.name}
+      currentLevel={char.data.level ?? 1}
+      levelHistory={char.data.levelHistory}
+    />
+  </div>
+</BaseLayout>
+
+<style>
+.back-link { margin-bottom: 1.5rem; }
+.back-link a { color: var(--text-muted); font-size: 0.85rem; }
+.back-link a:hover { color: var(--text-gold); }
+
+.char-hero {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+.char-hero-left h1 { margin-bottom: 0.5rem; }
+.char-meta { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; }
+.meta-item {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  background: rgba(139,105,20,0.1);
+  border: 1px solid rgba(139,105,20,0.3);
+  padding: 0.2rem 0.6rem;
+  border-radius: 3px;
+}
+.meta-item.player {
+  color: var(--text-gold);
+  background: rgba(139,105,20,0.18);
+  border-color: rgba(139,105,20,0.5);
+}
+
+.char-vitals {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-shrink: 0;
+}
+.vitals-hp { min-width: 140px; }
+.vital-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); margin-bottom: 0.2rem; }
+.vital-value { font-size: 1.8rem; font-weight: bold; color: var(--text-gold-bright); line-height: 1; }
+.vital-max { font-size: 1rem; color: var(--text-muted); }
+
+/* Ability score bar */
+.ability-scores-bar {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin: 1.25rem 0;
+}
+.ability-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: rgba(139,105,20,0.08);
+  border: 1px solid rgba(139,105,20,0.25);
+  border-radius: 8px;
+  padding: 0.5rem 0.85rem;
+  min-width: 65px;
+  flex: 1;
+  max-width: 90px;
+}
+.ability-label {
+  font-size: 0.62rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+}
+.ability-score {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: var(--text-parchment);
+  line-height: 1.1;
+}
+.ability-mod {
+  font-size: 0.9rem;
+  color: var(--text-gold-bright);
+  font-weight: bold;
+  background: rgba(139,105,20,0.2);
+  border-radius: 4px;
+  padding: 0 0.4rem;
+  margin-top: 0.15rem;
+}
+
+@media (max-width: 640px) {
+  .char-hero { flex-direction: column; }
+  .char-vitals { width: 100%; }
+  .ability-block { min-width: 50px; padding: 0.4rem 0.5rem; }
+  .ability-score { font-size: 1.2rem; }
+}
+</style>

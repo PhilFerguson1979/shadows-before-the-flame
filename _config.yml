@@ -1,0 +1,13 @@
+title: Shadows Before The Flame
+description: A Dragonlance Campaign for D&D 5e
+baseurl: /shadows-before-the-flame
+remote_theme: pages-themes/midnight@v0.2.0
+plugins:
+  - jekyll-remote-theme
+
+# Custom defaults
+defaults:
+  - scope:
+      path: ""
+    values:
+      layout: "default"

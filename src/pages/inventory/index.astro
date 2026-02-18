@@ -1,0 +1,72 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="Inventory">
+  <div class="page-container">
+    <div class="section-header"><h1>Inventory</h1></div>
+    <p style="color:var(--text-muted);margin-bottom:2rem;">Party loot, notable items, and treasures accumulated across the campaign.</p>
+
+    <div class="card">
+      <h2>Session 1 Haul</h2>
+      <table>
+        <thead>
+          <tr><th>Item</th><th>Holder</th><th>Source</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Robe of Useful Items</td><td>Cogmaw (carrying — too large to wear)</td><td>Ispin Greenshield</td></tr>
+          <tr><td>Hederick's Breastplate</td><td>Cogmaw</td><td>Hederick</td></tr>
+          <tr><td>Hederick's Rapier</td><td>Cogmaw</td><td>Hederick</td></tr>
+          <tr><td>Seeker Signet Ring</td><td>Cogmaw</td><td>Hederick</td></tr>
+          <tr><td>Scroll Case + Documents</td><td>Cogmaw</td><td>Hederick</td></tr>
+          <tr><td>25 gp</td><td>Cogmaw</td><td>Hederick's purse</td></tr>
+          <tr><td>Sergeant Hagar's Mace</td><td>Legolas</td><td>Sergeant Hagar</td></tr>
+          <tr><td>Iron Key Ring (3 keys)</td><td>Legolas</td><td>Sergeant Hagar</td></tr>
+          <tr><td>15 gp</td><td>Legolas</td><td>Sergeant Hagar</td></tr>
+          <tr><td>Spears, Chain Shirts, Shields</td><td>Various</td><td>Seeker Guards</td></tr>
+          <tr><td>Glass Bottles (empty)</td><td>Various</td><td>Seeker Guards</td></tr>
+          <tr><td>2–4 sp each</td><td>Various</td><td>Seeker Guards</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card" style="margin-top:1rem;">
+      <h2>Robe of Useful Items — Patches Remaining</h2>
+      <p style="color:var(--text-muted);font-size:0.85rem;margin-bottom:1rem;">Carried by Cogmaw Fraker. Each patch can be detached and activated with an Action (Bonus Action to retrieve from pack first). 19 of 20 patches remaining.</p>
+      <table>
+        <thead>
+          <tr><th>#</th><th>Patch</th><th>Description</th><th>Status</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>1</td><td>Small Rowboat</td><td>Sturdy wooden boat for two, complete with oars</td><td class="status-avail">Available</td></tr>
+          <tr class="used-row"><td>2</td><td><s>60-ft Wooden Ladder</s></td><td>The "Ispin Special" — Session 1 escape from Solace</td><td class="status-used">USED</td></tr>
+          <tr><td>3</td><td>Dagger</td><td>A simple, well-balanced steel dagger</td><td class="status-avail">Available</td></tr>
+          <tr><td>4</td><td>Bullseye Lantern</td><td>Filled with oil, instantly lit when detached</td><td class="status-avail">Available</td></tr>
+          <tr><td>5</td><td>Steel Mirror</td><td>Polished metal mirror (good for peeking around corners)</td><td class="status-avail">Available</td></tr>
+          <tr><td>6</td><td>10-foot Pole</td><td>Classic dungeoneering tool for checking traps</td><td class="status-avail">Available</td></tr>
+          <tr><td>7</td><td>Hempen Rope (50 ft)</td><td>A coil of strong rope</td><td class="status-avail">Available</td></tr>
+          <tr><td>8</td><td>Large Sack</td><td>Empty burlap sack (holds 30 lbs)</td><td class="status-avail">Available</td></tr>
+          <tr><td>9</td><td>Bag of Gold</td><td>Heavy pouch containing 100 gp</td><td class="status-avail">Available</td></tr>
+          <tr><td>10</td><td>Silver Coffer</td><td>Beautifully crafted silver box (1 ft long) worth 500 gp</td><td class="status-avail">Available</td></tr>
+          <tr><td>11</td><td>Iron Door</td><td>Heavy reinforced door (up to 10×10 ft) — can seal a passage</td><td class="status-avail">Available</td></tr>
+          <tr><td>12</td><td>Gems</td><td>Small pouch with 10 gems (100 gp each)</td><td class="status-avail">Available</td></tr>
+          <tr><td>13</td><td>Riding Horse</td><td>Healthy riding horse with saddlebags</td><td class="status-avail">Available</td></tr>
+          <tr><td>14</td><td>The Pit</td><td>Creates a 10-ft cubic pit when placed on the ground</td><td class="status-avail">Available</td></tr>
+          <tr><td>15</td><td>Crate of Potions</td><td>Small wooden crate with 4 Potions of Healing</td><td class="status-avail">Available</td></tr>
+          <tr><td>16</td><td>Spell Scroll</td><td>Scroll case with a random 2nd-level spell (DM's choice)</td><td class="status-avail">Available</td></tr>
+          <tr><td>17</td><td>Mastiff</td><td>Loyal hunting dog that obeys commands</td><td class="status-avail">Available</td></tr>
+          <tr><td>18</td><td>Window</td><td>Wooden frame (2×4 ft) — creates an opening up to 2 ft deep on any vertical surface</td><td class="status-avail">Available</td></tr>
+          <tr><td>19</td><td>Portable Ram</td><td>Iron-shod log for breaking down doors (+4 to STR checks)</td><td class="status-avail">Available</td></tr>
+          <tr><td>20</td><td>Spyglass</td><td>A brass telescope</td><td class="status-avail">Available</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+.status-avail { color: #27ae60; font-size: 0.8rem; font-weight: bold; }
+.status-used { color: var(--accent-red-bright); font-size: 0.8rem; font-weight: bold; }
+.used-row td { opacity: 0.5; text-decoration: line-through; }
+.used-row .status-used { text-decoration: none; opacity: 1; }
+</style>

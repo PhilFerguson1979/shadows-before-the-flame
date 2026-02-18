@@ -1,0 +1,661 @@
+---
+// EquipmentPanel.astro
+// Dynamic D&D 5e equipment system with stat calculations
+interface Item {
+  name: string;
+  type: string;
+  slot?: string;
+  acBase?: number;
+  acBonus?: number;
+  dmg?: string;
+  dmgType?: string;
+  weight?: string;
+  properties?: string[];
+  notes?: string;
+  quantity?: number;
+  magical?: boolean;
+}
+
+interface Props {
+  character: {
+    name: string;
+    class?: string;
+    str?: number;
+    dex?: number;
+    con?: number;
+    int?: number;
+    wis?: number;
+    cha?: number;
+    ac?: number;
+    inventory?: Item[];
+    equipped?: Record<string, string>;
+  };
+}
+
+const { character } = Astro.props;
+
+// Compute ability modifiers
+function mod(score: number | undefined): number {
+  if (!score) return 0;
+  return Math.floor((score - 10) / 2);
+}
+
+const strMod = mod(character.str);
+const dexMod = mod(character.dex);
+const conMod = mod(character.con);
+const intMod = mod(character.int);
+const wisMod = mod(character.wis);
+const chaMod = mod(character.cha);
+
+// D&D 5e equipment slots
+const SLOTS = [
+  { id: 'armor',    label: 'Armor',       icon: '🛡️', types: ['armor'] },
+  { id: 'mainhand', label: 'Main Hand',   icon: '⚔️', types: ['weapon'] },
+  { id: 'offhand',  label: 'Off Hand',    icon: '🗡️', types: ['weapon', 'shield'] },
+  { id: 'helmet',   label: 'Helmet',      icon: '⛑️', types: ['helmet'] },
+  { id: 'cloak',    label: 'Cloak / Back',icon: '🧥', types: ['cloak', 'magic'] },
+  { id: 'gloves',   label: 'Gloves',      icon: '🧤', types: ['gloves'] },
+  { id: 'boots',    label: 'Boots',       icon: '👢', types: ['boots'] },
+  { id: 'ring1',    label: 'Ring (left)', icon: '💍', types: ['ring', 'misc'] },
+  { id: 'ring2',    label: 'Ring (right)',icon: '💍', types: ['ring', 'misc'] },
+  { id: 'amulet',   label: 'Amulet',      icon: '📿', types: ['amulet', 'misc'] },
+];
+
+// Serialize inventory and equipped for client-side JS
+const inventoryJson = JSON.stringify(character.inventory ?? []);
+const equippedJson = JSON.stringify(character.equipped ?? {});
+const statsJson = JSON.stringify({ strMod, dexMod, conMod, intMod, wisMod, chaMod, baseAC: character.ac ?? 10, charClass: character.class ?? '' });
+---
+
+<section class="equipment-panel">
+  <div class="ep-header">
+    <h2 class="ep-title">Equipment & Loadout</h2>
+    <div class="ep-stat-bar">
+      <div class="ep-stat" id="ep-ac-display">
+        <span class="ep-stat-val" id="computed-ac">{character.ac ?? 10}</span>
+        <span class="ep-stat-lbl">Armor Class</span>
+      </div>
+      <div class="ep-stat">
+        <span class="ep-stat-val">{character.str ?? '—'}</span>
+        <span class="ep-stat-lbl">STR <span class="mod-display">{strMod >= 0 ? `+${strMod}` : strMod}</span></span>
+      </div>
+      <div class="ep-stat">
+        <span class="ep-stat-val">{character.dex ?? '—'}</span>
+        <span class="ep-stat-lbl">DEX <span class="mod-display">{dexMod >= 0 ? `+${dexMod}` : dexMod}</span></span>
+      </div>
+      <div class="ep-stat">
+        <span class="ep-stat-val">{character.con ?? '—'}</span>
+        <span class="ep-stat-lbl">CON <span class="mod-display">{conMod >= 0 ? `+${conMod}` : conMod}</span></span>
+      </div>
+      <div class="ep-stat">
+        <span class="ep-stat-val">{character.int ?? '—'}</span>
+        <span class="ep-stat-lbl">INT <span class="mod-display">{intMod >= 0 ? `+${intMod}` : intMod}</span></span>
+      </div>
+      <div class="ep-stat">
+        <span class="ep-stat-val">{character.wis ?? '—'}</span>
+        <span class="ep-stat-lbl">WIS <span class="mod-display">{wisMod >= 0 ? `+${wisMod}` : wisMod}</span></span>
+      </div>
+      <div class="ep-stat">
+        <span class="ep-stat-val">{character.cha ?? '—'}</span>
+        <span class="ep-stat-lbl">CHA <span class="mod-display">{chaMod >= 0 ? `+${chaMod}` : chaMod}</span></span>
+      </div>
+    </div>
+  </div>
+
+  <div class="ep-body">
+    <!-- Equipment Slots -->
+    <div class="ep-slots">
+      <h3 class="ep-section-title">Equipped Items</h3>
+      <div class="slots-grid">
+        {SLOTS.map(slot => (
+          <div class="slot-row" data-slot={slot.id}>
+            <div class="slot-label">
+              <span class="slot-icon">{slot.icon}</span>
+              <span class="slot-name">{slot.label}</span>
+            </div>
+            <select class="slot-select" data-slot={slot.id}>
+              <option value="">— Empty —</option>
+            </select>
+            <div class="slot-bonus" id={`bonus-${slot.id}`}></div>
+          </div>
+        ))}
+      </div>
+    </div>
+
+    <!-- Active Effects -->
+    <div class="ep-effects">
+      <h3 class="ep-section-title">Active Bonuses</h3>
+      <div id="active-effects" class="effects-list">
+        <p class="effects-empty">Equip items to see their bonuses here.</p>
+      </div>
+
+      <!-- Weapon Attack Cards -->
+      <div id="weapon-cards" class="weapon-cards"></div>
+    </div>
+  </div>
+
+  <!-- Full Inventory -->
+  <div class="ep-inventory">
+    <h3 class="ep-section-title">Full Inventory</h3>
+    <div id="inventory-list" class="inventory-grid"></div>
+  </div>
+</section>
+
+<script define:vars={{ inventoryJson, equippedJson, statsJson }}>
+const inventory = JSON.parse(inventoryJson);
+const initialEquipped = JSON.parse(equippedJson);
+const stats = JSON.parse(statsJson);
+
+const SLOTS = [
+  { id: 'armor',    label: 'Armor',        types: ['armor'] },
+  { id: 'mainhand', label: 'Main Hand',    types: ['weapon'] },
+  { id: 'offhand',  label: 'Off Hand',     types: ['weapon', 'shield'] },
+  { id: 'helmet',   label: 'Helmet',       types: ['helmet'] },
+  { id: 'cloak',    label: 'Cloak / Back', types: ['cloak', 'magic'] },
+  { id: 'gloves',   label: 'Gloves',       types: ['gloves'] },
+  { id: 'boots',    label: 'Boots',        types: ['boots'] },
+  { id: 'ring1',    label: 'Ring (left)',  types: ['ring', 'misc'] },
+  { id: 'ring2',    label: 'Ring (right)', types: ['ring', 'misc'] },
+  { id: 'amulet',   label: 'Amulet',       types: ['amulet', 'misc'] },
+];
+
+let equipped = { ...initialEquipped };
+
+function getItemByName(name) {
+  return inventory.find(i => i.name === name);
+}
+
+function calcAC() {
+  const armorItem = getItemByName(equipped.armor);
+  const shieldItem = getItemByName(equipped.offhand);
+  const { dexMod, strMod, conMod, wisMod, charClass } = stats;
+
+  let ac = 10 + dexMod; // default unarmored
+
+  if (armorItem && armorItem.acBase) {
+    const weight = armorItem.weight || 'light';
+    if (weight === 'light') {
+      ac = armorItem.acBase + dexMod;
+    } else if (weight === 'medium') {
+      ac = armorItem.acBase + Math.min(dexMod, 2);
+    } else if (weight === 'heavy') {
+      ac = armorItem.acBase;
+    } else {
+      ac = armorItem.acBase + dexMod;
+    }
+  } else {
+    // Unarmored Defense
+    const cls = charClass.toLowerCase();
+    if (cls.includes('barbarian')) {
+      ac = 10 + dexMod + conMod;
+    } else if (cls.includes('monk')) {
+      ac = 10 + dexMod + wisMod;
+    } else {
+      ac = 10 + dexMod;
+    }
+  }
+
+  // Shield bonus (only if offhand is a shield, not a weapon)
+  if (shieldItem && shieldItem.type === 'shield' && shieldItem.acBonus) {
+    ac += shieldItem.acBonus;
+  }
+
+  // Other AC bonuses from equipped items
+  SLOTS.forEach(slot => {
+    if (slot.id === 'armor' || slot.id === 'offhand') return;
+    const item = getItemByName(equipped[slot.id]);
+    if (item && item.acBonus) ac += item.acBonus;
+  });
+
+  return ac;
+}
+
+function getActiveEffects() {
+  const effects = [];
+  SLOTS.forEach(slot => {
+    const item = getItemByName(equipped[slot.id]);
+    if (!item) return;
+
+    if (item.acBase || item.acBonus) {
+      const { dexMod } = stats;
+      if (item.type === 'armor') {
+        const w = item.weight || 'light';
+        const bonus = w === 'heavy' ? 0 : w === 'medium' ? Math.min(dexMod, 2) : dexMod;
+        effects.push({ slot: slot.label, item: item.name, bonus: `AC ${item.acBase}${bonus >= 0 ? ' + ' + bonus + ' DEX' : ''}`, type: 'defense', icon: '🛡️' });
+      } else if (item.type === 'shield') {
+        effects.push({ slot: slot.label, item: item.name, bonus: `+${item.acBonus} AC`, type: 'defense', icon: '🛡️' });
+      } else if (item.acBonus) {
+        effects.push({ slot: slot.label, item: item.name, bonus: `+${item.acBonus} AC`, type: 'defense', icon: '🛡️' });
+      }
+    }
+
+    if (item.type === 'weapon' && item.dmg) {
+      effects.push({ slot: slot.label, item: item.name, bonus: `${item.dmg} ${item.dmgType || ''}`, type: 'attack', icon: '⚔️' });
+    }
+
+    if (item.notes && (item.magical || item.type === 'magic')) {
+      effects.push({ slot: slot.label, item: item.name, bonus: item.notes, type: 'magic', icon: '✨' });
+    }
+
+    if (item.notes && item.notes.toLowerCase().includes('note:')) {
+      effects.push({ slot: slot.label, item: item.name, bonus: item.notes, type: 'warning', icon: '⚠️' });
+    }
+  });
+  return effects;
+}
+
+function getWeaponCards() {
+  const weapons = [];
+  ['mainhand', 'offhand'].forEach(slotId => {
+    const item = getItemByName(equipped[slotId]);
+    if (item && item.type === 'weapon' && item.dmg) {
+      const { dexMod, strMod } = stats;
+      const props = item.properties || [];
+      const isFinesse = props.includes('finesse');
+      const atkMod = isFinesse ? Math.max(dexMod, strMod) : (props.includes('ammunition') ? dexMod : strMod);
+      const profBonus = 2;
+      weapons.push({ ...item, slotId, atkBonus: atkMod + profBonus, dmgBonus: atkMod });
+    }
+  });
+  return weapons;
+}
+
+function populateDropdowns() {
+  SLOTS.forEach(slot => {
+    const select = document.querySelector(`select[data-slot="${slot.id}"]`);
+    if (!select) return;
+    select.innerHTML = '<option value="">— Empty —</option>';
+    const eligible = inventory.filter(item => slot.types.includes(item.type));
+    eligible.forEach(item => {
+      const opt = document.createElement('option');
+      opt.value = item.name;
+      opt.textContent = item.name + (item.quantity > 1 ? ` (×${item.quantity})` : '');
+      if (equipped[slot.id] === item.name) opt.selected = true;
+      select.appendChild(opt);
+    });
+
+    select.addEventListener('change', (e) => {
+      equipped[slot.id] = e.target.value || undefined;
+      updateAll();
+    });
+  });
+}
+
+function updateAll() {
+  // Update AC
+  const ac = calcAC();
+  const acEl = document.getElementById('computed-ac');
+  if (acEl) acEl.textContent = ac;
+
+  // Update slot bonus labels
+  SLOTS.forEach(slot => {
+    const bonusEl = document.getElementById(`bonus-${slot.id}`);
+    if (!bonusEl) return;
+    const item = getItemByName(equipped[slot.id]);
+    if (!item) { bonusEl.innerHTML = ''; return; }
+    const parts = [];
+    if (item.dmg) parts.push(`<span class="tag attack">${item.dmg} ${item.dmgType || ''}</span>`);
+    if (item.acBase) parts.push(`<span class="tag defense">AC ${item.acBase}</span>`);
+    if (item.acBonus) parts.push(`<span class="tag defense">+${item.acBonus} AC</span>`);
+    if (item.magical) parts.push(`<span class="tag magic">✨ Magical</span>`);
+    bonusEl.innerHTML = parts.join(' ');
+  });
+
+  // Update active effects panel
+  const effects = getActiveEffects();
+  const effectsEl = document.getElementById('active-effects');
+  if (effectsEl) {
+    if (effects.length === 0) {
+      effectsEl.innerHTML = '<p class="effects-empty">Equip items to see their bonuses here.</p>';
+    } else {
+      effectsEl.innerHTML = effects.map(e => `
+        <div class="effect-row effect-${e.type}">
+          <span class="effect-icon">${e.icon}</span>
+          <div class="effect-info">
+            <span class="effect-item">${e.item}</span>
+            <span class="effect-bonus">${e.bonus}</span>
+          </div>
+        </div>
+      `).join('');
+    }
+  }
+
+  // Update weapon attack cards
+  const weapons = getWeaponCards();
+  const cardsEl = document.getElementById('weapon-cards');
+  if (cardsEl) {
+    cardsEl.innerHTML = weapons.map(w => `
+      <div class="weapon-card">
+        <div class="wc-name">${w.name}</div>
+        <div class="wc-stats">
+          <div class="wc-stat"><span class="wc-val">${w.atkBonus >= 0 ? '+' : ''}${w.atkBonus}</span><span class="wc-lbl">To Hit</span></div>
+          <div class="wc-stat"><span class="wc-val">${w.dmg}</span><span class="wc-lbl">Damage Dice</span></div>
+          <div class="wc-stat"><span class="wc-val">${w.dmgBonus >= 0 ? '+' : ''}${w.dmgBonus}</span><span class="wc-lbl">Dmg Bonus</span></div>
+          <div class="wc-stat"><span class="wc-val">${w.dmgType || '—'}</span><span class="wc-lbl">Type</span></div>
+        </div>
+        ${w.properties && w.properties.length ? `<div class="wc-props">${w.properties.map(p => `<span class="prop-tag">${p}</span>`).join('')}</div>` : ''}
+      </div>
+    `).join('');
+  }
+}
+
+function renderInventory() {
+  const el = document.getElementById('inventory-list');
+  if (!el) return;
+  el.innerHTML = inventory.map(item => `
+    <div class="inv-item inv-type-${item.type}">
+      <div class="inv-name">${item.name}${item.quantity > 1 ? ` <span class="inv-qty">×${item.quantity}</span>` : ''}${item.magical ? ' <span class="inv-magic">✨</span>' : ''}</div>
+      ${item.dmg ? `<div class="inv-detail">⚔️ ${item.dmg} ${item.dmgType || ''}</div>` : ''}
+      ${item.acBase ? `<div class="inv-detail">🛡️ AC ${item.acBase} (${item.weight || 'armor'})</div>` : ''}
+      ${item.acBonus ? `<div class="inv-detail">🛡️ +${item.acBonus} AC</div>` : ''}
+      ${item.properties && item.properties.length ? `<div class="inv-props">${item.properties.map(p => `<span class="prop-tag">${p}</span>`).join('')}</div>` : ''}
+      ${item.notes ? `<div class="inv-notes">${item.notes}</div>` : ''}
+    </div>
+  `).join('');
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  populateDropdowns();
+  updateAll();
+  renderInventory();
+});
+</script>
+
+<style>
+.equipment-panel {
+  margin-top: 2rem;
+}
+.ep-header {
+  margin-bottom: 1.5rem;
+}
+.ep-title {
+  margin-bottom: 1rem;
+  font-size: 1.4rem;
+}
+.ep-stat-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.ep-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: rgba(139,105,20,0.12);
+  border: 1px solid var(--border-gold);
+  border-radius: 8px;
+  padding: 0.6rem 1rem;
+  min-width: 70px;
+  transition: border-color 0.2s;
+}
+.ep-stat:first-child {
+  background: rgba(139,105,20,0.25);
+  border-color: var(--border-gold-bright);
+  min-width: 90px;
+}
+.ep-stat-val {
+  font-size: 1.6rem;
+  font-weight: bold;
+  color: var(--text-gold-bright);
+  line-height: 1;
+}
+.ep-stat-lbl {
+  font-size: 0.62rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  margin-top: 0.2rem;
+}
+.mod-display {
+  color: var(--text-gold);
+  margin-left: 2px;
+}
+
+.ep-body {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+@media (max-width: 768px) {
+  .ep-body { grid-template-columns: 1fr; }
+}
+
+.ep-section-title {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+  border-bottom: 1px solid rgba(139,105,20,0.3);
+  padding-bottom: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+/* Slots */
+.ep-slots, .ep-effects {
+  background: var(--bg-card);
+  border: 1px solid rgba(139,105,20,0.3);
+  border-radius: 8px;
+  padding: 1.25rem;
+}
+.slots-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.slot-row {
+  display: grid;
+  grid-template-columns: 130px 1fr auto;
+  align-items: center;
+  gap: 0.6rem;
+}
+.slot-label {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.slot-icon { font-size: 1rem; }
+.slot-name {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+.slot-select {
+  background: rgba(0,0,0,0.4);
+  border: 1px solid rgba(139,105,20,0.4);
+  border-radius: 4px;
+  color: var(--text-parchment);
+  padding: 0.3rem 0.5rem;
+  font-size: 0.82rem;
+  font-family: Georgia, serif;
+  cursor: pointer;
+  transition: border-color 0.2s;
+  width: 100%;
+}
+.slot-select:focus {
+  outline: none;
+  border-color: var(--border-gold-bright);
+}
+.slot-select option {
+  background: #1a1410;
+  color: var(--text-parchment);
+}
+.slot-bonus {
+  display: flex;
+  gap: 0.3rem;
+  flex-wrap: wrap;
+  min-width: 80px;
+  justify-content: flex-end;
+}
+
+/* Tags */
+.tag {
+  font-size: 0.68rem;
+  padding: 0.15rem 0.4rem;
+  border-radius: 3px;
+  white-space: nowrap;
+}
+.tag.attack {
+  background: rgba(139,32,32,0.3);
+  color: #e88;
+  border: 1px solid rgba(139,32,32,0.5);
+}
+.tag.defense {
+  background: rgba(26,58,92,0.4);
+  color: #8ac;
+  border: 1px solid rgba(26,58,92,0.6);
+}
+.tag.magic {
+  background: rgba(80,40,120,0.4);
+  color: #c8a;
+  border: 1px solid rgba(80,40,120,0.6);
+}
+
+/* Effects */
+.effects-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+.effects-empty {
+  color: var(--text-dim);
+  font-size: 0.82rem;
+  font-style: italic;
+}
+.effect-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 5px;
+  border-left: 3px solid;
+}
+.effect-defense {
+  background: rgba(26,58,92,0.2);
+  border-left-color: #2980b9;
+}
+.effect-attack {
+  background: rgba(139,32,32,0.2);
+  border-left-color: #c0392b;
+}
+.effect-magic {
+  background: rgba(80,40,120,0.2);
+  border-left-color: #9b59b6;
+}
+.effect-warning {
+  background: rgba(180,100,0,0.15);
+  border-left-color: #e67e22;
+}
+.effect-icon { font-size: 1rem; flex-shrink: 0; margin-top: 1px; }
+.effect-info { display: flex; flex-direction: column; gap: 0.1rem; }
+.effect-item { font-size: 0.82rem; font-weight: bold; color: var(--text-parchment); }
+.effect-bonus { font-size: 0.78rem; color: var(--text-muted); }
+
+/* Weapon cards */
+.weapon-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 0.75rem;
+}
+.weapon-card {
+  background: rgba(139,32,32,0.1);
+  border: 1px solid rgba(139,32,32,0.4);
+  border-radius: 6px;
+  padding: 0.75rem 1rem;
+}
+.wc-name {
+  font-weight: bold;
+  color: var(--text-gold);
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+}
+.wc-stats {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.4rem;
+}
+.wc-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.wc-val {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: var(--text-gold-bright);
+  line-height: 1;
+}
+.wc-lbl {
+  font-size: 0.62rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  margin-top: 0.15rem;
+}
+.wc-props, .inv-props {
+  display: flex;
+  gap: 0.3rem;
+  flex-wrap: wrap;
+}
+.prop-tag {
+  font-size: 0.67rem;
+  padding: 0.1rem 0.4rem;
+  background: rgba(139,105,20,0.15);
+  border: 1px solid rgba(139,105,20,0.3);
+  border-radius: 3px;
+  color: var(--text-muted);
+  text-transform: capitalize;
+}
+
+/* Inventory grid */
+.inventory-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 0.75rem;
+}
+.inv-item {
+  background: var(--bg-card);
+  border: 1px solid rgba(139,105,20,0.2);
+  border-radius: 6px;
+  padding: 0.75rem;
+  border-left: 3px solid rgba(139,105,20,0.2);
+}
+.inv-type-weapon { border-left-color: rgba(139,32,32,0.6); }
+.inv-type-armor  { border-left-color: rgba(26,58,92,0.8); }
+.inv-type-shield { border-left-color: rgba(26,80,92,0.8); }
+.inv-type-magic  { border-left-color: rgba(80,40,120,0.8); }
+.inv-type-tool   { border-left-color: rgba(60,90,30,0.6); }
+.inv-name {
+  font-size: 0.88rem;
+  font-weight: bold;
+  color: var(--text-parchment);
+  margin-bottom: 0.3rem;
+}
+.inv-qty {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-weight: normal;
+}
+.inv-magic { color: #c8a; }
+.inv-detail {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  margin-bottom: 0.2rem;
+}
+.inv-notes {
+  font-size: 0.73rem;
+  color: var(--text-dim);
+  font-style: italic;
+  margin-top: 0.3rem;
+  line-height: 1.4;
+}
+
+@media (max-width: 640px) {
+  .slot-row { grid-template-columns: 110px 1fr; }
+  .slot-bonus { display: none; }
+  .ep-stat-val { font-size: 1.2rem; }
+}
+</style>

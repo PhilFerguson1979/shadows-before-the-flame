@@ -1,0 +1,34 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+export async function getStaticPaths() {
+  const npcs = await getCollection('npcs');
+  return npcs.map(npc => ({ params: { slug: npc.slug }, props: { npc } }));
+}
+
+const { npc } = Astro.props;
+const { Content } = await npc.render();
+---
+
+<BaseLayout title={npc.data.name}>
+  <div class="page-container">
+    <div class="back-link"><a href="/npcs">← NPCs</a></div>
+    <h1>{npc.data.name}</h1>
+    <div class="npc-meta">
+      {npc.data.role && <span class="meta-item">{npc.data.role}</span>}
+      {npc.data.disposition && <span class={`meta-item disposition-${npc.data.disposition}`}>{npc.data.disposition}</span>}
+      {npc.data.location && <span class="meta-item">📍 {npc.data.location}</span>}
+    </div>
+    <hr />
+    <div class="prose"><Content /></div>
+  </div>
+</BaseLayout>
+
+<style>
+.back-link { margin-bottom: 1.5rem; }
+.back-link a { color: var(--text-muted); font-size: 0.85rem; }
+.back-link a:hover { color: var(--text-gold); }
+.npc-meta { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.5rem; }
+.meta-item { font-size: 0.8rem; padding: 0.2rem 0.6rem; border-radius: 3px; background: rgba(139,105,20,0.1); border: 1px solid rgba(139,105,20,0.3); color: var(--text-muted); }
+</style>

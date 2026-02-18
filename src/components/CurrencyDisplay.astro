@@ -1,0 +1,123 @@
+---
+interface Props {
+  currency?: {
+    pp?: number;
+    gp?: number;
+    ep?: number;
+    sp?: number;
+    cp?: number;
+  };
+}
+const { currency } = Astro.props;
+const hasCurrency = currency && Object.values(currency).some(v => v && v > 0);
+---
+
+{hasCurrency && (
+  <div class="currency-display">
+    <h3 class="currency-title">Currency</h3>
+    <div class="coin-row">
+      {currency?.pp ? (
+        <div class="coin coin-pp" title="Platinum Pieces">
+          <span class="coin-icon">🪙</span>
+          <span class="coin-amount">{currency.pp}</span>
+          <span class="coin-label">PP</span>
+          <span class="coin-value">={currency.pp * 10} gp</span>
+        </div>
+      ) : null}
+      {currency?.gp ? (
+        <div class="coin coin-gp" title="Gold Pieces">
+          <span class="coin-icon">🟡</span>
+          <span class="coin-amount">{currency.gp}</span>
+          <span class="coin-label">GP</span>
+        </div>
+      ) : null}
+      {currency?.ep ? (
+        <div class="coin coin-ep" title="Electrum Pieces">
+          <span class="coin-icon">🔘</span>
+          <span class="coin-amount">{currency.ep}</span>
+          <span class="coin-label">EP</span>
+          <span class="coin-value">= {currency.ep / 2} gp</span>
+        </div>
+      ) : null}
+      {currency?.sp ? (
+        <div class="coin coin-sp" title="Silver Pieces">
+          <span class="coin-icon">⚪</span>
+          <span class="coin-amount">{currency.sp}</span>
+          <span class="coin-label">SP</span>
+          <span class="coin-value">= {(currency.sp / 10).toFixed(1)} gp</span>
+        </div>
+      ) : null}
+      {currency?.cp ? (
+        <div class="coin coin-cp" title="Copper Pieces">
+          <span class="coin-icon">🟤</span>
+          <span class="coin-amount">{currency.cp}</span>
+          <span class="coin-label">CP</span>
+          <span class="coin-value">= {(currency.cp / 100).toFixed(2)} gp</span>
+        </div>
+      ) : null}
+      {!hasCurrency && (
+        <div class="coin-empty">No coins — broke as a goblin.</div>
+      )}
+    </div>
+  </div>
+)}
+
+<style>
+.currency-display {
+  margin: 1.5rem 0;
+}
+.currency-title {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+  margin-bottom: 0.75rem;
+}
+.coin-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+.coin {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0.75rem 1.1rem;
+  border-radius: 8px;
+  border: 2px solid;
+  min-width: 70px;
+  transition: transform 0.15s;
+}
+.coin:hover { transform: translateY(-2px); }
+
+.coin-pp { background: rgba(180,170,220,0.1); border-color: #a090d0; }
+.coin-gp { background: rgba(212,168,58,0.12); border-color: var(--border-gold-bright); }
+.coin-ep { background: rgba(140,160,170,0.1); border-color: #8090a0; }
+.coin-sp { background: rgba(180,180,200,0.1); border-color: #a0a0b0; }
+.coin-cp { background: rgba(160,90,50,0.12); border-color: #a05030; }
+
+.coin-icon { font-size: 1.4rem; line-height: 1; }
+.coin-amount {
+  font-size: 1.6rem;
+  font-weight: bold;
+  color: var(--text-gold-bright);
+  line-height: 1.1;
+}
+.coin-label {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+}
+.coin-value {
+  font-size: 0.62rem;
+  color: var(--text-dim);
+  margin-top: 0.15rem;
+  font-style: italic;
+}
+.coin-empty {
+  color: var(--text-dim);
+  font-style: italic;
+  font-size: 0.85rem;
+}
+</style>

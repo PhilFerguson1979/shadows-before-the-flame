@@ -1,0 +1,34 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+export async function getStaticPaths() {
+  const locations = await getCollection('locations');
+  return locations.map(loc => ({ params: { slug: loc.slug }, props: { loc } }));
+}
+
+const { loc } = Astro.props;
+const { Content } = await loc.render();
+---
+
+<BaseLayout title={loc.data.name}>
+  <div class="page-container">
+    <div class="back-link"><a href="/locations">← Locations</a></div>
+    <h1>{loc.data.name}</h1>
+    <div class="loc-meta">
+      {loc.data.region && <span class="meta-item">{loc.data.region}</span>}
+      {loc.data.status && <span class="meta-item status">{loc.data.status}</span>}
+    </div>
+    <hr />
+    <div class="prose"><Content /></div>
+  </div>
+</BaseLayout>
+
+<style>
+.back-link { margin-bottom: 1.5rem; }
+.back-link a { color: var(--text-muted); font-size: 0.85rem; }
+.back-link a:hover { color: var(--text-gold); }
+.loc-meta { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.5rem; }
+.meta-item { font-size: 0.8rem; padding: 0.2rem 0.6rem; border-radius: 3px; background: rgba(139,105,20,0.1); border: 1px solid rgba(139,105,20,0.3); color: var(--text-muted); }
+.meta-item.status { color: var(--accent-red-bright); border-color: rgba(139,32,32,0.4); background: rgba(139,32,32,0.1); }
+</style>

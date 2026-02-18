@@ -1,0 +1,51 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+const npcs = await getCollection('npcs');
+const byDisposition = {
+  friendly: npcs.filter(n => n.data.disposition === 'friendly'),
+  neutral: npcs.filter(n => n.data.disposition === 'neutral' || !n.data.disposition),
+  guarded: npcs.filter(n => n.data.disposition === 'guarded'),
+  hostile: npcs.filter(n => n.data.disposition === 'hostile'),
+};
+const dispositionLabel: Record<string, string> = {
+  friendly: 'Allies & Friends',
+  neutral: 'Neutral / Unknown',
+  guarded: 'Guarded',
+  hostile: 'Hostile',
+};
+---
+
+<BaseLayout title="NPCs">
+  <div class="page-container">
+    <div class="section-header"><h1>NPCs</h1></div>
+    <p style="color:var(--text-muted);margin-bottom:2rem;">Everyone the party has encountered on Krynn — friend, foe, and everything between.</p>
+
+    {Object.entries(byDisposition).filter(([, list]) => list.length > 0).map(([disp, list]) => (
+      <section class="disp-section">
+        <h2 class={`disp-heading disposition-${disp}`}>{dispositionLabel[disp]}</h2>
+        <div class="npc-grid">
+          {list.map(npc => (
+            <a href={`/npcs/${npc.slug}`} class="card npc-card">
+              <div class="npc-name">{npc.data.name}</div>
+              {npc.data.role && <div class="npc-role">{npc.data.role}</div>}
+              {npc.data.location && <div class="npc-loc">📍 {npc.data.location}</div>}
+              {npc.data.firstSeen && <div class="npc-seen">First seen: {npc.data.firstSeen}</div>}
+            </a>
+          ))}
+        </div>
+      </section>
+    ))}
+  </div>
+</BaseLayout>
+
+<style>
+.disp-section { margin-bottom: 2.5rem; }
+.disp-heading { font-size: 1rem; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 1rem; padding-bottom: 0.4rem; border-bottom: 1px solid var(--border-gold); opacity: 0.8; }
+.npc-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 0.75rem; }
+.npc-card { display: block; text-decoration: none; padding: 1rem; }
+.npc-name { font-size: 0.95rem; font-weight: bold; color: var(--text-gold); margin-bottom: 0.2rem; }
+.npc-role { font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.3rem; }
+.npc-loc, .npc-seen { font-size: 0.72rem; color: var(--text-dim); }
+</style>

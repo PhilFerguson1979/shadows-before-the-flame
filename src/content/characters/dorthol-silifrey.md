@@ -1,0 +1,96 @@
+---
+name: "Dorthol Silifrey"
+player: "Daniel"
+race: "Half-Elf"
+class: "Lunar Sorcerer"
+level: 1
+hp: 15
+maxHp: 15
+ac: 12
+speed: 30
+profBonus: 2
+status: "active"
+str: 10
+dex: 14
+con: 16
+int: 11
+wis: 10
+cha: 20
+currency:
+  gp: 0
+  sp: 2
+  cp: 0
+inventory:
+  - name: "Dagger"
+    type: "weapon"
+    slot: "mainhand"
+    dmg: "1d4"
+    dmgType: "piercing"
+    properties: ["finesse", "light", "thrown"]
+  - name: "Light Crossbow"
+    type: "weapon"
+    dmg: "1d8"
+    dmgType: "piercing"
+    properties: ["ammunition", "loading", "two-handed"]
+    notes: "Range 80/320 ft"
+  - name: "Component Pouch"
+    type: "misc"
+    notes: "Replaces arcane focus — holds spell components"
+  - name: "Dungeoneer's Pack"
+    type: "pack"
+    notes: "Crowbar, hammer, pitons, torches, tinderbox, rations, waterskin, rope"
+  - name: "Spear"
+    type: "weapon"
+    dmg: "1d6"
+    dmgType: "piercing"
+    properties: ["thrown", "versatile"]
+    notes: "Session 1 loot"
+  - name: "Chain Shirt"
+    type: "armor"
+    slot: "armor"
+    acBase: 13
+    weight: "medium"
+    notes: "Session 1 loot — AC = 13 + DEX mod (max 2)"
+  - name: "Shield"
+    type: "shield"
+    slot: "offhand"
+    acBonus: 2
+    notes: "Session 1 loot — NOTE: Sorcerers not proficient with shields"
+  - name: "Glass Bottle"
+    type: "misc"
+    notes: "Session 1 loot — empty"
+equipped:
+  mainhand: "Dagger"
+---
+
+## Class Features
+
+- **Spellcasting** — CHA-based, Spell Save DC 15, Spell Attack +7
+- **Lunar Embodiment** — bonus spells based on moon phase
+- **Fey Ancestry** — advantage vs charm, immune to magical sleep
+- **Darkvision** 60 ft.
+
+## Spells
+
+| Spell | Level | Notes |
+|-------|-------|-------|
+| Fire Bolt | Cantrip | 1d10 fire, 120 ft |
+| Light | Cantrip | Object glows 20 ft radius |
+| Mage Hand | Cantrip | Spectral hand, 30 ft |
+| Sacred Flame | Cantrip | DEX save, radiant damage |
+| Dissonant Whispers | 1st (2 slots) | Psychic damage + flee |
+| Shield | 1st | +5 AC reaction |
+| Color Spray | 1st | Blind creatures |
+| Grease | 1st | Slippery surface |
+
+## Session Highlights
+
+### Session 1 — The Inn of the Last Home
+- Cast **Grease** — slipped on a cup, greased the wall instead
+- Threw **water on a grease fire** causing an explosion
+- Took **6 fire damage** from the resulting flames
+- Learned the hard way about water + grease + fire interactions
+
+## Personality
+
+> *Always calm. Logic over emotion.*
