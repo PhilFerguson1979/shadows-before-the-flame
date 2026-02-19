@@ -2891,9 +2891,386 @@ Post-war organization founded by Sara Dunstan (adoptive mother of Steel Brightbl
 - Refuses to take sides in any conflict; records history without judgment
 - Even during the War of the Lance, he simply recorded events from his library
 
----
+### Krynn Race Traits — 5e Stat Blocks
 
-## Campaign-Specific Data
+*Source: Raistlin's Guide to Krynn (5e Conversion v2.5)*
+
+**Draconian (Playable Race):**
+- **Ability Score Increase:** CON +2, plus subrace bonus
+- **Size:** Medium | **Speed:** 30 ft | **Languages:** Common, Nerakan
+
+| Subrace | Extra ASI | Damage Resistance | Special | Death Throe |
+|---------|-----------|-------------------|---------|-------------|
+| **Baaz** | — | Fire, Lightning | Glide (negate fall damage, travel 4x horizontal), advantage vs. sleep | Petrification: turn to stone, weapon stuck (DC 13 DEX), crumble in 1d4 rounds |
+| **Kapak** | DEX +1 | Acid, Poison | Glide, Stealth proficiency | Acid Pool: 5ft radius, 1d6 acid/round for 1d6 rounds, damages gear |
+| **Bozak** | STR +1 | Lightning | Glide, Draconian Magic (True Strike cantrip; Burning Hands at 3rd level, 1/long rest; INT casting) | Explosive Bones: 2d6 bludgeoning, 10ft, DC 14 DEX |
+| **Sivak** | STR +1 | Cold | Fly 30ft, Steal Appearance (take form of Medium humanoid you killed) | Death Face: become copy of killer for 3 days then decompose; if killer is Large+ or non-humanoid, burst into flame (2d6 fire, 10ft, DC 17 DEX) |
+| **Aurak** | INT +2 | Fire | Draconian Magic (Fire Bolt + Mage Hand cantrips; Hold Person at 3rd level; Lightning Bolt at 5th level, 1/long rest each; INT casting) | Burning Frenzy: 4d6 force, 5ft, DC 16 DEX |
+
+**Draconian Breath Weapon (Feat):**
+- Prerequisite: Draconian
+- Action to exhale destructive energy; DC = 8 + CON mod + proficiency
+- 2d6 damage (3d6 at 6th, 4d6 at 11th, 5d6 at 16th); recharge on short/long rest
+- Baaz/Kapak/Bozak: 5×30ft line (DEX save); Sivak: 15ft cone (CON save); Aurak: 15ft cone (DEX save)
+- Damage type: Baaz=Fire, Kapak=Acid, Bozak=Lightning, Sivak=Cold, Aurak=Fire
+
+**Kender (Playable Race):**
+- **Ability Score Increase:** DEX +2, CHA +1
+- **Size:** Small | **Speed:** 25 ft | **Languages:** Common, Kenderspeak
+- **Lucky:** Reroll natural 1s on d20 (attack, ability check, saving throw); must use new roll
+- **Keen Senses:** Proficiency in Perception
+- **Kender Pockets:** When you need a nonmagical item, roll d4. On a 4, you have it. Otherwise, can't search for same item until spending 1 day in a town. Takes 1 minute to rummage
+
+| Subrace | Features |
+|---------|----------|
+| **True Kender** | Fearless (advantage vs. frightened), Taunt (advantage on CHA Performance to enrage creatures), Lack of Focus (disadvantage on INT Investigation and CON concentration checks) |
+| **Afflicted Kender** | Pitiable (advantage on CHA Persuasion to convince enemies not to harm you) |
+
+**Kender Nightstalker (Feat):**
+- Prerequisite: Kender. WIS +1 (max 20)
+- In enclosed areas where 5+ creatures died: advantage on WIS Perception
+- Learn Speak with Dead, cast 1/long rest without spell slot or material components
+
+**Dark Dwarf (Dwarf Subrace):**
+- **Ability Score Increase:** INT +1, DEX +1
+- **Stalker:** Advantage on DEX Stealth checks
+- **Sunlight Sensitivity:** Disadvantage on attacks and WIS Perception in direct sunlight
+- **Superior Darkvision:** 120 ft
+
+**Gully Dwarf (Dwarf Subrace):**
+- **Ability Score Increase:** DEX +1
+- **Survival Instinct:** Advantage on DEX Stealth and WIS Survival checks
+- **Pitiable:** Advantage on CHA Persuasion to convince enemies not to harm you
+- **Cowardly:** Disadvantage on WIS saves vs. frightened or fear effects
+
+**Other Krynn Race Mappings (5e):**
+| Krynn Race | Use 5e Race | Notes |
+|------------|-------------|-------|
+| Qualinesti Elf | High Elf | Standard PHB high elf |
+| Silvanesti Elf | High Elf | Standard PHB high elf (more isolationist RP) |
+| Kagonesti Elf | Wood Elf | Standard PHB wood elf |
+| Dimernesti/Dargonesti | Sea Elf | Mordenkainen's Tome of Foes sea elf |
+| Mountain Dwarf (Hylar/Daewar/Klar) | Mountain Dwarf | Standard PHB |
+| Hill Dwarf (Neidar) | Hill Dwarf | Standard PHB |
+| Tinker Gnome | Rock Gnome | Standard PHB; only gnome subrace on Krynn |
+| Half-Ogre | Half-Orc (reskinned) | Use half-orc stats, flavor as half-ogre |
+| Minotaur | Minotaur | Use Guildmasters' Guide to Ravnica minotaur |
+
+**Human Ethnic Languages:**
+| Culture | Extra Language |
+|---------|---------------|
+| Abanasinian plainsfolk | Abanasinian |
+| City Abanasinian | Abanasinian |
+| Ergothian | Ergot |
+| Ice Folk | Ice Folk (Icespeak) |
+| Kharolian | Kharolian |
+| Mountain Barbarian | Nerakese |
+| Nerakan | Nerakese |
+| Nomad of Khur | Khurish |
+| Nordmaarian Horselord | Nordmaarian |
+| Nordman | Nordmaarian |
+| Sea Nomad | Ergot, Kalinese, or Saifhum |
+| Solamnic | Solamnic |
+
+### Moon Magic — 5e Mechanics
+
+*Any wizard (or spellcaster) who has passed the Test and belongs to the Wizards of High Sorcery uses Moon Magic.*
+
+**Moon Phase Effects on Aligned Wizards:**
+| Moon Phase | Modifier to Spell Save DC & Spell Attack |
+|------------|------------------------------------------|
+| High Sanction (full) | +1 |
+| Waxing | 0 |
+| Waning | 0 |
+| Low Sanction (new) | -1 |
+
+**Moon Alignment (Conjunction) Effects:**
+| Alignment | Modifier to Spell Save DC & Spell Attack |
+|-----------|------------------------------------------|
+| Solinari + Lunitari conjunction | +1 |
+| Solinari + Nuitari conjunction | +1 |
+| Nuitari + Lunitari conjunction | +1 |
+| Three Moon conjunction (Night of the Eye) | +2 |
+
+*Both phase and alignment effects stack. A White Robe wizard during High Sanction of Solinari AND a Solinari+Lunitari conjunction would get +2 total to spell save DC and spell attacks.*
+
+### Magic Sources on Krynn (5e)
+
+| Source | Class | Description |
+|--------|-------|-------------|
+| **Magic from the Gods** | Cleric | Holy Orders of the Stars; spells granted by a specific deity |
+| **Nature Magic** | Druid | Power from nature gods (Habbakuk, Chislev, Zeboim) but not part of Holy Orders |
+| **Moon Magic** | Wizard | Power drawn from the moons; must pass Test of High Sorcery; choose one moon to serve |
+| **Magic of the World** | Sorcerer | Primal Sorcery — power drawn from the essence of Krynn itself |
+| **Pact Magic** | Warlock | Ancient pacts with superior entities; typically Knights of the Thorn |
+| **Magic from the Heart** | Cleric (Mystic bg) | Inner awareness and self-discovery; no deity worship required |
+
+### Coinage of Krynn
+- **Steel pieces (stl)** replace gold pieces as the standard currency on Krynn
+- After the Cataclysm, gold became largely decorative while steel became the most valuable metal (for weapons, tools, armor)
+- All GP references in standard D&D convert 1:1 to steel pieces
+- Gold, silver, and copper coins still exist but steel is the trade standard
+- Thorbardin and Kayolin are the primary minters of steel, silver, and copper coins
+
+### Languages of Ansalon
+
+| Language | Typical Speakers | Script |
+|----------|-----------------|--------|
+| Common | Humans, most races | Common |
+| Abanasinian | Plains barbarians, Abanasinia | Common |
+| Draconian | Draconians | Nerakan |
+| Dwarven | All dwarf clans | Dwarven |
+| Elven (Qualinesti) | Qualinesti elves | Elven |
+| Elven (Silvanesti) | Silvanesti elves | Elven |
+| Elven (Kagonesti) | Wild elves | Elven |
+| Ergot | Ergothians, sea nomads | Common |
+| Gnomish | Tinker gnomes | Gnomish |
+| Goblin | Goblins, hobgoblins | Goblin |
+| Hammertalk | Dwarves | Tapping code (no script) |
+| Ice Folk (Icespeak) | Ice barbarians | Common |
+| Kalinese | Sea nomads | Common |
+| Kenderspeak | Kender | Common |
+| Kharolian | Southern humans | Common |
+| Khurish | Desert nomads of Khur | Istarian |
+| Minotaur | Minotaurs | Minotaur |
+| Nerakese | Nerakans, mountain barbarians | Nerakan |
+| Nordmaarian | Nordmaar humans | Common |
+| Ogre | Ogres, half-ogres | Ogre |
+| Saifhum | Sea mariners | Common |
+| Solamnic | Solamnians | Common |
+| Sylvan | Fey, centaurs | Elven |
+| Thanoi | Walrus-folk | None (oral only) |
+
+### Draconian Monster Stat Blocks — Full 5e
+
+**Baaz Draconian**
+- **CR 1/2** | Medium humanoid (draconian) | CE
+- **AC** 16 (chain shirt) | **HP** 15 (2d8+6) | **Speed** 30 ft
+- **STR** 14(+2) **DEX** 12(+1) **CON** 16(+3) **INT** 10(+0) **WIS** 11(+0) **CHA** 10(+0)
+- **Skills:** Intimidation +2, Stealth +3 | **Resistances:** Fire, Lightning
+- **Death Throes (Petrification):** At 0 HP, turns to stone. Killing blow with slashing/piercing = DC 13 DEX or weapon stuck. DC 13 STR Athletics to free. Crumbles in 1d4 rounds
+- **Actions:** Multiattack (claw + spear). Claw: +4, 1d8+2 slashing. Spear: +4, 1d6+2 (1d8+2 two-handed). Glide
+
+**Kapak Draconian**
+- **CR 3** | Medium humanoid (draconian) | LE
+- **AC** 15 (studded leather) | **HP** 58 (9d8+18) | **Speed** 30 ft
+- **STR** 11(+0) **DEX** 16(+3) **CON** 14(+2) **INT** 13(+1) **WIS** 11(+0) **CHA** 10(+0)
+- **Saves:** DEX +6, INT +4 | **Skills:** Acrobatics +6, Deception +3, Perception +3, Stealth +9
+- **Resistances:** Acid, Poison | **Passive Perception** 16
+- **Assassinate:** First turn advantage on attacks vs. creatures that haven't acted; crits on surprised creatures
+- **Evasion:** DEX save for half = no damage; failed = half damage
+- **Sneak Attack:** 2d6 extra damage with advantage or adjacent ally
+- **Death Throes (Acid Pool):** 5ft radius acid, 1d6/round for 1d6 rounds, damages gear
+- **Actions:** Multiattack (2 shortswords). Shortsword: +6, 1d6+3 piercing + DC 15 CON or 3d6 poison. Shortbow: +6, 1d6+3 + DC 15 CON or 3d6 poison. Glide
+
+**Bozak Draconian**
+- **CR 1** | Medium humanoid (draconian) | LE
+- **AC** 15 (studded leather) | **HP** 84 (13d8+26) | **Speed** 30 ft
+- **STR** 15(+2) **DEX** 16(+3) **CON** 14(+2) **INT** 16(+3) **WIS** 12(+1) **CHA** 10(+0)
+- **Saves:** CON +4, INT +5, WIS +4 | **Skills:** Arcana +5, Perception +3, Stealth +5
+- **Resistances:** Lightning
+- **Spellcasting:** 4th-level wizard. INT (DC 13, +5). Cantrips: Blade Ward, Fire Bolt, Message, Shocking Grasp, True Strike. 1st (4 slots): Burning Hands, Detect Magic, Magic Missile, Shield. 2nd (3 slots): Invisibility, Stinking Cloud, Web
+- **Death Throes (Explosive Bones):** 2d6 bludgeoning, 10ft, DC 14 DEX
+- **Actions:** Multiattack (shortsword + claw). Claw: +4, 1d8+2 slashing. Shortsword: +5, 1d6+3 piercing. Glide
+
+**Sivak Draconian**
+- **CR 9** | Medium humanoid (draconian) | LE
+- **AC** 18 (plate) | **HP** 143 (22d8+44) | **Speed** 30 ft, fly 30 ft
+- **STR** 20(+5) **DEX** 15(+2) **CON** 14(+2) **INT** 10(+0) **WIS** 14(+2) **CHA** 12(+1)
+- **Saves:** STR +9, CON +6 | **Skills:** Athletics +9, Intimidation +5, Perception +6
+- **Resistances:** Cold
+- **Steal Appearance:** Take form of Medium humanoid you just killed. Voice/appearance match perfectly. No memories or abilities gained
+- **Indomitable (2/Day):** Reroll failed saving throw
+- **Second Wind (1/Day):** Bonus action, regain 20 HP
+- **Death Throes (Death Face):** Male sivak becomes copy of killer for 3 days; decomposes to soot. If killer is Large+/non-humanoid or sivak is female: burst into flame 2d6 fire, 10ft, DC 17 DEX
+- **Actions:** Multiattack (2 greatsword + tail). Greatsword: +9, 2d6+5 slashing (+2d6 if above half HP). Tail: +9, 1d8+5 bludgeoning (+2d6 if above half HP). Claw: +9, 1d8+5 slashing (+2d6 if above half HP)
+
+**Aurak Draconian**
+- **CR 9** | Medium humanoid (draconian) | LE
+- **AC** 12 (15 with Mage Armor) | **HP** 84 (13d8+26) | **Speed** 30 ft
+- **STR** 10(+0) **DEX** 14(+2) **CON** 14(+2) **INT** 17(+3) **WIS** 12(+1) **CHA** 11(+0)
+- **Saves:** INT +6, WIS +4 | **Skills:** Arcana +8, History +8
+- **Resistances:** Fire | **Magic Resistance:** Advantage on saves vs. spells
+- **Spellcasting:** 13th-level wizard. INT (DC 15, +7). Cantrips: Fire Bolt, Light, Mage Hand, Prestidigitation. 1st (4): Detect Magic, Mage Armor, Magic Missile, Shield. 2nd (3): Hold Person, Misty Step, Suggestion. 3rd (3): Counterspell, Fireball, Fly, Lightning Bolt. 4th (3): Greater Invisibility, Ice Storm. 5th (2): Cone of Cold, Wall of Force. 6th (1): Flesh to Stone, Globe of Invulnerability. 7th (1): Teleport
+- **Death Throes (Burning Frenzy):** 4d6 force, 5ft, DC 16 DEX
+- **Actions:** Dagger: +7, 1d4+2 piercing. Claw: +5, 1d8 slashing
+
+**Ogre Titan**
+- **CR 11** | Large giant | NE
+- **AC** 18 (natural armor) | **HP** 189 (18d10+90) | **Speed** 40 ft
+- **STR** 20(+5) **DEX** 16(+3) **CON** 20(+5) **INT** 16(+3) **WIS** 15(+1) **CHA** 19(+4)
+- **Saves:** STR +10, INT +8, WIS +7, CHA +9
+- **Skills:** Athletics +10, Arcana +8, Deception +9, Insight +7, Perception +7, Persuasion +9
+- **Resistances:** Bludgeoning, piercing, slashing from nonmagical weapons
+- **Darkvision** 60ft | **Passive Perception** 17
+- **Awe Presence:** Hostile creatures starting turn within 30ft: DC 17 WIS or frightened until start of next turn. Success = immune 24h
+- **Magic Resistance:** Advantage on saves vs. spells
+- **Spellcasting:** 6th-level wizard. INT (DC 16, +8). Cantrips: Mage Hand, Message, Ray of Frost, Prestidigitation. 1st (4): Detect Magic, Magic Missile, Shield, Fog Cloud. 2nd (3): Hold Person, Misty Step, Web. 3rd (3): Counterspell, Fly, Lightning Bolt
+- **Innate Spellcasting:** CHA (DC 17). At will: Stone Shape. 3/day: Magic Missile
+- **Actions:** Multiattack (3 greatsword). Greatsword: +10, 2d6+5 slashing (+2d6 if above half HP)
+
+**Thanoi (Walrus-Folk)**
+- **CR 2** | Medium monstrosity | NE
+- **AC** 14 (natural armor) | **HP** 52 (8d8+16) | **Speed** 30 ft, swim 30 ft
+- **STR** 16(+3) **DEX** 12(+1) **CON** 15(+2) **INT** 6(-2) **WIS** 7(-2) **CHA** 9(-1)
+- **Saves:** CON +5 | **Skills:** Athletics +6
+- **Immunities:** Cold | **Resistances:** Fire
+- **Hold Breath:** 30 minutes
+- **Actions:** Multiattack (greatclub + tusks). Tusks: +6, 1d8+3 piercing. Greatclub: +6, 1d8+3 bludgeoning
+
+**Red Dragonspawn Veteran (Sample)**
+- **CR 4** | Medium monstrosity | CE
+- **AC** 18 (plate) | **HP** 65 (10d8+20) | **Speed** 30 ft, fly 40 ft
+- **STR** 16(+3) **DEX** 13(+1) **CON** 14(+2) **INT** 10(+0) **WIS** 11(+0) **CHA** 14(+2)
+- **Saves:** STR +5, CON +4 | **Skills:** Athletics +5, Intimidation +4, Perception +2
+- **Resistances:** Fire | **Senses:** Blindsight 10ft, Darkvision 60ft
+- **Death Throes:** 4d6 fire, 10ft, DC 15 DEX
+- **Innate Spellcasting:** CHA (DC 12). At will: Darkness, Fire Bolt, Invisibility. 1/day: Charm Person, Cone of Cold, Gaseous Form, Sleep
+- **Actions:** Multiattack (2 longsword). Longsword: +5, 1d8+3 (1d10+3 two-handed). Fire Breath (Recharge 5-6): 15ft cone, 7d6 fire, DC 15 DEX
+
+**Dragonspawn Template (Apply to any humanoid):**
+- Change type to Monstrosity
+- Add: Blindsight 10ft, Darkvision 60ft, Fly 40ft
+- Add: Damage resistance based on dragon color (Red=Fire, Blue=Lightning, Green=Poison, Black=Acid, White=Cold)
+- Add: Breath weapon of wyrmling dragon of matching color
+- Add: Death Throes (4d6 matching damage, 10ft, DC 15 DEX)
+- Add: Innate Spellcasting (CHA, DC 14). At will: Darkness, Invisibility. 1/day: Charm Person, Cone of Cold, Gaseous Form, Sleep
+
+### Magic Items — Full 5e Stat Blocks
+
+*Source: Raistlin's Guide to Krynn (5e Conversion v2.5)*
+
+**Dragonlance (Greater)**
+- *Weapon (lance), legendary (requires attunement)*
+- +3 bonus to attack and damage rolls
+- When you hit an evil dragon: +6d8 radiant damage
+- Advantage on saves vs. Frightful Presence, breath weapons, and spells of evil dragons
+
+**Dragonlance (Lesser)**
+- *Weapon (lance), very rare (requires attunement)*
+- +2 bonus to attack and damage rolls
+- When you hit an evil dragon: +3d6 extra weapon damage
+
+**Huma's Lance**
+- *Weapon (lance), legendary (requires attunement)*
+- +3 bonus to attack and damage rolls
+- When you hit an evil dragon: +6d8 radiant damage
+- Advantage on saves vs. Frightful Presence, breath weapons, and spells of evil dragons
+- Bonus action: cast Banishment (DC 18) on one creature within 10ft, 1/long rest
+
+**Blue Crystal Staff (Proper 5e)**
+- *Staff, legendary (requires attunement by a cleric or druid)*
+- +2 magic quarterstaff (+3 if Cleric of Mishakal, +2d6 vs. undead/fiends)
+- **20 charges.** Expend charges to cast: Cure Wounds (1/spell level), Detect Poison and Disease (1), Command (1), Lesser Restoration (2), Protection from Poison (2), Continual Flame (2), Mass Cure Wounds (5), Remove Curse (5), Greater Restoration (8), Raise Dead (8, Mishakal cleric only), Regenerate (12, Mishakal cleric only), Resurrection (12, Mishakal cleric only)
+- Regains 1d4 charges at dawn
+- 1/long rest: teleport (staff chooses destination unless wielder is Cleric of Mishakal)
+- 1/long rest: deflect any dragon breath weapon, protecting 10ft radius
+- Evil creatures take 3d6 radiant on touch (and each turn held)
+
+**Staff of Magius (Proper 5e)**
+- *Staff, very rare (requires attunement)*
+- +2 magic quarterstaff. While holding: +2 AC, +2 saving throws, +2 spell attacks
+- 6th level+ spellcaster: double spell durations, +2 damage per die, maintain concentration 1 round after broken
+- Spells: Daylight (light from staff) and Feather Fall, each 1/day
+- **Secret Power (DC 25 INT Arcana, wizard 6th+):** Gains all properties of Staff of Power
+
+**Brightblade (Proper 5e)**
+- *Weapon (longsword), rare (requires attunement)*
+- +2 bonus to attack and damage rolls
+- Advantage on CHA Persuasion checks
+- **Protection Runes:** If wielded by someone of dark purpose, weak beliefs, or evil will — the sword shatters (only restorable by divine intervention)
+
+**Nightbringer (Verminaard's Mace)**
+- *Weapon (mace), rare (requires attunement)*
+- +1 bonus to attack and damage rolls
+- On hit: target must succeed DC 15 CON save or become blind for 1 minute (save at end of each turn)
+- If wielded by someone of pure heart: 2d6 necrotic per round + DC 15 CON or blind 1 minute
+
+**Wyrmslayer (Proper 5e)**
+- *Weapon (longsword), very rare (requires attunement)*
+- +2 bonus to attack and damage rolls
+- When you hit a dragon: +3d6 extra weapon damage
+- Advantage on saves vs. Frightful Presence and breath weapons of dragons
+- Buzzes loudly within 30ft of a true dragon (even polymorphed); audible to dragons within 300ft
+- Unaffected by draconian death throes
+
+**Wyrmsbane (Proper 5e)**
+- *Weapon (longsword), rare (requires attunement)*
+- +1 bonus to attack and damage rolls
+- When you hit a dragon: +3d6 extra weapon damage
+- Cast Locate Object 3/day
+- Unaffected by draconian death throes
+
+**Dragonarmor**
+- *Armor (scale mail), very rare (requires attunement)*
+- Uses Dragon Scale Mail from DMG (AC 14 + DEX mod max 2, no stealth disadvantage)
+- Advantage on saves vs. Frightful Presence and breath weapons of the dragon type matching the armor's color
+- Resistance to the damage type of the matching dragon color
+- 1/day: detect dragons of matching type within 30 miles
+
+**Frostreaver (Proper 5e — converted from 3.5e)**
+- *Weapon (greataxe), rare (requires attunement)*
+- In Cold conditions (40°F or below): +4 greataxe (attack and damage)
+- In Moderate or warmer (above 40°F): +1 greataxe only
+- Crafted from compressed glacial ice; anointed with thanoi blubber to stay solid
+- Secret of crafting jealously guarded by the Ice Folk
+
+### Krynn-Specific Classes & Subclass Notes (5e Adaptation)
+
+| Standard 5e Class | Krynn Adaptation | Notes |
+|-------------------|-----------------|-------|
+| **Fighter** | Standard | Cavalier archetype works as Dragon Rider |
+| **Barbarian** | Standard | Plains barbarians, mountain barbarians, ice folk |
+| **Ranger** | Standard | Common among Kagonesti, Nordmaarian scouts |
+| **Paladin** | Rare | Chosen mortals of the gods of Light; Paladine, Kiri-Jolith, Habbakuk |
+| **Cleric** | Holy Orders of the Stars | Must serve a specific deity; Cleric of Mishakal, Cleric of Paladine, etc. |
+| **Druid** | Nature gods but NOT Holy Orders | Power from Habbakuk, Chislev, or Zeboim; separate from organized clergy |
+| **Monk** | Majere's monasteries | Life of introspection in remote monasteries of Majere |
+| **Rogue** | Standard | Common in port cities, Lemish, among kapak draconians |
+| **Bard** | Standard | Storytellers, lorekeepers |
+| **Wizard** | Moon Magic (must pass Test) | Before Test: draw from all three moons. After Test: choose one moon. Affected by moon phases |
+| **Sorcerer** | Primal Sorcery | Draw power from the essence of Krynn itself (not the moons) |
+| **Warlock** | Pact Magic | Typically Knights of the Thorn; pacts with dark entities (formerly Takhisis) |
+| **Artificer** | Gnomes only | Only tinker gnomes of Mount Nevermind can be artificers |
+
+**Mystic Background (New):**
+- **Skill Proficiencies:** Insight, Medicine
+- **Languages:** Two of your choice
+- **Equipment:** Scroll case of prayer notes, winter blanket, common clothes, 5 steel pieces
+- **Feature — Revelation:** Your quiet meditation gave you access to a unique and powerful revelation about the cosmos, deities, or forces of nature. Work with DM to determine details and campaign impact
+- **Personality/Ideal/Bond:** As Hermit background. **Flaw:** As Acolyte background
+
+### Krynn Naming Conventions
+
+**Plains Nomad Names:**
+- Male: Arrowthorn, Hollowsky, Silverwolf, Treewhistle
+- Female: Clearwing, Pale-fawn, Starflower, Tearsong
+
+**Khur Desert Nomad Names:**
+- Male: Bardo, Cephi, Parlan, Tamas
+- Female: Aliza, Liri, Morta, Talitha
+
+**Ergothian Mountain Names:**
+- Male: Bosco, Hohbert, Mingo, Torben
+- Female: Adelyn, Flora, Odila, Timona
+
+**Ice Folk Names:**
+- Male: Asmar, Grimur, Osvald, Valdor
+- Female: Aesa, Enola, Marit, Teresa
+
+**Dwarven Names:**
+- Male: Barsh, Duncan, Granite, Isarn, Jasper, Kharzod, Mortar, Rolg, Stanach, Tarn
+- Female: Amelista, Belecia, Garnet, Ivory, Jetta, Kelida, Mica, Obsidian, Perian, Ruby
+- Clan: Coalblack, Drumwarden, Ironhammer, Slatebrim, Thorwallen
+
+**Outcast (Fatherless) Dwarves:**
+- A dwarf who is "Cast Out" is banished from home and clan forever
+- Mountain dwarves: Cast Out only by ruling of High Thane
+- Hill dwarves: open vote requiring two-thirds majority of adult clan members
+- Punishment worse than death; some dwarves commit suicide rather than face life alone
+- Adventuring outcast dwarves feel burning shame or intense rage when encountering former clansfolk
+
+---
 
 ### Party Roster — Shadows Before The Flame
 
