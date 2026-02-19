@@ -4204,4 +4204,548 @@ The classic DL adventure path splits the Heroes of the Lance into two groups at 
 
 ---
 
-> **Document Statistics:** ~4400+ lines covering the complete D&D 5e SRD (core rules, all races, all 13 classes with features/subclasses, backgrounds, feats, full weapon/armor/equipment tables, spellcasting rules, class spell lists, cantrip reference, combat spell quick reference, 150+ magic items, 200+ monsters organized by CR, conditions, combat rules, adventuring) PLUS comprehensive Dragonlance/Krynn world lore extracted from Tales of the Lance (AD&D 2e), Dragonlance Campaign Setting (3.5e), Raistlin's Guide to Krynn (5e v2.5), Monstrous Compendium Vol 2, Shadow of the Dragon Queen (5e), **DL6 Dragons of Ice, DL7 Dragons of Light, and DL10 Dragons of Dreams** — including complete timeline from the Age of Starbirth through 369 AC, detailed geography of all Ansalon nations, full pantheon of 16 gods with 5e domains, complete cosmology, Orders of High Sorcery, Laws of Krynn, dying curse mechanics, **detailed adventure module lore with 5e NPC/creature/item conversions**, Dragonlance forging requirements, the Oath of the Good Dragons, Dragon Orb history, elven sub-races and caste system, Icewall Glacier/Southern Ergoth/Silvanesti nightmare locations, and campaign-specific data for Shadows Before The Flame.
+---
+
+## Lost Leaves from the Inn of the Last Home — Extracted Lore
+
+*Source: Dragonlance Lost Leaves from the Inn of the Last Home (Margaret Weis Productions)*
+
+### Lost Relics & Artifacts
+
+#### The Pathfinder (Artifact — Branchala)
+*Wondrous item, artifact (requires attunement by a good-aligned creature)*
+- A silver arrow that never misses its mark, blessed by Branchala
+- Once per day, the wielder can ask the arrow to point toward any person, place, or thing the wielder has previously encountered
+- The arrow glows with soft silver light when within 1 mile of the target
+- **Curse:** The Pathfinder cannot be used to track someone for malicious purposes; attempting to do so causes 4d6 psychic damage and the arrow goes dark for 1d4 days
+
+#### Ring of Laughter (Rare — Paired Set, Branchala)
+*Wondrous item (ring), rare (requires attunement)*
+- A matched pair of copper rings blessed by Branchala
+- When both rings are worn by two different creatures, once per day one wearer can swap minds with the other for up to 1 hour (DC 15 Charisma save negates if unwilling)
+- While swapped, each creature uses the other's physical ability scores but retains their own mental scores
+- The swap ends if either body drops to 0 HP
+
+#### Staff of Argon (Artifact — Sargonnas)
+*Staff, artifact (requires attunement by a creature devoted to Sargonnas)*
+- A 6-foot staff of black locust wood topped with a golden condor
+- +3 quarterstaff; deals an additional 2d6 fire damage on a hit
+- **Condor's Eye (3/day):** Cast *scrying* without material components
+- **Wrath of Sargonnas (1/day):** Cast *flame strike* (8th level) centered on a point within 120 feet
+- **Sentience:** Intelligence 16, Wisdom 18, Charisma 14; can communicate telepathically; neutral evil alignment; demands acts of vengeance and retribution
+- **Curse:** The staff slowly corrupts its wielder toward lawful evil; after 30 days of attunement, the wielder must succeed on a DC 18 Wisdom save each dawn or shift one step toward LE
+
+#### Taivul — War Drum of Kiri-Jolith (Very Rare)
+*Wondrous item, very rare (requires attunement by a good-aligned creature)*
+- A massive bronze war drum blessed by Kiri-Jolith
+- **Rally the Troops (1/day):** As an action, beat the drum. All allies within 300 feet gain advantage on attack rolls and saving throws against being frightened for 10 minutes
+- **War Cry (3/day):** As a bonus action, beat the drum. All allies within 60 feet gain 10 temporary HP
+- The drum weighs 80 lbs and requires a dedicated bearer
+
+#### The Brightblade (Legendary Weapon — Kiri-Jolith)
+*Weapon (longsword), legendary (requires attunement by a creature of good alignment)*
+- Forged by Romgar Firesteel for Berthel Brightblade; blessed by Kiri-Jolith
+- +3 longsword; deals an additional 2d6 radiant damage to fiends and undead
+- **Unbreakable:** While the wielder acts with pure heart and honor, the blade cannot be broken by any means
+- **Extraordinarily Keen:** Critical hit range is 18-20
+- **Light of Honor:** The blade sheds bright light in a 20-foot radius and dim light for an additional 20 feet; this light can be suppressed or activated as a bonus action
+- **History:** Passed through generations of the Brightblade family; wielded most famously by Sturm Brightblade at the Battle of the High Clerist's Tower; the sword symbolizes the ideals of the Knights of Solamnia
+
+#### Mantis Barb (Very Rare)
+*Weapon (whip), very rare (requires attunement)*
+- A whip-dagger combination weapon wielded by the Mantis Rose, a legendary champion of Majere
+- +2 whip with reach of 15 feet; deals 1d6+2 slashing damage
+- **Undead Bane:** Deals an extra 2d8 radiant damage to undead
+- **Mantis Strike (3/day):** As a reaction when a creature within 15 feet attacks an ally, make a melee attack against the attacker
+- The Mantis Rose title passes through a lineage of champions; each generation's champion takes up the Barb
+
+#### Shards of a Dragon Orb (Rare to Very Rare)
+*Wondrous item, varies*
+- When a Dragon Orb is destroyed, its fragments retain residual magic
+- **Dragon Orb Pendant (Rare):** Grants advantage on saving throws against dragon breath weapons and the frightened condition caused by dragons
+- **Dragon Orb Ring (Very Rare):** Once per day, cast *nondetection* on yourself (lasts 8 hours); dragons cannot perceive you with blindsight while this effect is active
+- **Dragon Orb Circlet (Very Rare):** Once per day, receive a vision of the nearest dragon within 10 miles (type, direction, approximate distance, and general disposition)
+- **Warning:** Handling multiple Dragon Orb fragments simultaneously requires a DC 15 Wisdom save or suffer 2d6 psychic damage and one level of exhaustion as the conflicting draconic essences overwhelm the mind
+
+### Renegade Hunters — Order of the Conclave
+
+The Renegade Hunters are specialists within the Orders of High Sorcery tasked with tracking and neutralizing renegade wizards—those who practice arcane magic outside the Conclave's authority.
+
+**Organization:**
+- Each Order (White, Red, Black) maintains its own cadre of hunters
+- Hunters carry an **assassination sickle** as their symbol of office — a small silver sickle worn on a chain
+- All hunters are trained in counter-magic techniques
+
+**Grandmaster Hunters (5e NPC Stat Blocks):**
+
+**Scareth Moonsheath (Grandmaster Hunter, White Robes)**
+- *Medium humanoid (human), lawful good*
+- **AC** 15 (mage armor, ring of protection) | **HP** 97 (15d8+30) | **Speed** 30 ft.
+- STR 10 DEX 14 CON 14 INT 20 WIS 16 CHA 12
+- **Skills:** Arcana +10, Investigation +10, Perception +8, Insight +8
+- **Spells:** 15th-level wizard (Abjuration); key spells include *counterspell*, *dispel magic*, *globe of invulnerability*, *antimagic field*
+- **Special:** Can cast *counterspell* as a reaction without expending a spell slot 3/day; advantage on saving throws against spells from renegade wizards
+
+**Deloris Redcrescent (Grandmaster Hunter, Red Robes)**
+- *Medium humanoid (human), true neutral*
+- **AC** 16 (bracers of defense) | **HP** 85 (13d8+26) | **Speed** 30 ft.
+- STR 10 DEX 16 CON 14 INT 19 WIS 15 CHA 14
+- **Skills:** Arcana +9, Deception +7, Stealth +8, Investigation +9
+- **Spells:** 13th-level wizard (Divination); key spells include *scrying*, *locate creature*, *arcane eye*, *true seeing*
+- **Special:** Always knows the exact location of any renegade wizard she has previously met, as long as they are on the same plane
+
+**Shard Blackstone (Grandmaster Hunter, Black Robes)**
+- *Medium humanoid (human), lawful evil*
+- **AC** 17 (staff of power) | **HP** 110 (17d8+34) | **Speed** 30 ft.
+- STR 12 DEX 14 CON 14 INT 20 WIS 14 CHA 16
+- **Skills:** Arcana +10, Intimidation +8, Stealth +7, Investigation +10
+- **Spells:** 17th-level wizard (Necromancy); key spells include *finger of death*, *power word kill*, *feeblemind*, *imprisonment*
+- **Special:** When he reduces a renegade to 0 HP with a spell, he can choose to trap their soul in a gem (as *soul cage*) to deliver to the Conclave as proof
+
+### The Well of Talin (Location)
+- A chaotic magical well hidden in the ruins of an ancient temple in Goodlund
+- Drinking from the well produces unpredictable magical effects (roll d100):
+  - 01-10: Gain one random cantrip permanently
+  - 11-20: Polymorphed into a random beast for 1d4 hours
+  - 21-30: Gain resistance to one random damage type for 24 hours
+  - 31-40: Age 1d10 years (or de-age, 50/50 chance)
+  - 41-50: Gain darkvision 120 ft. permanently
+  - 51-60: Teleported 1d100 miles in a random direction
+  - 61-70: Gain +2 to a random ability score permanently (max 22)
+  - 71-80: Afflicted with wild magic surges (as Wild Magic Sorcerer) for 1d4 weeks
+  - 81-90: Gain a prophetic vision of one future event
+  - 91-100: Gain one casting of *wish* (no stress or consequences)
+- The well may be connected to the Graygem of Gargath
+
+### Artifacts of the Lost Towers of High Sorcery
+
+When the three lost Towers of High Sorcery were destroyed, fragments of their magical infrastructure survived:
+
+#### Heartchamber Shards
+- **Greatshards (Very Rare):** Fist-sized fragments of the Tower heartchambers; glow with residual magical energy
+  - Can be used as an arcane focus that grants +1 to spell attack rolls and spell save DCs
+  - Once per day, can absorb one spell of 3rd level or lower targeted at the holder (as *counterspell*)
+  - Each greatshard is aligned to one Order (White, Red, or Black) and grants advantage on Arcana checks related to that Order's specialty school
+- **Lesser Shards (Uncommon):** Smaller fragments
+  - Function as a spellcasting focus
+  - Glow softly when magic is used within 30 feet (as *detect magic* but visual only)
+
+#### Guardian Statues (Rare)
+- Malachite animal-headed statues that once protected the Tower grounds
+- Some fragments retained enchantments:
+  - **Lion Fragment:** Grants the holder advantage on Intimidation checks
+  - **Owl Fragment:** Grants the holder advantage on Perception checks at night
+  - **Serpent Fragment:** Grants the holder advantage on saves against poison
+
+#### Heartchamber Tiles (Uncommon)
+- Flat tiles inscribed with arcane words that glow faintly in darkness
+- Can be used as material components for *glyph of warding* without the normal 200 gp cost
+- A set of 5 or more tiles can be arranged to create a permanent *alarm* ward
+
+#### Grove Tree Fragments (Uncommon to Rare)
+- Wood from the magical trees that grew in the Tower groves
+- **Ink (Uncommon):** Ground fragments mixed into ink can be used for wizard spell scrolls; scrolls created with this ink have their save DC increased by 1
+- **Staff Cores (Rare):** A wand or staff with a grove tree core grants +1 to spell attack rolls
+- **Rod of the Lost Grove (Rare, requires attunement):** A rod made from a complete grove tree branch; 3 charges, regains 1d3 at dawn; spend 1 charge to cast *plant growth*, *speak with plants*, or *barkskin*
+
+### Denizens of the Tower Ruins
+
+The ruins of the lost Towers spawned their own unique creatures:
+
+**Shard Wight**
+*Medium undead, neutral evil*
+- **AC** 14 | **HP** 45 (6d8+18) | **Speed** 30 ft.
+- STR 15 DEX 14 CON 16 INT 10 WIS 13 CHA 15
+- **CR 4** (1,100 XP)
+- Former Tower guardians corrupted by the destruction; appear as dessicated humanoids with shards of crystallized magic embedded in their flesh
+- **Life Drain:** Melee attack, +5 to hit, 1d8+2 necrotic damage; target's HP maximum reduced by the damage dealt until long rest
+- **Shard Burst (Recharge 5-6):** The wight explodes magical shards in a 15-ft. cone; each creature in the area makes DC 13 Dexterity save, taking 4d6 force damage on failure, half on success
+- **Resistance:** Necrotic; **Immunity:** Poison, exhaustion, poisoned condition
+
+### Lost Tales — Historical Events
+
+#### The Defeat in Kenderhome
+- During the War of the Lance, the Black Dragonarmy attempted to subjugate Kenderhome
+- The kender employed guerrilla warfare tactics that proved devastatingly effective against the structured Dragonarmy forces
+- **Kronn Thistleknott** led the kender resistance, using traps, ambushes, misdirection, and the kender talent for acquiring vital supplies from the enemy
+- The Dragonarmy eventually withdrew, unable to maintain supply lines or morale in the face of relentless kender harassment
+- This remains one of the few outright defeats of a Dragonarmy force during the War
+
+#### Castle Ulgurmere (Legendary Location)
+- A floating castle torn from the earth by a dark elf wizard
+- Originally a ruined castle in the Nerakan wilderness; the dark elf used forbidden magic to lift it from the ground
+- The dark elf was an exile from his people — cast out not for evil, but for falling in love with a surface elf
+- **5e Adventure Hook:** Castle Ulgurmere could still exist, drifting through the skies of Ansalon, filled with magical treasures and the tragic remnants of the dark elf's story
+
+#### Gunthar's War Journal — Kayolin Dwarves in the War of the Lance
+Key battles documented:
+- **Fall of Throtl:** Kayolin dwarves helped defend the city but were overwhelmed by draconian forces
+- **Fall of Solanthus:** Blue Dragonarmy conquered the fortress city; dwarves fought in the rearguard
+- **Battle of Iron Pass:** Decisive battle where Kayolin forces defeated an aurak draconian commander named **Tolc Lenog** (use Aurak Draconian stat block, CR 7, with legendary actions)
+
+
+### Lost Organizations
+
+#### Kirath Wildrunner Scouts (Silvanesti)
+Elite Silvanesti scouts who patrolled the borders of Silvanost and explored the Nightmare-afflicted lands after the War of the Lance.
+
+**Code of the Kirath:** Never reveal your position; trust the forest; report everything; die before being captured.
+
+**Kirath Equipment (5e Items):**
+- **Greenmask (Uncommon):** A mask of treated leaves and bark; grants advantage on Stealth checks in forest environments and advantage on saving throws against inhaled poisons and gases
+- **Atrakha Flute (Uncommon):** An animal-calling whistle; as an action, mimic the call of any natural beast; beasts within 300 feet must make a DC 14 Wisdom save or be compelled to approach the sound (lasts 1 minute)
+- **Soris (Uncommon):** A jointed staff-spear used by Kirath scouts; functions as both a quarterstaff and a shortspear; can be collapsed to 2 feet long for concealment or extended to 6 feet; grants +2 to Athletics checks for climbing or vaulting
+
+#### Knights of Balif (Kender Knighthood)
+A kender knighthood with three orders modeled loosely on the Knights of Solamnia:
+- **Order of the Acorn:** The entry order (equivalent to Crown)
+- **Order of the Sparrow:** The intermediate order (equivalent to Sword)
+- **Order of the Pouch:** The highest order (equivalent to Rose)
+- **Oath:** "Ek'thik allus mot durnat" (kender phrase of honor; exact translation debated even among kender)
+- Despite the comedic appearance, Knights of Balif are genuinely brave and surprisingly effective scouts, messengers, and guerrilla fighters
+
+
+#### Secret Societies of Ansalon
+
+**Ash Collectors:** Scavengers who raid battlefields and ruins for magical artifacts; neutral alignment, profit-driven
+
+**Chaos Cultists:** Followers of Chaos/the Father of All and Nothing; seek to undo creation itself; chaotic evil; extremely dangerous
+
+**Deepsong Brotherhood:** A pirate organization that operates in the Blood Sea of Istar; uses sea shanties as coded messages; chaotic neutral
+
+**Disciples of the Risen Kingpriest:** Fanatics who believe the Kingpriest of Istar will return; gather in ruined temples of Istar; lawful neutral to lawful evil
+
+**Frostreavers:** Northern barbarian raiders who worship Zeboim; chaotic evil; raid coastal settlements during winter storms
+
+**Hangman's Daughters:** An all-female assassin's guild operating in major cities; true neutral; known for using poisons
+
+**Imperial Nordmaar Company:** A mercenary company from Nordmaar; lawful neutral; hire out to whoever pays best
+
+**Kalimites:** Monk-warriors devoted to Majere; lawful good; operate secret monasteries
+
+**Keepers of the Light:** Followers of Sirrion who maintain lighthouses along Ansalon's coasts; true neutral; guard ancient flame-based magical knowledge
+
+**Legion of Daltigoth:** Remnants of the old Ergothian Imperial Army; lawful neutral; dream of restoring the empire
+
+**Penitatum:** Mercenary company that donates all excess profits to orphanages and temples; neutral good; surprisingly effective fighters
+
+**Skiffman's Guild:** River and canal boat operators who serve as an intelligence network; true neutral; know everything happening along Ansalon's waterways
+
+
+**Tour Umbria — "The Sixth Tower":** A secret cabal of wizards who believe the Orders of High Sorcery have grown corrupt; operate outside Conclave authority; alignment varies; maintain hidden libraries and laboratories; considered renegades by the Conclave
+
+**Zebolim Sea Cult:** Worshippers of Zeboim, Goddess of Sea and Storms; chaotic evil; perform sacrifices to calm or summon storms; operate from hidden sea caves
+
+#### The Way of the Seekers (Religion)
+The Seeker religion that rose after the Cataclysm when the true gods withdrew:
+
+**The Five "New Gods" of the Seekers:**
+- **Sauvay:** God of power and authority
+- **Olmathea:** Goddess of healing and comfort
+- **Cadithal:** God of justice and vengeance
+- **Faere:** Goddess of beauty and nature
+- **Zeshun:** God of knowledge and craft
+
+**Key Doctrine:** The old gods abandoned Krynn; new, better gods have arisen; mortals must earn divine favor through obedience to Seeker priests.
+
+**The Truth:** Scholarly analysis reveals the Seeker gods were fabricated — possibly originally intended to make people believe in themselves and take action rather than wait for divine intervention. However, the religion was corrupted into a tool of political control by ambitious Seeker Highseekers (like Hederick of Solace).
+
+**5e Note:** Seeker priests have no actual divine magic. They use sleight of hand, mundane healing herbs, and occasionally stolen divine relics to simulate miracles. Treat Seeker "clerics" as commoners or nobles with the Charlatan background.
+
+
+#### Bardic College of Ergoth
+- Founded ~2075 PC by Emperor Quevalin VII of Ergoth
+- Located in the city of Lancton on Northern Ergoth
+- Headed by **Quevalin Soth**, an immortal elf who has led the college since its founding
+- **Campus:** Sprawling grounds with practice halls, libraries of musical scores, instrument workshops, and performance amphitheaters
+- **Hierarchy:** Initiate > Apprentice > Journeyman > Master Bard > Headmaster
+- **5e Integration:** Functions as a College of Lore (PHB) with emphasis on historical preservation through song; graduates gain proficiency in Performance and History if they don't already have them
+
+#### The Bundesphar (Wolf Warriors of Takhisis)
+An elite scout organization within the forces of evil, dating back to ancient times:
+
+- **Origin Myth:** Canus, the Lord of Wolves, made a pact with Takhisis to grant his wolves to her service in exchange for eternal hunting grounds in the Abyss
+- **The Bond:** Each Bundesphar warrior bonds with a single wolf companion through a mystical ritual; the warrior and wolf share emotions and general impressions (not thoughts)
+- **The Grieving:** If a bonded partner (wolf or human) dies, the surviving partner enters a frenzy of rage and despair called "the Grieving"; must succeed on a DC 16 Wisdom save or gain the effects of the *confusion* spell for 1d4 hours, followed by 3 levels of exhaustion
+- **Lakrak:** A stimulant substance used by scouts on long patrols; grants immunity to exhaustion for 8 hours but causes 2 levels of exhaustion when it wears off (no save)
+- **Sichten:** Thin points between the Material Plane and the Abyss; Bundesphar scouts can detect these as areas of extreme cold and a faint howling sound
+
+**Bundesphar Scout (5e NPC)**
+*Medium humanoid (human), lawful evil*
+- **AC** 15 (studded leather) | **HP** 52 (8d8+16) | **Speed** 35 ft.
+- STR 14 DEX 16 CON 14 INT 10 WIS 14 CHA 10
+- **CR 3** (700 XP)
+- **Skills:** Survival +6, Perception +6, Stealth +5, Animal Handling +6
+- **Pack Tactics:** Advantage on attack when ally within 5 ft. of target
+- **Bonded Wolf:** Always accompanied by a dire wolf companion with HP 45
+
+
+### Lost Lore — Cultural Details
+
+#### Flint's Jewelry (Craftsmanship of Flint Fireforge)
+- Flint was renowned as a jeweler and craftsman, not just a warrior
+- His work blended Qualinesti elven aesthetics with dwarven durability
+- **Signature:** Each piece bore a tiny hammer stamp (the Fireforge mark)
+- Notable commissions included a **Bracelet of Foresight** for a Dargonesti sea elf princess (functions as a *ring of spell storing* that can only hold divination spells)
+- His work is considered priceless by collectors; finding a genuine Flint Fireforge piece would be worth 5,000+ stl
+
+#### Kender Courting and Marriage Traditions
+- **Watching Time:** A period where a kender "watches" (stalks) a potential mate, learning their habits; considered romantic, not creepy (by kender standards)
+- **Serious Dating:** Involves shared adventures, "handling" each other's possessions, and introducing friends to assess compatibility
+- **Pledging Party:** A celebration with three traditional dances — the Round, the Caterpillar, and the Whip
+- **Ring Giving:** The kender gives a ring (usually "found" somewhere interesting) to their betrothed
+- **Forever Ceremony:** A brief ceremony where both kender declare they will be together "forever" (kender understanding of "forever" varies)
+- **Marriage — The Candle Climb:** The couple must climb a tall candle-lit pole together; the climb symbolizes the challenges of marriage; if they reach the top together, the marriage is blessed
+
+#### Minotaur Empire — Blood Sea History
+- **Emperor Chot Es-Kalin** united the minotaur isles through gladiatorial combat and cunning politics
+- **War of the Lance Campaigns:**
+  - **Black Wing (Balifor):** Minotaur forces aided the Black Dragonarmy in Balifor
+  - **White Wing (Icewall):** Minotaurs served under Feal-Thas at Icewall Glacier
+  - **Blood Sea Raiders:** Alliance with the pirate king **Mandracore the Reaver** to control shipping lanes
+  - **Kyrie Extermination:** Campaign to wipe out the bird-folk (kyrie) of the remote islands
+  - **The Northstone:** A navigation artifact that always points true north; stolen from the kyrie during the extermination campaign
+
+
+#### War Drums of the High Ogres (Legendary Artifacts)
+Five bronze drums forged in the Age of Dreams by the High Ogre King Khalkis:
+
+1. **Sangan-akar (Drum of the Warthirster)**
+   - *Wondrous item, legendary (requires attunement)*
+   - Inspires berserker courage; all allies within 300 feet gain advantage on saving throws against fear and add +2 to melee damage rolls for 1 hour when played
+
+2. **Phohemys-akar (Drum of Blood's Fear)**
+   - *Wondrous item, legendary (requires attunement)*
+   - Instills supernatural terror; all enemies within 300 feet must make DC 18 Wisdom save or be frightened for 1 hour; frightened creatures have disadvantage on all attack rolls and ability checks
+
+3. **Akar-Tempys (Stormcaller's Drum)**
+   - *Wondrous item, legendary (requires attunement)*
+   - Playing this drum for 10 minutes summons a storm (as *control weather*) centered on the drum's location; the storm arrives within 1d4 rounds and lasts until the drummer stops or loses concentration
+
+4. **Vulchasa-akar (Drum of the Stonerender)**
+   - *Wondrous item, legendary (requires attunement)*
+   - Playing for 1 minute causes an earthquake (as the *earthquake* spell) in a 500-foot radius; all structures in the area must make saving throws against destruction
+
+5. **Mortala-nax (Gate of the Dead)**
+   - *Wondrous item, legendary (requires attunement by an evil creature)*
+   - Playing this drum for 1 minute raises undead; 2d6 skeletons or zombies rise from the earth within 100 feet, under the drummer's control; maximum 30 undead active at once
+   - **History:** Queen Khere defeated King Khalkis in battle and scattered the drums; they have never been reunited
+
+
+#### The Othlorx Curse (Taladas Dragon Degeneration)
+After the War of the Lance, Takhisis cursed the dragons of Taladas who had fled rather than fight:
+
+| Dragon Color | Curse Effect |
+|---|---|
+| **Black** | Became xenophobic and light-shunning; retreat into the deepest swamps and attack anything that approaches |
+| **Blue** | Bodies became misshapen and twisted; bound to honesty by pain — lying causes them physical agony |
+| **Brass** | Exude a repulsive scent that drives away all creatures; condemned to eternal isolation |
+| **Bronze** | Scales tarnished to dull brown; became reclusive and distrustful of all other beings |
+| **Copper** | Turned verdigris-green; became cruel tormentors, losing their natural humor |
+| **Green** | Lost their wings; became earthbound, territorial, and slowly declining in power |
+| **Red** | Became cowardly; flee from any significant threat; hoard obsessively but never fight to defend their treasures |
+| **Silver** | Wracked by guilt; became vigilante executioners, hunting evil creatures relentlessly but finding no peace |
+| **White** | Became insane, mute, and viciously aggressive; attack anything and everything without reason |
+| **Gold** | Possibly developed split personalities, alternating between benevolent and malevolent states |
+
+**5e Note:** These cursed dragons use standard stat blocks but with the behavioral modifications above. The curse can theoretically be broken by a *wish* spell or by finding and returning a specific artifact to each dragon's original lair on Ansalon.
+
+#### The Phaethon (Winged Elves of Ansalon)
+A subspecies of Kagonesti elves who developed wings through divine blessing:
+
+- **Origin:** Phaethon believe they were granted wings by the Phoenix (their aspect of the divine)
+- **Phoenix Cycle Religion:** Five divine aspects:
+  - **Phaenar (The Risen)** = Habbakuk — associated with blue wings and paladin-warriors
+  - **Kelos (The Ascendant)** = Chislev — associated with nature and growth
+  - **Zurar (The Descendant)** = Zeboim — associated with storms and decline
+  - **Kinthalos (The Fallen)** = Sargonnas — associated with vengeance and death
+  - **Sirithos (The Flame)** = Sirrion — associated with transformation and fire
+
+
+- **Vibhavasist Schism:** A heretical faction that believes in self-realization without divine aid; formed their own communities separate from mainstream Phaethon
+- **Phaenar Paladins:** Elite warriors with blue-feathered wings who serve as protectors of Phaethon communities; use Paladin (Oath of Devotion) stat blocks with fly speed 60 ft.
+- **Shadows of Sirithos:** A mystery cult within Phaethon society devoted to Sirrion; practice fire magic and transformation rituals
+- **Architecture:** Phaethon building styles influenced the architecture of Tarsis, which features many towers, bridges, and elevated structures
+- **War of the Lance:** Phaethon entered the war late, providing aerial scouts and messengers for the Whitestone forces
+
+**Phaethon Elf (5e Race Option)**
+- Use Wood Elf base traits but replace the following:
+  - **Flight:** You have a flying speed of 30 feet. You cannot fly if wearing medium or heavy armor.
+  - **Remove:** Mask of the Wild
+  - **Wingspan:** You require 5 feet of open space on each side to fly
+
+---
+
+## Monstrous Compendium Vol 2 — Dragonlance Creatures (5e)
+
+*Source: Monstrous Compendium Vol 2 — Dragonlance Creatures*
+
+All creatures below are already in 5e format with official stat blocks:
+
+| Creature | Type | CR | Notes |
+|---|---|---|---|
+| **Dream Eater** | Aberration | 7 | Feeds on dreams; can enter the dreams of sleeping creatures |
+| **Ember (Pyros)** | Dragon | 22 | An ancient fire dragon of immense power |
+| **Forest Master** | Celestial | 8 | A unicorn-like guardian of Darken Wood; sacred to Chislev |
+| **Foresworn** | Undead | 6 | Knights who broke their oaths; cursed to undead existence |
+| **Irda Seeker** | Giant | 1 | Young Irda scouts exploring the world in disguise |
+| **Irda Veil Keeper** | Giant | 4 | Irda protectors who maintain the illusions hiding their communities |
+| **Nevermind Gnome Inventor** | Humanoid | 2 | Tinker gnome with unpredictable inventions |
+| **Nevermind Gnome Mastermind** | Humanoid | 5 | Senior gnome inventor; inventions are more powerful but equally unpredictable |
+| **Thanoi Hunter** | Monstrosity | 1 | Walrus-folk of Southern Ergoth; hostile to most intruders |
+| **Traag Draconian** | Monstrosity | 5 | Massive, brutish draconians created from dragon eggs; used as heavy shock troops |
+| **Verminaard** | Humanoid | 17 | Dragon Highlord; Cleric of Takhisis; wields the mace Nightbringer |
+
+
+### Nightbringer (Legendary Weapon)
+*Weapon (mace), legendary (requires attunement by a cleric or paladin of Takhisis)*
+- +3 mace; deals an additional 2d6 necrotic damage on a hit
+- **Darkness (3/day):** Cast *darkness* centered on the mace; the wielder can see normally in this darkness
+- **Fear Aura:** While attuned, all enemies within 30 feet must make a DC 17 Wisdom save at the start of their turn or be frightened until the start of their next turn
+- **Command Undead (1/day):** As an action, target one undead creature within 60 feet; it must make a DC 17 Wisdom save or be under your control for 24 hours
+- **History:** Wielded by Dragon Highlord Verminaard; lost when Verminaard was slain at Pax Tharkas
+
+---
+
+## Unsung Heroes of Krynn — NPC Compendium (Converted to 5e)
+
+*Source: DLR3 Unsung Heroes (AD&D 2e), converted to D&D 5e*
+
+### Notable NPCs (Selected Conversions)
+
+#### Dwyam Marz (9th-level Fighter)
+*Medium humanoid (human), neutral good*
+- **AC** 16 (leather armor +1, Dex) | **HP** 76 (9d10+27) | **Speed** 30 ft.
+- STR 18 (+4) DEX 18 (+4) CON 12 (+1) INT 8 (-1) WIS 12 (+1) CHA 14 (+2)
+- **CR 5** (1,800 XP)
+- **Equipment:** Leather armor +1, footman's mace, heavy crossbow, 3 daggers, belt of hill giant strength (STR 21 while worn), gauntlets of swimming and climbing
+- **Background:** Mountain barbarian who deserted the Blue Dragonarmy after witnessing the cruelty of her troops toward a talking badger that turned out to be **Balagast the Bronze** dragon. Now hunts draconians alongside her bronze dragon ally. Has a bounty on her head from the Blue Dragonarmy.
+- **Multiattack:** Makes 2 attacks with mace or crossbow
+- **Fighting Style:** Two-Weapon Fighting
+
+
+#### Erastin Rivenguard (3rd-level Knight of the Crown)
+*Medium humanoid (human), lawful good*
+- **AC** 18 (plate mail, shield) | **HP** 28 (3d10+9) | **Speed** 30 ft.
+- STR 17 (+3) DEX 16 (+3) CON 15 (+2) INT 14 (+2) WIS 15 (+2) CHA 12 (+1)
+- **CR 2** (450 XP)
+- **Equipment:** Longsword, heavy lance, plate mail, shield, journal
+- **Background:** From a Solamnic family with a long tradition of service; groomed since birth for Knighthood; trained by Targin Steelaxe in both "dirty" fighting and chivalric combat. Currently seeking a quest worthy of the Order of the Sword. Researching a prophecy regarding Kiri-Jolith's symbolic return to Krynn, which may involve recovering Huma's Shield.
+- **Knightly Training:** Advantage on saves against being frightened; can use Inspiration to grant an ally within 30 feet advantage on one attack roll or saving throw
+
+#### Gilidarius (15th-level Necromancer, Black Robes)
+*Medium humanoid (human), lawful evil*
+- **AC** 17 (bracers of defense AC 4, cloak of protection +3) | **HP** 67 (15d6+15) | **Speed** 30 ft.
+- STR 10 DEX 15 CON 12 INT 16 WIS 15 CHA 6
+- **CR 12** (8,400 XP)
+- **Equipment:** Dagger +2, staff, sling, medallion of ESP, ring of regeneration, ring of wizardry (doubles 4th-level spells + extra necromancy spells during Nuitari's full phase)
+- **Background:** Former pupil of Raistlin Majere; family murdered by bandits; seeks to bring them back from the dead. Cold, manipulative, always has a hidden agenda. Owns trained rats for various tasks. Still searches for a way to open a portal to the Abyss to find Raistlin.
+- **Spells:** 15th-level wizard (School of Necromancy); signature spells include *animate dead*, *create undead*, *finger of death*, *soul cage*, *circle of death*
+
+
+#### Grindlethorpe (15th-level Gnome Illusionist, Renegade)
+*Small humanoid (gnome), chaotic good*
+- **AC** 15 (cloak of protection +3) | **HP** 52 (15d6) | **Speed** 25 ft.
+- STR 10 DEX 16 CON 9 INT 17 WIS 12 CHA 14
+- **CR 10** (5,900 XP)
+- **Equipment:** Dagger, dust of disappearance, cane (wand of frost), special medallion (honorary member of every gnomish guild)
+- **Background:** The only gnome to complete three Lifequests; secretly all his "technological achievements" were accomplished through illusion magic. A renegade wizard who declared himself independent of the Conclave. Largely responsible for current gnomish enthusiasm for spelljamming. Makes outrageous boasts, including claiming he once owned the Staff of Magius.
+- **Spells:** 15th-level wizard (School of Illusion); all his "inventions" are actually illusions — at will: *minor illusion*, *prestidigitation*; signature spells include *major image*, *programmed illusion*, *mirage arcane*, *project image*, *simulacrum*
+
+#### The Red Minotaur (13th-level Gladiator Champion)
+*Large humanoid (minotaur), neutral good*
+- **AC** 17 (breastplate, metal greaves) | **HP** 136 (13d10+65) | **Speed** 40 ft.
+- STR 20 (+5) DEX 17 (+3) CON 20 (+5) INT 14 (+2) WIS 13 (+1) CHA 16 (+3)
+- **CR 9** (5,000 XP)
+- **Equipment:** Forpann +2 (trident), 2 mandolls, 2 katars, sanguine, net, assorted poisons, private sailboat
+- **Background:** The position of Red Minotaur is a coveted hereditary title won through combat to the death. The current holder has reigned for 20 years and uses his influence to promote peace between minotaurs and other races. Partially responsible for minimal minotaur involvement in the War of the Lance. Applies poisons to his weapons — considers this expedient, not dishonorable.
+- **Multiattack:** Makes 3 attacks with trident or thrown weapons
+- **Poisoned Weapons:** On a hit, target must make DC 14 Constitution save or be poisoned for 1 minute
+- **Gore:** +10 to hit, 2d8+5 piercing damage; if the target is Medium or smaller, it must succeed on a DC 18 Strength save or be knocked prone
+
+
+#### Khellendros "Skie" (Blue Dragon, Mature Adult)
+*Huge dragon, lawful evil*
+- Uses the standard **Adult Blue Dragon** stat block (MM p.91) with the following additions:
+- **HP** 225 (18d12+108) — slightly above average for his cunning and survivality
+- **Legendary Resistance (3/Day)**
+- **Special Bond:** Skie has an intense personal loyalty to his Dragon Highlord partner, Kitiara uth Matar. He views her as a daughter figure and will fight to the death to protect her.
+- **History:** Grandson of the legendary dragon Tempest from Khurish folklore. Lost his daughter Zephyr protecting him in battle. Made a pact with Kitiara after she lost her mount, and together they rose to command the entire Blue Dragonarmy. After Kitiara's apparent death at the Battle of Neraka, Skie has sworn to find her — even if he must journey beyond death itself.
+
+#### Dargent "Silvara" (Silver Dragon, Old)
+*Huge dragon, lawful good*
+- Uses the standard **Adult Silver Dragon** stat block (MM p.117) with the following additions:
+- **HP** 243 (18d12+126) — boosted for her age and experience
+- **Polymorph Self (3/day):** Preferred form is a Kagonesti elven woman named Silvart/Silvara — 5'4", silver hair, pale skin, barbaric outfit with facial paint and feathers
+- **Companion:** A white cooshee (elven dog) named Dargo
+- **History:** Guarded Foghaven Vale and Huma's Tomb; broke the Oath of noninterference to lead heroes to discover the Dragonlances; her actions caused the good dragons to join the War of the Lance. Served as mount for the elven general Laurana. Fell in love with the elf lord Gilthanas, who could not accept her true draconic form. Disappeared after the war.
+
+#### Cyan Bloodbane (Green Dragon, Very Old)
+- Uses the standard **Ancient Green Dragon** stat block (MM p.93)
+- **Special:** Master manipulator; prefers psychological warfare over direct combat. Expert at discovering and exploiting others' fears. A coward who never willingly enters direct combat. Obeyed only by Takhisis.
+- **History:** Whispered nightmares to King Lorac when he used the Dragon Orb, causing the Silvanesti Nightmare that transformed the elven homeland into a realm of living nightmares.
+
+
+### Solamnic Feast Traditions
+
+A detailed account of formal Solamnic feasting traditions, useful for roleplaying social encounters among Solamnic nobility:
+
+**Structure of a Grand Feast:**
+1. **Ancient Rituals:** Presentation of host and honored guests; acknowledgement of all three Knightly Orders (Rose, Sword, Crown) with ceremonial sword placement on the dais; invocation to Paladine, Kiri-Jolith, and/or Habbakuk
+2. **Laving Ceremony:** Servants bring rose-scented water for hand-washing at the head table
+3. **Three Removes (Courses):**
+   - **First Remove:** Light dishes, fish, poultry in elaborate sauces, bread trenchers (coarse bread used as plates — ancient tradition from the Cataclysm era)
+   - **Second Remove:** Heavy meats (venison, wild boar in thick wine sauce), pies, tarts; ended by a *subtlety* (edible sculpture matching the feast's theme)
+   - **Third Remove:** Desserts, spiced wine, digestive foods; ended by acknowledgement of the cook and retrieval of the Knights' swords
+4. **After-Feast:** Music, dancing, socializing long into the night
+
+**Social Rules:**
+- Guests nod to those of higher rank when greeting
+- Knights may wear swords (in decorated scabbards); non-knights surrender weapons to pages
+- The Hall Steward manages seating arrangements based on social hierarchy
+- A host's servant offers to taste the guest of honor's food for poison (almost always politely declined)
+- Late arrivals are ushered in without ceremony; a late arrival may be a dishonored knight trying to attend unnoticed
+
+**5e Social Encounter Use:** A Solamnic feast provides rich opportunities for social skill challenges: Persuasion checks to win allies, Insight checks to detect plots, Performance checks for entertainment, and History checks to avoid social blunders regarding ancient customs.
+
+
+### Ansalonian Recipes & Cultural Foods
+
+The following dishes represent the culinary traditions of various Ansalonian cultures (flavor text for tavern/inn encounters):
+
+| Dish | Origin | Description |
+|---|---|---|
+| **Soppet** | Solamnia | Leeks poached in wine vinaigrette with beet dressing |
+| **Cormarye** | Solamnia | Roast pork in heavy spiced sauce |
+| **Brawn en Peuerade** | Solamnia | Wild boar in thick red wine sauce with cloves and cinnamon |
+| **Otik's Spiced Potatoes** | Solace | The signature dish of the Inn of the Last Home |
+| **Kender Stumblenoodles** | Kenderhome | Hamburger, tomato sauce, and elbow pasta — accidentally invented |
+| **Common Room Casserole** | Estwilde | Kielbasa, brown rice, tomatoes, and onion in chicken stock |
+| **Conclave Ice Cream** | Night of the Eye | Three flavors for the three moons: vanilla (Solinari), strawberry (Lunitari), chocolate (Nuitari); instructions include "cast Ray of Frost to cool" |
+| **Nerakan Fruit Puff** | Neraka | Apple-raisin pastry with diagonal slashes; renamed "Dragonslash Pie" by Dragonarmy troops |
+| **Phoenixbrew** | Habbakuk temples | Spicy honey-clove-cinnamon-ginger infusion; said to have healing properties |
+| **Gharum Khuri-Khan** | Khur | A seven-spice blend (cinnamon, cloves, ginger, nutmeg, galangal, sugar, mace) |
+| **Hunter's Stew** | Southern Ansalon | Venison stew with dark beer, chocolate, and juniper berries |
+| **Palanthas Torte** | Palanthas | A pork and chicken pie with currants, saffron, and prunes — popular at wedding feasts |
+| **Haltigothian Lamb Roast** | Haltigoth | Leg of lamb grilled with thyme, garlic, and orange zest |
+| **Abanasinian Meatballs** | Plains of Abanasinia | Spiced beef meatballs rolled in barley powder, grilled on skewers |
+
+### Humorous Lore
+
+#### Ten Reasons Why Kobolds Are Better Than Draconians
+A satirical letter from **Master Yap Sizzlegizzard, Wizard** (self-proclaimed first kobold wizard) to Captain Kreech of the 6th Blue Dragonarmy kobold regiment, boosting morale among kobold troops:
+1. Kobolds ride weasels (dire weasel cavalry)
+2. Kobolds are sneakier than kapak draconians
+3. Kobolds work better in groups and respect hierarchy
+4. Kobolds have been on Ansalon since the Age of Dreams
+5. Kobolds are superior siege engineers and trap makers
+6. Kobolds aren't distracted by draconic mind control
+7. Kobolds don't need specialized wing armor
+8. Kobolds are a singular (if argumentative) people
+9. Kobolds don't explode when they die
+10. Master Yap himself is a kobold (the draconians have no equivalent genius)
+
+
+---
+
+> **Document Statistics:** ~5800+ lines covering the complete D&D 5e SRD (core rules, all races, all 13 classes with features/subclasses, backgrounds, feats, full weapon/armor/equipment tables, spellcasting rules, class spell lists, cantrip reference, combat spell quick reference, 150+ magic items, 200+ monsters organized by CR, conditions, combat rules, adventuring) PLUS comprehensive Dragonlance/Krynn world lore extracted from Tales of the Lance (AD&D 2e), Dragonlance Campaign Setting (3.5e), Raistlin's Guide to Krynn (5e v2.5), Monstrous Compendium Vol 2, Shadow of the Dragon Queen (5e), **DL6 Dragons of Ice, DL7 Dragons of Light, DL10 Dragons of Dreams, Lost Leaves from the Inn of the Last Home, DLR3 Unsung Heroes** — including complete timeline from the Age of Starbirth through 369 AC, detailed geography of all Ansalon nations, full pantheon of 16 gods with 5e domains, complete cosmology, Orders of High Sorcery, Laws of Krynn, dying curse mechanics, detailed adventure module lore with 5e NPC/creature/item conversions, Dragonlance forging requirements, the Oath of the Good Dragons, Dragon Orb history, elven sub-races and caste system, **Lost Relics and Artifacts (Brightblade, Staff of Argon, Dragon Orb Shards, War Drums of the High Ogres), Renegade Hunter organization, Lost Tower artifacts, Kirath Wildrunner equipment, Knights of Balif, 12 secret societies, Seeker religion, Bardic College of Ergoth, Bundesphar wolf warriors, Phaethon winged elves, Othlorx Dragon Curse, Solamnic feast traditions, 14 Ansalonian recipes, Monstrous Compendium Vol 2 creatures (11 monsters including Verminaard CR 17 and Ember/Pyros CR 22), 7 converted Unsung Heroes NPCs with full 5e stat blocks, and 3 named dragon conversions (Skie, Dargent/Silvara, Cyan Bloodbane)**, and campaign-specific data for Shadows Before The Flame.
