@@ -37,6 +37,7 @@ function mod(score: number | undefined) {
     <!-- Controls -->
     <div class="controls">
       <button id="rollAll" class="btn btn-primary">Roll All Initiative</button>
+      <button id="toggleManual" class="btn btn-secondary manual-toggle">Manual Entry</button>
       <button id="addEnemy" class="btn btn-secondary">+ Add Enemy</button>
       <button id="nextTurn" class="btn btn-accent" disabled>Next Turn</button>
       <button id="resetCombat" class="btn btn-muted">Reset</button>
@@ -80,8 +81,13 @@ function mod(score: number | undefined) {
               <div class="init-hp-text">{d.maxHp} / {d.maxHp}</div>
             </div>
             <div class="init-actions">
-              <button class="hp-btn hp-dmg" title="Damage">-</button>
-              <button class="hp-btn hp-heal" title="Heal">+</button>
+              <button class="hp-btn hp-dmg" title="Click: -1 HP | Shift+Click: custom amount">-</button>
+              <div class="hp-custom-input" style="display:none;">
+                <input type="number" class="hp-custom-val" min="1" max="999" placeholder="#" />
+                <button class="hp-custom-apply hp-custom-dmg" title="Apply damage">✓</button>
+                <button class="hp-custom-apply hp-custom-heal-btn" title="Apply healing">✓</button>
+              </div>
+              <button class="hp-btn hp-heal" title="Click: +1 HP | Shift+Click: custom amount">+</button>
             </div>
           </div>
         );
@@ -111,8 +117,13 @@ function mod(score: number | undefined) {
           <div class="init-hp-text">20 / 20</div>
         </div>
         <div class="init-actions">
-          <button class="hp-btn hp-dmg" title="Damage">-</button>
-          <button class="hp-btn hp-heal" title="Heal">+</button>
+          <button class="hp-btn hp-dmg" title="Click: -1 HP | Shift+Click: custom amount">-</button>
+          <div class="hp-custom-input" style="display:none;">
+            <input type="number" class="hp-custom-val" min="1" max="999" placeholder="#" />
+            <button class="hp-custom-apply hp-custom-dmg" title="Apply damage">✓</button>
+            <button class="hp-custom-apply hp-custom-heal-btn" title="Apply healing">✓</button>
+          </div>
+          <button class="hp-btn hp-heal" title="Click: +1 HP | Shift+Click: custom amount">+</button>
         </div>
       </div>
     </template>
@@ -122,6 +133,7 @@ function mod(score: number | undefined) {
 <script>
   const list = document.getElementById('initiativeList')!;
   const rollAllBtn = document.getElementById('rollAll')!;
+  const toggleManualBtn = document.getElementById('toggleManual')!;
   const addEnemyBtn = document.getElementById('addEnemy')!;
   const nextTurnBtn = document.getElementById('nextTurn')!;
   const resetBtn = document.getElementById('resetCombat')!;
@@ -131,6 +143,8 @@ function mod(score: number | undefined) {
   let round = 0;
   let currentIndex = -1;
   let combatStarted = false;
+  let manualMode = false;
+  let manualInputsShowing = false;
 
   function d20() { return Math.floor(Math.random() * 20) + 1; }
 
@@ -181,8 +195,103 @@ function mod(score: number | undefined) {
     }
   }
 
-  // Roll all
+  // Manual mode toggle
+  toggleManualBtn.addEventListener('click', () => {
+    manualMode = !manualMode;
+    toggleManualBtn.textContent = manualMode ? 'Auto Roll' : 'Manual Entry';
+    toggleManualBtn.classList.toggle('manual-active', manualMode);
+    // If inputs are showing from a previous manual attempt, clear them
+    if (!manualMode && manualInputsShowing) {
+      clearManualInputs();
+    }
+  });
+
+  function showManualInputs() {
+    manualInputsShowing = true;
+    getAllCards().forEach(card => {
+      const valEl = card.querySelector('.init-value') as HTMLElement;
+      // Don't double-add inputs
+      if (card.querySelector('.manual-init-input')) return;
+      const input = document.createElement('input');
+      input.type = 'number';
+      input.className = 'manual-init-input';
+      input.min = '1';
+      input.max = '30';
+      input.placeholder = '--';
+      input.style.width = '40px';
+      valEl.style.display = 'none';
+      valEl.parentElement!.insertBefore(input, valEl);
+      // Tab to next input on Enter
+      input.addEventListener('keydown', (e: KeyboardEvent) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          const allInputs = Array.from(list.querySelectorAll('.manual-init-input')) as HTMLInputElement[];
+          const idx = allInputs.indexOf(input);
+          if (idx < allInputs.length - 1) {
+            allInputs[idx + 1].focus();
+          } else {
+            confirmManualRolls();
+          }
+        }
+      });
+    });
+    rollAllBtn.textContent = 'Confirm Rolls';
+    rollAllBtn.classList.add('btn-confirm');
+    // Focus first input
+    const firstInput = list.querySelector('.manual-init-input') as HTMLInputElement;
+    if (firstInput) firstInput.focus();
+  }
+
+  function confirmManualRolls() {
+    const cards = getAllCards();
+    let allValid = true;
+    cards.forEach(card => {
+      const input = card.querySelector('.manual-init-input') as HTMLInputElement | null;
+      if (input) {
+        const val = parseInt(input.value);
+        if (!isNaN(val)) {
+          card.dataset.init = String(val);
+          card.querySelector('.init-value')!.textContent = String(val);
+        } else {
+          // If empty, roll automatically as fallback
+          const dex = parseInt(card.dataset.dex ?? '0');
+          const roll = d20() + dex;
+          card.dataset.init = String(roll);
+          card.querySelector('.init-value')!.textContent = String(roll);
+        }
+      }
+    });
+    clearManualInputs();
+    sortByInitiative();
+    combatStarted = true;
+    round = 1;
+    currentIndex = 0;
+    roundNum.textContent = String(round);
+    nextTurnBtn.removeAttribute('disabled');
+    highlightCurrent();
+  }
+
+  function clearManualInputs() {
+    manualInputsShowing = false;
+    list.querySelectorAll('.manual-init-input').forEach(input => input.remove());
+    list.querySelectorAll('.init-value').forEach(el => (el as HTMLElement).style.display = '');
+    rollAllBtn.textContent = 'Roll All Initiative';
+    rollAllBtn.classList.remove('btn-confirm');
+  }
+
+  // Roll all (or confirm manual rolls)
   rollAllBtn.addEventListener('click', () => {
+    if (manualMode && !manualInputsShowing) {
+      // First click in manual mode: show inputs
+      showManualInputs();
+      return;
+    }
+    if (manualMode && manualInputsShowing) {
+      // Second click: confirm manual rolls
+      confirmManualRolls();
+      return;
+    }
+    // Auto mode: original behavior
     getAllCards().forEach(card => rollInitiative(card));
     sortByInitiative();
     combatStarted = true;
@@ -249,6 +358,7 @@ function mod(score: number | undefined) {
     currentIndex = -1;
     roundNum.textContent = '0';
     nextTurnBtn.setAttribute('disabled', '');
+    if (manualInputsShowing) clearManualInputs();
     const cards = getAllCards();
     cards.forEach(card => {
       card.classList.remove('active-turn', 'downed');
@@ -267,16 +377,79 @@ function mod(score: number | undefined) {
     });
   });
 
-  // HP buttons
+  // HP buttons — click: ±1, shift+click: show custom input
   function setupHPButtons(card: HTMLElement) {
-    card.querySelector('.hp-dmg')!.addEventListener('click', () => {
-      const amt = prompt('Damage amount:');
-      if (amt && !isNaN(parseInt(amt))) updateHP(card, -Math.abs(parseInt(amt)));
+    const dmgBtn = card.querySelector('.hp-dmg') as HTMLElement;
+    const healBtn = card.querySelector('.hp-heal') as HTMLElement;
+    const customWrap = card.querySelector('.hp-custom-input') as HTMLElement;
+    const customInput = card.querySelector('.hp-custom-val') as HTMLInputElement;
+    const applyDmg = card.querySelector('.hp-custom-dmg') as HTMLElement;
+    const applyHeal = card.querySelector('.hp-custom-heal-btn') as HTMLElement;
+
+    let customMode: 'damage' | 'heal' | null = null;
+
+    function showCustomInput(mode: 'damage' | 'heal') {
+      customMode = mode;
+      customInput.value = '';
+      customWrap.style.display = 'flex';
+      applyDmg.style.display = mode === 'damage' ? 'flex' : 'none';
+      applyHeal.style.display = mode === 'heal' ? 'flex' : 'none';
+      customInput.focus();
+    }
+
+    function hideCustomInput() {
+      customMode = null;
+      customWrap.style.display = 'none';
+      customInput.value = '';
+    }
+
+    function applyCustom() {
+      const val = parseInt(customInput.value);
+      if (!isNaN(val) && val > 0) {
+        updateHP(card, customMode === 'damage' ? -val : val);
+      }
+      hideCustomInput();
+    }
+
+    dmgBtn.addEventListener('click', (e: MouseEvent) => {
+      if (e.shiftKey) {
+        showCustomInput('damage');
+      } else {
+        hideCustomInput();
+        updateHP(card, -1);
+      }
     });
-    card.querySelector('.hp-heal')!.addEventListener('click', () => {
-      const amt = prompt('Heal amount:');
-      if (amt && !isNaN(parseInt(amt))) updateHP(card, Math.abs(parseInt(amt)));
+
+    healBtn.addEventListener('click', (e: MouseEvent) => {
+      if (e.shiftKey) {
+        showCustomInput('heal');
+      } else {
+        hideCustomInput();
+        updateHP(card, 1);
+      }
     });
+
+    applyDmg.addEventListener('click', applyCustom);
+    applyHeal.addEventListener('click', applyCustom);
+
+    customInput.addEventListener('keydown', (e: KeyboardEvent) => {
+      if (e.key === 'Enter') applyCustom();
+      if (e.key === 'Escape') hideCustomInput();
+    });
+
+    // Long-press for mobile (hold 500ms = open custom input as damage)
+    let pressTimer: ReturnType<typeof setTimeout>;
+    dmgBtn.addEventListener('pointerdown', () => {
+      pressTimer = setTimeout(() => showCustomInput('damage'), 500);
+    });
+    dmgBtn.addEventListener('pointerup', () => clearTimeout(pressTimer));
+    dmgBtn.addEventListener('pointerleave', () => clearTimeout(pressTimer));
+
+    healBtn.addEventListener('pointerdown', () => {
+      pressTimer = setTimeout(() => showCustomInput('heal'), 500);
+    });
+    healBtn.addEventListener('pointerup', () => clearTimeout(pressTimer));
+    healBtn.addEventListener('pointerleave', () => clearTimeout(pressTimer));
   }
 
   getAllCards().forEach(card => setupHPButtons(card));
@@ -307,6 +480,24 @@ function mod(score: number | undefined) {
 .btn-accent:hover:not(:disabled) { background: rgba(39,174,96,0.3); }
 .btn-muted { background: rgba(100,100,100,0.08); border-color: rgba(100,100,100,0.2); color: var(--text-muted); }
 .btn-muted:hover { background: rgba(100,100,100,0.15); }
+
+.manual-toggle.manual-active {
+  background: rgba(139,105,20,0.25); border-color: var(--border-gold); color: var(--text-gold-bright);
+}
+.btn-confirm {
+  background: rgba(39,174,96,0.2) !important; border-color: rgba(39,174,96,0.5) !important;
+  color: #6ec97a !important;
+}
+.btn-confirm:hover { background: rgba(39,174,96,0.35) !important; }
+.manual-init-input {
+  width: 40px; padding: 0.2rem; text-align: center; font-size: 1.2rem; font-weight: bold;
+  background: rgba(100,100,100,0.2); border: 1px solid rgba(139,105,20,0.5);
+  color: var(--text-gold-bright); border-radius: 4px;
+  -moz-appearance: textfield;
+}
+.manual-init-input::-webkit-outer-spin-button,
+.manual-init-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.manual-init-input:focus { outline: none; border-color: var(--text-gold-bright); box-shadow: 0 0 6px rgba(139,105,20,0.4); }
 
 .round-display {
   margin-left: auto; font-size: 0.85rem; color: var(--text-muted);
@@ -369,6 +560,28 @@ function mod(score: number | undefined) {
 .hp-dmg:hover { background: rgba(192,57,43,0.3); }
 .hp-heal { background: rgba(39,174,96,0.15); border-color: rgba(39,174,96,0.4); color: #27ae60; }
 .hp-heal:hover { background: rgba(39,174,96,0.3); }
+
+/* Custom HP input */
+.hp-custom-input {
+  display: none; align-items: center; gap: 0.2rem;
+}
+.hp-custom-val {
+  width: 48px; padding: 0.15rem 0.3rem; text-align: center;
+  background: rgba(100,100,100,0.2); border: 1px solid rgba(139,105,20,0.4);
+  color: var(--text-parchment); border-radius: 4px; font-size: 0.8rem;
+  -moz-appearance: textfield;
+}
+.hp-custom-val::-webkit-outer-spin-button,
+.hp-custom-val::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.hp-custom-apply {
+  width: 24px; height: 24px; border-radius: 4px; border: 1px solid;
+  font-size: 0.75rem; cursor: pointer; display: flex;
+  align-items: center; justify-content: center; line-height: 1;
+}
+.hp-custom-dmg { background: rgba(192,57,43,0.2); border-color: rgba(192,57,43,0.4); color: #e74c3c; }
+.hp-custom-dmg:hover { background: rgba(192,57,43,0.35); }
+.hp-custom-heal-btn { background: rgba(39,174,96,0.2); border-color: rgba(39,174,96,0.4); color: #27ae60; }
+.hp-custom-heal-btn:hover { background: rgba(39,174,96,0.35); }
 
 /* Enemy cards */
 .enemy-name-input {
