@@ -3270,6 +3270,484 @@ Post-war organization founded by Sara Dunstan (adoptive mother of Steel Brightbl
 - Punishment worse than death; some dwarves commit suicide rather than face life alone
 - Adventuring outcast dwarves feel burning shame or intense rage when encountering former clansfolk
 
+### Cosmology of Krynn
+
+**The Outer Planes:**
+
+| Plane | Alignment | Description |
+|-------|-----------|-------------|
+| **Dome of Creation** | Good | Realm of eternal light protecting Krynn; home of the gods of Light. Paladine ruled and guarded the Gate of Souls (until becoming mortal) |
+| **The Abyss** | Evil | Realm of eternal darkness; foundations of the Dome. Home of the gods of Darkness. Morgion's Bronze Tower stands at its edge |
+| **The Hidden Vale** | Neutral | Between Dome and Abyss; everywhere and nowhere. Home of the gods of Balance. Contains the forest of Zhan (home of Chislev, Zivilyn, and worthy elves) |
+| **Gate of Souls** | — | Portal piercing all three realms; connects mortal and immortal. River of Souls flows through it perpetuating cycles of life and death |
+
+**The Transitive Planes:**
+
+| Plane | Description |
+|-------|-------------|
+| **Astral Plane** | Endless silver sky; binds all realms together. Associated with Solinari |
+| **Ethereal Plane** | Misty realm of ghosts and dreams; borders closely with the mortal realm. Associated with Lunitari |
+| **Shadow Plane** | Realm of infinite darkness; colorless blacks and whites. Domain of Nuitari; connects most with the Abyss |
+
+**Inner Planes:** Elemental Planes of Fire, Earth, Water, and Air encircle the Outer Planes. The Dome holds Positive Energy; the Abyss holds Negative Energy.
+
+**Special Locations:**
+- **Void of Chaos** — Place within the Ethereal Sea bereft of everything; may be the fragment of Chaos captured in the Graygem, or the true center of reality. Gods fear to enter. Causes madness and oblivion
+- **Lost Citadel** — Demiplane where gods of magic secreted the first Wizards of High Sorcery for training; also where gods of Light led their clerics during Night of Darkness before the Cataclysm
+
+**The Theft of the World:** After the Chaos War, Takhisis stole Krynn through the Gate of Souls, leaving behind the Outer Planes entirely. Spirits of the dead were trapped in the Ethereal Plane. Alien dragons from another world found Krynn and claimed it. Takhisis slowly rebuilt power using trapped souls until the other gods found the stolen world.
+
+### The Gods of Krynn — Complete 5e Reference
+
+*Source: Dragonlance Campaign Setting (3.5e), converted to 5e domains*
+
+**Reading Deity Entries:**
+- **Power Levels:** Greater Deity > Intermediate Deity > Lesser Deity > Demigod (rankings affect power among gods only, not cleric abilities)
+- **Domains** listed are the 3.5e originals; 5e equivalents noted where applicable
+- **Medallion of Faith:** All Krynn clerics wear one — serves as holy symbol and divine focus. Cannot be constructed; created from other medallions when worthy applicant selected
+
+#### Gods of Good
+
+**Branchala — The Bard King**
+- **Rank:** Intermediate Deity | **Alignment:** CG
+- **Portfolio:** Music, poetry, bards
+- **Symbol:** Bard's harp or silver flute | **Colors:** Yellow and green | **Constellation:** Harp
+- **5e Domains:** Trickery, Light (suggested) | **Favored Weapon:** Rapier ("Leaf Blade")
+- **Worshipers:** Bards, elves, kender, travelers
+- **Other Names:** Astarin (Silvanesti), Astra (Qualinesti), Song of Life, Songmaster (Goodlund)
+- **Dogma:** Let music guide your steps. Art for art's sake. Always give your best performance. Respect nature. End the day with a good story. Use talents to benefit the needy
+- **Clergy:** Wandering minstrel-priests who travel village to village, lifting hearts through song and story. No set community. Spend earnings helping the needy. Special role in elven and kender festivals
+
+**Habbakuk — The Fisher King**
+- **Rank:** Intermediate Deity | **Alignment:** NG
+- **Portfolio:** Animals, water, passion
+- **Symbol:** Blue phoenix | **Colors:** Deep blue and white | **Constellation:** Blue Phoenix
+- **5e Domains:** Nature, Tempest (suggested) | **Favored Weapon:** Scimitar ("Kingfisher's Helm")
+- **Worshipers:** Rangers, sailors, druids, farmers
+- **Other Names:** the Blue Phoenix (elves), Skylord (Balifor), Sea Lord (Mithas)
+- **Dogma:** Live in harmony with nature. Treat animals well. Those who despoil the land are the enemy. Fight to protect creatures in your care
+- **Clergy:** Divided between clerics (serve communities, assist hunting/fishing) and druids (live apart in forests, fierce protectors). Once per lifetime, clerics must take a "walkabout" — wandering with only clothes and a stick until performing a service for Habbakuk
+- **Holy Day:** Feast of the Sea — every 5th month, 13th day. Great Regatta; winner dubbed "Sea Lord"
+
+**Kiri-Jolith — Sword of Justice**
+- **Rank:** Intermediate Deity | **Alignment:** LG
+- **Portfolio:** War, courage, honor
+- **Symbol:** Bison's horn (also horned battle axe) | **Colors:** Brown and white | **Constellation:** Bison's Head
+- **5e Domains:** War | **Favored Weapon:** Longsword ("Sacred Defender")
+- **Worshipers:** Fighters, Knights of the Sword
+- **Other Names:** Corij (Ergoth), Emperor (Mithas), Qu'an the Warrior (Uigan)
+- **Dogma:** Good is its own reward. Honor and courage are life. Never retreat while evil remains on the battlefield
+- **Clergy:** Military precision organization. Clerics join Knights of Solamnia (Order of the Sword). Day of the Hunt at each season's start — seeking wrongs to right
+- **Family:** Eldest son of Paladine and Mishakal; twin brother of Habbakuk
+
+**Majere — Master of Mind**
+- **Rank:** Intermediate Deity | **Alignment:** LG
+- **Portfolio:** Discipline, loyalty
+- **Symbol:** Copper spider, single rose, mantis | **Colors:** Copper and red | **Constellation:** Rose
+- **5e Domains:** Knowledge, Order (suggested) | **Favored Weapon:** Unarmed strike ("Merciful Discipline")
+- **Worshipers:** Monks, theologians, scholars
+- **Dogma:** Seek holiness through self-discipline and contemplation. Discipline unruly passions. Seek truth. Oppose evil with fervor but without hatred
+- **Clergy:** Vows of poverty, obedience, chastity. Train in monasteries under High Abbots. Many pursue martial arts. Closest friend and advisor of Paladine
+- **Holy Day:** Night of the Mantis — fast, chant, meditate from afternoon to midday next day
+
+**Mishakal — The Healing Hand**
+- **Rank:** Greater Deity | **Alignment:** NG
+- **Portfolio:** Healing, mercy, fertility, beauty
+- **Symbol:** Blue infinity symbol | **Color:** Sky blue | **Constellation:** Infinity
+- **5e Domains:** Life, Light (suggested) | **Favored Weapon:** Quarterstaff ("Healing Strike")
+- **Worshipers:** Healers, artists, midwives, scholars
+- **Other Names:** The Blue Lady (Balifor), Ka-Mel-Sha, Light Bringer (Solamnia), Quen Illumini (Qualinesti)
+- **Dogma:** Heal all who require it, even enemies. Drive out disease. Comfort pain. Honor the dead but serve the living
+- **Clergy:** Must heal anyone who asks regardless of alignment. One leader per generation: the Chosen Prophet. Clerics travel extensively. Attend birthings, baptisms, blessings
+- **Family:** Wife of Paladine; mother of Kiri-Jolith, Habbakuk, and Solinari
+- **Enemy:** Diametrically opposed to Morgion (disease vs. healing)
+
+**Solinari — The Silver Moon**
+- **Rank:** Intermediate Deity | **Alignment:** LG
+- **Portfolio:** Magic, arcane knowledge
+- **Symbol:** White circle or sphere | **Color:** White or silver | **Celestial Symbol:** The white moon
+- **5e Domains:** None (does not grant divine spells — patron of White Robe Wizards)
+- **Dogma:** Devote yourself to magic. Use magic for the benefit of all. Search out knowledge. Guard magic against those who would destroy it
+- **Moon Cycle:** High Sanction every 36 days; followers' power increases during this phase
+- **Family:** Son of Paladine and Mishakal; younger brother of Kiri-Jolith and Habbakuk
+
+#### Gods of Neutrality
+
+**Chislev — The Beast / Nature Incarnate**
+- **Rank:** Intermediate Deity | **Alignment:** N
+- **Portfolio:** Nature, wilderness, beasts
+- **Symbol:** Feather of brown, yellow, green | **Colors:** Brown, yellow, green | **Planet:** Chislev
+- **5e Domains:** Nature | **Favored Weapon:** Shortspear ("Green Protector")
+- **Worshipers:** Druids, farmers
+- **Dogma:** Nature has no beginning or end. Balance of nature must be maintained at all costs. Technology should be second to nature
+- **Clergy:** Hermit-like forest druids. Spend mornings healing animals; afternoons tending trees; nights praying. Day of Harrowing: druids leave enclaves to bless crops
+- **Relationship:** Loves Zivilyn profoundly; animals and plants are her children. Despises Zeboim. Allied with Habbakuk. Opposes Shinare (industry vs. nature)
+
+**Gilean — The Sage / Gate of Souls**
+- **Rank:** Greater Deity | **Alignment:** N
+- **Portfolio:** Balance, knowledge, learning, freedom, watchfulness
+- **Symbol:** Open book | **Color:** Gray | **Constellation:** Book of Souls
+- **5e Domains:** Knowledge | **Favored Weapon:** Quarterstaff ("The Sagestaff")
+- **Worshipers:** Scribes, historians, teachers
+- **Dogma:** Seek knowledge. Be calm and deliberate. Knowledge transcends good and evil. Do not judge. Truth is elusive, belief transitory, but knowledge eternal. Ignorance is the greatest enemy
+- **Clergy:** Scribes, librarians, historians. No cleric may ever destroy a book. Month of the Book: must spend one month as historians/archivists earning no wages
+- **Family:** Brother of Paladine and Takhisis; keeper of the Tobril. Father of Lunitari (who sprang fully formed from him)
+
+**Lunitari — The Veiled Maiden / Red Moon**
+- **Rank:** Intermediate Deity | **Alignment:** N
+- **Portfolio:** Magic, arcane knowledge
+- **Symbol:** Red circle or sphere | **Color:** Red or magenta | **Celestial Symbol:** The red moon
+- **5e Domains:** None (patron of Red Robe Wizards)
+- **Dogma:** Devote yourself to magic. Maintain balance between good and evil magic. Promote neutral magic
+- **Moon Cycle:** High Sanction every 28 days
+- **Family:** Daughter of Gilean; sprang fully formed from his thoughts. Vivacious trickster who uses illusions to amuse
+
+**Reorx — The Forging God**
+- **Rank:** Greater Deity | **Alignment:** N
+- **Portfolio:** Creation, gambling, artisans, engineering
+- **Symbol:** Forging hammer | **Colors:** Slate gray and red | **Planet:** Reorx
+- **5e Domains:** Forge, Knowledge (suggested) | **Favored Weapon:** Warhammer ("Reorx's Strength")
+- **Worshipers:** Dwarves, gnomes
+- **Dogma:** Beauty in creation. Nothing better than crafting something lasting. Never be idle. Innovation is vital. Honor your peers and enjoy results
+- **Clergy (Forgers):** Rigid hierarchy with Starmaster as leader. Work forge morning to evening. Must create one extraordinary object during lifetime that honors Reorx
+- **Holy Days:** Harnkeggerfest (hill dwarf festival); 19th of Mishakal (holiest day — blacksmiths forge exquisite items)
+- **Connection:** Created the Graygem by trapping Chaos; father of gnomes and dwarves
+
+**Shinare — Winged Victory**
+- **Rank:** Intermediate Deity | **Alignment:** LN
+- **Portfolio:** Wealth, commerce, travel
+- **Symbol:** Griffin's wing | **Colors:** Gold, silver, brown | **Planet:** Shinare
+- **5e Domains:** Knowledge, Trickery (suggested) | **Favored Weapon:** Light mace ("Jeweled Delight")
+- **Worshipers:** Merchants, traders, dwarves
+- **Dogma:** Industry and commerce is the way to riches. Greed destroys. Poverty is lack of effort. Be fair and honest. Competition is the wellspring of fortune
+- **Clergy:** Must pursue mercantile careers alongside priesthood. Never late on taxes. Day of Hearing: listen to business ideas and invest. Golden Week (1st–5th Sirrion): fast, inventory, plan
+- **Enemy:** Hiddukel (greed/deception vs. honest commerce)
+
+**Sirrion — The Flowing Flame**
+- **Rank:** Intermediate Deity | **Alignment:** CN
+- **Portfolio:** Fire, strength, sun, creativity, passion
+- **Symbol:** Multicolored fire | **Colors:** Bright reds and yellows | **Planet:** Sirrion
+- **5e Domains:** Light, Forge (suggested) | **Favored Weapon:** Heavy flail ("Flaming Strike")
+- **Worshipers:** Alchemists, lovers, fighters
+- **Dogma:** Fire is life, fire is death. Fire is honest. Harness flame for light and warmth. Never allow fire to rage uncontrolled. Seek the fire in others and in yourself
+- **Clergy:** Must tend ever-burning fire in home/temple. Sculpt inner fire into new form daily. Build evening bonfires for children. Also serve as firefighters
+- **Relationship:** Mate of Shinare (fiery, opposite temperaments but profound love)
+
+**Zivilyn — World Tree / Tree of Life**
+- **Rank:** Intermediate Deity | **Alignment:** N
+- **Portfolio:** Wisdom, foresight, prophecy
+- **Symbol:** Great green and gold tree | **Colors:** Green and gold | **Planet:** Zivilyn
+- **5e Domains:** Knowledge | **Favored Weapon:** Quarterstaff ("Enlightenment Cane")
+- **Worshipers:** Philosophers, mediators
+- **Dogma:** Wisdom is timeless. Act after studying all options. Choose no side. Be an advisor to peace-seekers. All wisdom comes from within
+- **Clergy:** Counselors, mediators, philosophers, diplomats. Oldest cleric = highest rank. Starmaster appointed by Zivilyn himself. Day of Reflection (25 Mishamont): fast, hymn, solitary meditation
+- **Relationship:** Mate of Chislev. Closest advisor to Gilean (wisdom + knowledge). Rivals Majere philosophically
+
+#### Gods of Evil
+
+**Chemosh — Lord of Death**
+- **Rank:** Intermediate Deity | **Alignment:** NE
+- **Portfolio:** Death, undead, murder
+- **Symbol:** Yellow skull | **Colors:** Black and sickly yellow | **Constellation:** Yellow Goat's Skull
+- **5e Domains:** Death, Grave (suggested) | **Favored Weapon:** Sickle ("Harvester of Souls")
+- **Worshipers:** Crazed cultists, necromancers
+- **Dogma (lies to deceive followers):** The world issued from Chaos with no purpose. Mortals have no souls. Death is oblivion. Service to Chemosh grants true everlasting life
+- **True nature:** Creates and rules undead. Tempts mortals with promises of eternal "life," dooming them as undead slaves. Teachings are elaborate lies
+- **Clergy:** Work in secret. No centralized authority. Many cling to positions for generations as liches. Autumn solstice: secret ritual for preservation from death
+- **Enemy:** Majere (faith/discipline vs. undeath)
+
+**Hiddukel — The Prince of Lies**
+- **Rank:** Intermediate Deity | **Alignment:** CE
+- **Portfolio:** Wealth, thieves, lies
+- **Symbol:** Broken merchant scales | **Colors:** Red and bone | **Constellation:** Broken Scale
+- **5e Domains:** Trickery | **Favored Weapon:** Dagger ("Vengeance Sting")
+- **Worshipers:** Dishonest merchants, thieves
+- **Dogma:** Greed is the driving force. Nothing is as important as wealth. Lies give truth meaning. Discover someone's deepest desire and you find the key to their soul
+- **Clergy:** Most tricked into service. Ordered to pursue wealth by any means. Day of Bartered Souls: annually present tally of those corrupted or ruined
+- **Notable:** Only god who could barter with Takhisis and come out ahead
+
+**Morgion — The Black Wind**
+- **Rank:** Intermediate Deity | **Alignment:** NE
+- **Portfolio:** Disease, planning, suffering
+- **Symbol:** Hood with two red eyes | **Colors:** Deep brown and black | **Constellation:** Diseased Hood
+- **5e Domains:** Death, Nature (corrupted, suggested) | **Favored Weapon:** Heavy flail ("Disease Cloud")
+- **Worshipers:** Crazed cultists
+- **Dogma:** Disease breeds fear. Fear is power. Spread disease and reap the terrible reward
+- **Clergy:** Slaves — Morgion waits for disease to seize someone, then offers a deal: "cure" in exchange for servitude. Work in cells of 3 or fewer. Create poisons. Carry 3+ doses of poison dust
+- **Lair:** Bronze Tower at edge of the Abyss. Never leaves. Never reveals plans. Surrounded by diseased spirits. Appears as rotting humanoid with goat's head
+- **Enemy:** Mishakal (diametrically opposed)
+
+**Nuitari — The Black Moon / Devouring Dark**
+- **Rank:** Intermediate Deity | **Alignment:** LE
+- **Portfolio:** Magic, arcane knowledge
+- **Symbol:** Black circle or sphere | **Color:** Black | **Celestial Symbol:** The black moon (visible only to Black Robes)
+- **5e Domains:** None (patron of Black Robe Wizards)
+- **Dogma:** Serve magic and serve me. Magic is power; keep it secret and safe
+- **Moon Cycle:** High Sanction every 8 days (fastest cycle — most frequent power boosts)
+- **Family:** Son of Sargonnas and Takhisis; twin brother of Zeboim. Detests Sargonnas. Distrusted Takhisis
+
+**Sargonnas — God of Vengeance**
+- **Rank:** Greater Deity | **Alignment:** LE
+- **Portfolio:** Vengeance, conquest, strength, rage
+- **Symbol:** Stylized red condor | **Colors:** Red and black | **Constellation:** Condor
+- **5e Domains:** War, Order (suggested) | **Favored Weapon:** Greataxe ("Horns of Fury")
+- **Worshipers:** Minotaurs, bounty hunters, fighters
+- **Other Names:** Sargas (Mithas — minotaurs see him as a minotaur deity of strength held with honor)
+- **Dogma:** Wreak vengeance on wrongdoers. The weak have no place. Strength is power. Never show mercy. Destroy betrayers
+- **Holy Day:** 1st of Argon — celebrates minotaur revolt against dwarven slavery. "Might makes right"
+- **Family:** Was Takhisis's consort. Father of Zeboim and Nuitari
+
+**Zeboim — The Sea Queen / Darkling Sea**
+- **Rank:** Intermediate Deity | **Alignment:** CE
+- **Portfolio:** Sea, storms, envy
+- **Symbol:** Turtle shell pattern | **Colors:** Green and red | **Constellation:** Dragon Turtle
+- **5e Domains:** Tempest | **Favored Weapon:** Trident ("Triad")
+- **Worshipers:** Sailors, pirates, evil druids
+- **Dogma:** No sailor is safe unless Zeboim wills it. Eventually the sea will consume all lands. Adore her or be lost to the storm
+- **Clergy:** Resort to extortion — frightening sailors into paying tithes for good weather. Ritual swim every morning. Sea Queen's Share: sacrifice most wealth every 8 months when Solinari is full; if pleased, objects float back
+- **Relationship:** Daughter of Sargonnas and Takhisis. Detests Habbakuk (their war creates ocean waves). Moody and wayward — far worse than Chislev
+
+#### Fallen Deities
+
+**Paladine — The Platinum Dragon (now mortal)**
+- Formerly Greater Deity of Good; leader of the gods of Light
+- Wife: Mishakal. Sons: Kiri-Jolith, Habbakuk, Solinari. Brother: Gilean. Sister: Takhisis
+- Sacrificed immortality to maintain balance after Takhisis was stripped of godhood
+- Now wanders Krynn as a mortal; implications still unfolding
+
+**Takhisis — The Dragon Queen (dead)**
+- Formerly Greater Deity of Evil; the Dragon of All Colors and None
+- Consort: Sargonnas. Children: Zeboim, Nuitari. Brothers: Paladine, Gilean
+- Stole the world after Chaos War; became the "One God"; killed by Silvanoshei with a broken dragonlance shaft
+- Mina, her chosen prophet, carried the body away vowing vengeance
+
+### The Laws of Krynn — Campaign Rules
+
+**The Three Laws (Alignment Cornerstones):**
+
+| Law | Alignment | Principle |
+|-----|-----------|-----------|
+| **Law of Paladine** | Good | "Good Redeems its Own" — view everyone as worthy of salvation. Those who walk in darkness have strayed and should be reclaimed, not destroyed. Danger: arrogance and fanaticism |
+| **Law of the Dark Queen** | Evil | "Evil Feeds on Itself" — Chaotic evil: supremacy of might without morality, completely self-centered. Lawful evil: supremacy through rigid strength-based morality. Love weakens. Hope is a lie. Mercy coddles the weak |
+| **Law of Gilean** | Neutral | "Both Good and Evil Must Exist in Contrast" — Without light, darkness cannot exist and vice versa. Independent-minded; examine all laws before following. May be swayed to either side |
+
+### Dying Curses (5e Conversion)
+
+When someone is terribly wronged in death, they may call down a curse on those responsible. The deities often respond by visiting punishment on the target. A creature that speaks a dying curse **cannot be raised or resurrected** — only *true resurrection* works, and the curse lifts immediately.
+
+**Important:** The target need not be present when the curse is delivered.
+
+| HD/Level of Curser | Effect (5e) |
+|--------------------|-------------|
+| 1–4 | No effect |
+| 5–8 | As *bestow curse* (no concentration, permanent until removed) |
+| 9–12 | Up to four *bestow curse* effects |
+| 13–16 | As *wish*, or up to ten *bestow curse* effects |
+| 17–20 | As *wish* (no material component), or up to four *wish*-level effects |
+| 21+ | DM's discretion — Lord Soth's curse made him a death knight |
+
+**Removing a Dying Curse:** If the curser had more than 10 HD/levels, *remove curse* is insufficient. Requires *wish* or completing a specific deed designated by the DM (typically accomplishable within one year). Someone else can perform the deed on the target's behalf, but the express purpose must be removing the curse.
+
+**Notable Dying Curses:**
+- **Lady Soth** → Lord Soth: Cursed him to undeath as a death knight for letting her and their son burn
+- **Black Robe Wizard** → Tower of Palanthas: Flung himself on the spires rather than let the Kingpriest take it, cursing the tower with the Shoikan Grove
+
+### Noncombat Awards & Story Awards (5e Adaptation)
+
+In Dragonlance campaigns, story and roleplaying are as important as combat. Use milestone or modified XP with these guidelines:
+
+**Noncombat Challenge Ratings:**
+
+| Difficulty | CR Equivalent |
+|------------|---------------|
+| Simple (smooth-talk past a guard) | Party Level – 2 |
+| Easy (climb wall to avoid charmed guards) | Party Level – 1 |
+| Average (swim raging river pursuing foe) | Party Level |
+| Difficult (convince Solamnic Knight, Dark Knight, and Legionnaire to cooperate) | Party Level + 1 |
+| Formidable (leap from tower onto passing dragon's back) | Party Level + 2 |
+
+**Mission Goals:**
+
+| Goal Type | XP Award |
+|-----------|----------|
+| Personal Goal, Minor | Current XP ÷ 8 |
+| Personal Goal, Major | Current XP ÷ 6 |
+| Party Goal, Minor | Current XP ÷ 4 |
+| Party Goal, Major | Current XP ÷ 2 |
+
+**Roleplaying Awards:**
+
+| Outcome | Award |
+|---------|-------|
+| Mostly favorable (minotaur intimidating guard to protect party) | 25 XP × character level |
+| Unfavorable (kender "borrowing" during negotiations) | 50 XP × character level |
+| Extremely unfavorable (centaur declaring hatred of draconians while in Teyr) | 100 XP × character level |
+
+### Orders of High Sorcery — Complete Reference
+
+**The Three Orders:**
+
+| Order | Color | Alignment | Moon | Moon Cycle | Patron |
+|-------|-------|-----------|------|------------|--------|
+| White Robes | White | Good (LG, LN, NG) | Solinari (silver) | 36-day period, 9 days/quarter | Solinari |
+| Red Robes | Red | Neutral (CN, LN, N, NE, NG) | Lunitari (red) | 28-day period, 7 days/quarter | Lunitari |
+| Black Robes | Black | Evil (LE, LN, NE) | Nuitari (black) | 8-day period, 2 days/quarter | Nuitari |
+
+**Foundations of Wizardry:**
+1. All wizards are brothers and sisters in their order. All orders are brothers and sisters in the power
+2. The places of High Sorcery are held in common — no sorcery used in anger against fellow wizards within towers
+3. Outside the towers, order may fight order — such is the way of the universe
+
+**Moon Conjunction Frequency:**
+- **Night of the Eye** (all three moons aligned): ~3 times every 1.5 years. Twice as crescents, once as full moons. Height of all magical power
+- **Nuitari + one other**: ~1 day in 4 (Nuitari's fast orbit). Meets Lunitari every 11–12 days; Solinari every 10–11 days
+- **Solinari + Lunitari**: Every ~4.5 months, lasting 7–8 days
+- **False Conjunctions**: Days when Nuitari meets one moon in morning and the other at night, but Solinari/Lunitari aren't conjunct with each other. Each order gains conjunction bonus but not triple-conjunction bonus
+
+**Curse of the Magi (Variant Rule):**
+When casting an arcane spell, make a DC 10 + spell level CON save after casting. Failure: fatigued. Second failure while fatigued: exhausted. Third failure: unconscious.
+
+**Test of High Sorcery:**
+- Must receive invitation to Tower of Wayreth (or temporary gathering place)
+- Declare chosen allegiance (White, Red, or Black)
+- Requirements: at least 3 challenges testing magical knowledge; at least 3 tasks that cannot be solved by magic alone; at least 1 confrontation with a friend/ally; at least 1 enemy more powerful than the wizard
+- **Failure means death** — the test is rigorous
+- Passing leaves a permanent mark: physical (like Raistlin's golden skin and hourglass eyes) or mental (haunting dreams, aversions)
+- Tests are highly magical — may occur in other times/places or entirely within the applicant's mind
+
+**The Five Towers:**
+
+| Tower | Location | Grove Effect | Status |
+|-------|----------|-------------|--------|
+| **Wayreth** | Moves within 500mi of construction site | Interdimensional field (tower teleports) | Sealed after War of Souls; wizards seek to reclaim |
+| **Palanthas (Dark Tower)** | Nightlund (formerly Palanthas) | Shoikan Grove: intense terror, haunted by undead | Sealed by Dalamar; cursed; Raistlin once lived here |
+| **Daltigoth** | Daltigoth (Ergoth) | Deep slumber — sleep then transport | Destroyed |
+| **Istar** | Istar | Memory erasure — forget until leaving | Destroyed in Cataclysm |
+| **Goodlund (The Ruins)** | Goodlund | Intense uncontrollable passions | Destroyed by the orders |
+
+**Renegade Wizards:**
+- Any wizard outside the Orders whose magic threatens balance or the Orders' image
+- White Robes: capture and bring to Conclave; destroy only as last resort
+- Red Robes: capture if possible; destroy if not. Balance must be maintained
+- Black Robes: try to recruit first; destroy without hesitation if refused
+
+**The Nightjewel (Magic Item):**
+- Token for passing through Shoikan Grove; resembles cold black lump of coal
+- Shines with pale light visible only to undead; wielder must be bareheaded
+- Alleviates some (not all) grove effects; 10ft protection radius
+- Can rebuke undead as evil cleric of wielder's total level (touch to undead)
+- Protection ends instantly if weapon drawn or spell cast
+
+### Known Ruins of Ansalon — Adventure Sites
+
+| Ruin | Location | Contents/Dangers |
+|------|----------|-----------------|
+| **Anvil of Time** | Mythical | Forge where the Device of Time Journeying was created. Exists in all times. Figures from past, present, future may be encountered |
+| **Dark Tower of High Sorcery** | Nightlund | Sealed by Dalamar. Contains Raistlin's magical treasures and wealth of knowledge. Shoikan Grove still haunts the area |
+| **High Clerist's Tower** | South of Palanthas | Former HQ of high priest of Paladine. Damaged since Chaos War. Guk clan gully dwarves claimed some areas. Strategically vital |
+| **Icewall Castle** | Icewall glacier | Once held by Highlord Feal-Thas. Guarded by thanoi, sivak draconians, and two massive white dragons |
+| **Istarian Ruins** | Underwater (Blood Sea) | Ancient Istar; surrounded by magical air bubbles. Unexplored and unplundered. May contain forgotten glories or krakens |
+| **Mount Nevermind** | Sancrist Isle | Gnome city. Honeycomb caverns with forgotten/sealed tunnels. Dangerous creatures and gnome inventions gone wrong |
+| **Nalis Aren (Lake of Death)** | Qualinesti forest | Site of destroyed Qualinost. Haunted by elven spirits. Treasures in drowned city for those who survive |
+| **The Ruins** | Peak of Malystryx (Desolation) | Destroyed Tower of High Sorcery. Red dragons, dragonspawn, dire boars. Source of kender affliction curse |
+| **Skullcap** | Plains of Dergoth | Fortress of Zhaman destroyed by Fistandantilus. Skull-shaped ruin. Undead: skeletal warriors, spectral minions, possibly demilich of Fistandantilus |
+| **Sla-Mori** | Under Pax-Tharkas | "Secret Way" in Elven. Hidden passages, Hall of Ancients (burial of Kith-Kanan). Banshee, zombie hordes, giant slugs |
+| **Storm's Keep** | Island north of Ansalon | Former Knights of Takhisis training ground. Death knight Sir Ausric Krell imprisoned here. Perpetual storm. Skeletal warrior servants |
+| **Xak Tsaroth** | Coast of New Sea | Cataclysm-wrecked city partially fallen into the sea. Gully dwarves and renegade draconians in surviving areas |
+
+### Expanded Calendar & Timekeeping
+
+**Days of the Week (7 days):**
+
+| Day | Solamnic | Ergothian | Elven | God |
+|-----|----------|-----------|-------|-----|
+| Sunday | Linaras | Gileadai | Gateway | Gilean |
+| Monday | Palast | Luindai | Bright Eye | Lunitari |
+| Tuesday | Majetag | Nuindai | Night's Eye | Nuitari |
+| Wednesday | Kirinor | Soldai | Dead Eye | Solinari |
+| Thursday | Misham | Manthus | Dream Dance | Majere |
+| Friday | Bakukal | Shinarai | Winged Trade | Shinare |
+| Saturday | Bracha | Boreadai | World Tree | Zivilyn |
+
+**Months of the Year (12 months):**
+
+| # | Solamnic | Ergothian | Elven | Patron God |
+|---|----------|-----------|-------|------------|
+| 1 | Newkolt | Aelmont | Winter Night | Chemosh |
+| 2 | Deepkolt | Rannmont | Winter Deep | Zeboim |
+| 3 | Brookgreen | Mishamont | Spring Dawning | Mishakal |
+| 4 | Yurthgreen | Chislmont | Spring Rain | Chislev |
+| 5 | Fleurgreen | Bran | Spring Blossom | Branchala |
+| 6 | Holmswelt | Corij | Summer Home | Kiri-Jolith |
+| 7 | Fierswelt | Argon | Summer Run | Sargonnas |
+| 8 | Paleswelt | Sirrimont | Summer End | Sirrion |
+| 9 | Reapember | Reorxmont | Autumn Harvest | Reorx |
+| 10 | Gildember | Hiddumont | Autumn Twilight | Hiddukel |
+| 11 | Darkember | H'rarmont | Autumn Dark | Morgion |
+| 12 | Frostkolt | Phoenix | Winter Come | Habbakuk |
+
+**Hours of the Day (Palanthan System):**
+
+| Hour | Name | Hour | Name |
+|------|------|------|------|
+| 0 | Darkwatch | 13 | Seventh Watch |
+| 1 | After Darkwatch | 14 | Eighth Watch |
+| 5 | Waking Hour | 18 | Twelfth Watch |
+| 6 | Morning Watch | 19 | Evening Watch |
+| 12 | High Watch | 23 | Restful Hour |
+
+- Minutes counted: first half = "falling" (counting up to 30); second half = "rising" (counting down from 30)
+- Example: 12:37 = "High Watch rising, 23"
+
+**Alphabets of Ansalon:**
+
+| Script | Used By | Notes |
+|--------|---------|-------|
+| **Ergot** | Most Ansalon (derived from Empire of Ergoth) | Most widely used. Gnome script is Ergot but so small it looks different |
+| **Elven** | Elves | Elegant, flowing; unchanged since Age of Dreams. Influenced Ergot and Istarian |
+| **Dwarven Runes** | Dwarves | Angular symbols carved in stone/metal. Functional and easy to recognize |
+| **Magius** | Wizards | Ancient, spidery; used for magical research notes. +2 bonus on Arcana/Spellcraft to read scrolls |
+| **Ancient Ogre** | Scholars/ruins | Pictographic; used during Age of Dreams. Academic interest only |
+| **Istarian** | Historical/Khur/Nordmaar/Nerakese | Widely used in Age of Might; nearly forgotten in later eras |
+| **Kothian** | Minotaurs | Dense symbols progressing from simple to complex. Nearly died out, revived by minotaur nations |
+| **Ogre** | Blöde, Kern | Crude pictographic; can only convey simplest concepts |
+
+### Astinus, the Aesthetics, and the Herald
+
+**Astinus of Palanthas:**
+- Present since before recorded history; said to be the last to leave when history ends
+- Theories: (1) Son of Gilean, (2) Gilean himself in mortal form, (3) Mortal incarnation of the god
+- Refused to remark on his identity — considers it unimportant
+- Disappeared following the Chaos War
+
+**The Aesthetics:**
+- Scholastic monks dedicated to preserving truth and chronicling history
+- Write treatises on racial practices, record political minutiae, fill in the details Astinus doesn't cover
+- After Astinus's disappearance, Bertrem of Palanthas took over running the Great Library of the Ages
+
+**The Herald:**
+- Wandering bard who appeared after Astinus vanished; claims no memory of his own past
+- Can recall ALL stories of Krynn's past — whether true or not
+- Some believe he is Astinus who lost his sense of self; others believe he is Master Lor of Solace touched by Paladine
+- Always appears where needed with a relevant story — sometimes a warning, sometimes a clue
+
+### The One God & War of Souls
+
+In the Fifth Age, Mina appeared performing miracles in the name of the "One God," destroying dragon overlords and winning desperate followers. The One God was revealed to be Takhisis, who had stolen Krynn through the Gate of Souls after the Chaos War. She used trapped dead souls to leech away magic and rebuild her power.
+
+**Key events:**
+- Kender Tasslehoff Burrfoot activated the Device of Time Journeying at the moment of Chaos's defeat, arriving in the alternate future
+- Raistlin Majere helped the gods locate the stolen world
+- Gods passed the Judgment of the Book: Takhisis made mortal, then killed by Silvanoshei
+- Paladine sacrificed godhood to maintain balance
+- Both primal sorcery/mysticism and High Sorcery/divine magic now coexist
+
+### Seeker Movement & False Gods
+
+After the Cataclysm, when all prayers went unanswered, the Seeker movement arose. Former clerics created a pantheon of false gods and used arcane magic to simulate miracles. Gained a foothold in Abanasinia but became corrupt, using power for personal ambition. Their fall came from within more than from the return of the true gods.
+
+Other false religions: demon cults, snake cults, dragon cults, ancestor worship (Que-Shu), deification of the living.
+
 ---
 
 ### Party Roster — Shadows Before The Flame
@@ -3368,4 +3846,4 @@ Post-war organization founded by Sara Dunstan (adoptive mother of Steel Brightbl
 
 ---
 
-> **Document Statistics:** ~3000 lines covering the complete D&D 5e SRD (core rules, all races, all 13 classes with features/subclasses, backgrounds, feats, full weapon/armor/equipment tables, spellcasting rules, class spell lists, cantrip reference, combat spell quick reference, 150+ magic items, 200+ monsters organized by CR, conditions, combat rules, adventuring) PLUS comprehensive Dragonlance/Krynn world lore extracted from Tales of the Lance (AD&D 2e), Dragonlance Campaign Setting (3.5e), Monstrous Compendium Vol 2, and Shadow of the Dragon Queen (5e) — including complete timeline from the Age of Starbirth through 369 AC, detailed geography of all Ansalon nations, expanded pantheon with creation roles, all draconian types with 5e stats, Krynn-specific monsters, legendary artifacts with 5e properties, Heroes of the Lance, major villains, knightly orders, mages of high sorcery, the Krynn calendar, and campaign-specific data for Shadows Before The Flame.
+> **Document Statistics:** ~3800+ lines covering the complete D&D 5e SRD (core rules, all races, all 13 classes with features/subclasses, backgrounds, feats, full weapon/armor/equipment tables, spellcasting rules, class spell lists, cantrip reference, combat spell quick reference, 150+ magic items, 200+ monsters organized by CR, conditions, combat rules, adventuring) PLUS comprehensive Dragonlance/Krynn world lore extracted from Tales of the Lance (AD&D 2e), Dragonlance Campaign Setting (3.5e), Raistlin's Guide to Krynn (5e v2.5), Monstrous Compendium Vol 2, and Shadow of the Dragon Queen (5e) — including complete timeline from the Age of Starbirth through 369 AC, detailed geography of all Ansalon nations, **full pantheon of 16 gods with 5e domains/dogma/clergy/holy days**, complete cosmology (Dome of Creation, Abyss, Hidden Vale, Gate of Souls), Orders of High Sorcery (all 5 towers, Test details, moon tracking, Curse of the Magi, renegade rules), Laws of Krynn and dying curse mechanics, noncombat/story award tables, 12 major adventure ruin sites, expanded calendar with hours/days/months/alphabets, all draconian types with 5e stats, Krynn-specific monsters, legendary artifacts with 5e properties, Heroes of the Lance, major villains, knightly orders, War of Souls/One God lore, Seeker movement, and campaign-specific data for Shadows Before The Flame.
