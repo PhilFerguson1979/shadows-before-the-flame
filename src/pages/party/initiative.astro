@@ -1,9 +1,21 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getCollection } from 'astro:content';
+import { monsters } from '../../data/monsters';
 
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 const characters = await getCollection('characters');
+
+// Compact monster data for client-side search
+const monsterList = monsters.map(m => ({
+  n: m.name,
+  s: m.slug,
+  cr: m.cr,
+  ac: m.ac,
+  hp: m.hp,
+  dex: m.dex,
+  type: m.type,
+}));
 const sorted = characters
   .filter(c => c.data.status === 'active')
   .sort((a, b) => (a.data.name ?? '').localeCompare(b.data.name ?? ''));
@@ -38,7 +50,11 @@ function mod(score: number | undefined) {
     <div class="controls">
       <button id="rollAll" class="btn btn-primary">Roll All Initiative</button>
       <button id="toggleManual" class="btn btn-secondary manual-toggle">Manual Entry</button>
-      <button id="addEnemy" class="btn btn-secondary">+ Add Enemy</button>
+      <div class="monster-search-wrap">
+        <input type="text" id="monsterSearch" placeholder="Search monsters..." autocomplete="off" />
+        <div id="monsterSearchResults" class="monster-search-results" style="display:none;"></div>
+      </div>
+      <button id="addEnemy" class="btn btn-secondary">+ Custom Enemy</button>
       <button id="nextTurn" class="btn btn-accent" disabled>Next Turn</button>
       <button id="resetCombat" class="btn btn-muted">Reset</button>
       <div class="round-display">Round <span id="roundNum">0</span></div>
@@ -130,15 +146,17 @@ function mod(score: number | undefined) {
   </div>
 </BaseLayout>
 
-<script>
-  const list = document.getElementById('initiativeList')!;
-  const rollAllBtn = document.getElementById('rollAll')!;
-  const toggleManualBtn = document.getElementById('toggleManual')!;
-  const addEnemyBtn = document.getElementById('addEnemy')!;
-  const nextTurnBtn = document.getElementById('nextTurn')!;
-  const resetBtn = document.getElementById('resetCombat')!;
-  const roundNum = document.getElementById('roundNum')!;
-  const template = document.getElementById('enemyTemplate') as HTMLTemplateElement;
+<script define:vars={{ monsterList }}>
+  const list = document.getElementById('initiativeList');
+  const rollAllBtn = document.getElementById('rollAll');
+  const toggleManualBtn = document.getElementById('toggleManual');
+  const addEnemyBtn = document.getElementById('addEnemy');
+  const nextTurnBtn = document.getElementById('nextTurn');
+  const resetBtn = document.getElementById('resetCombat');
+  const roundNum = document.getElementById('roundNum');
+  const template = document.getElementById('enemyTemplate');
+  const monsterSearchInput = document.getElementById('monsterSearch');
+  const monsterSearchResults = document.getElementById('monsterSearchResults');
 
   let round = 0;
   let currentIndex = -1;
@@ -148,41 +166,41 @@ function mod(score: number | undefined) {
 
   function d20() { return Math.floor(Math.random() * 20) + 1; }
 
-  function getAllCards(): HTMLElement[] {
+  function getAllCards() {
     return Array.from(list.querySelectorAll('.init-card'));
   }
 
-  function rollInitiative(card: HTMLElement) {
-    const dex = parseInt(card.dataset.dex ?? '0');
+  function rollInitiative(card) {
+    const dex = parseInt(card.dataset.dex || '0');
     const roll = d20() + dex;
     card.dataset.init = String(roll);
-    card.querySelector('.init-value')!.textContent = String(roll);
+    card.querySelector('.init-value').textContent = String(roll);
   }
 
   function sortByInitiative() {
     const cards = getAllCards();
     cards.sort((a, b) => {
-      const ai = parseInt(a.dataset.init ?? '0');
-      const bi = parseInt(b.dataset.init ?? '0');
+      const ai = parseInt(a.dataset.init || '0');
+      const bi = parseInt(b.dataset.init || '0');
       if (bi !== ai) return bi - ai;
-      const ad = parseInt(a.dataset.dex ?? '0');
-      const bd = parseInt(b.dataset.dex ?? '0');
+      const ad = parseInt(a.dataset.dex || '0');
+      const bd = parseInt(b.dataset.dex || '0');
       return bd - ad;
     });
     cards.forEach(card => list.appendChild(card));
   }
 
-  function updateHP(card: HTMLElement, delta: number) {
-    const maxHp = parseInt(card.dataset.maxHp ?? '20');
-    let hp = parseInt(card.dataset.hp ?? String(maxHp));
+  function updateHP(card, delta) {
+    const maxHp = parseInt(card.dataset.maxHp || '20');
+    let hp = parseInt(card.dataset.hp || String(maxHp));
     hp = Math.max(0, Math.min(maxHp, hp + delta));
     card.dataset.hp = String(hp);
     const pct = Math.round((hp / maxHp) * 100);
-    const bar = card.querySelector('.init-hp-bar') as HTMLElement;
-    const text = card.querySelector('.init-hp-text')!;
-    bar.style.width = `${pct}%`;
+    const bar = card.querySelector('.init-hp-bar');
+    const text = card.querySelector('.init-hp-text');
+    bar.style.width = pct + '%';
     bar.style.background = pct > 60 ? '#27ae60' : pct > 30 ? '#f39c12' : '#c0392b';
-    text.textContent = `${hp} / ${maxHp}`;
+    text.textContent = hp + ' / ' + maxHp;
     card.classList.toggle('downed', hp === 0);
   }
 
@@ -200,7 +218,6 @@ function mod(score: number | undefined) {
     manualMode = !manualMode;
     toggleManualBtn.textContent = manualMode ? 'Auto Roll' : 'Manual Entry';
     toggleManualBtn.classList.toggle('manual-active', manualMode);
-    // If inputs are showing from a previous manual attempt, clear them
     if (!manualMode && manualInputsShowing) {
       clearManualInputs();
     }
@@ -209,8 +226,7 @@ function mod(score: number | undefined) {
   function showManualInputs() {
     manualInputsShowing = true;
     getAllCards().forEach(card => {
-      const valEl = card.querySelector('.init-value') as HTMLElement;
-      // Don't double-add inputs
+      const valEl = card.querySelector('.init-value');
       if (card.querySelector('.manual-init-input')) return;
       const input = document.createElement('input');
       input.type = 'number';
@@ -220,12 +236,11 @@ function mod(score: number | undefined) {
       input.placeholder = '--';
       input.style.width = '40px';
       valEl.style.display = 'none';
-      valEl.parentElement!.insertBefore(input, valEl);
-      // Tab to next input on Enter
-      input.addEventListener('keydown', (e: KeyboardEvent) => {
+      valEl.parentElement.insertBefore(input, valEl);
+      input.addEventListener('keydown', (e) => {
         if (e.key === 'Enter') {
           e.preventDefault();
-          const allInputs = Array.from(list.querySelectorAll('.manual-init-input')) as HTMLInputElement[];
+          const allInputs = Array.from(list.querySelectorAll('.manual-init-input'));
           const idx = allInputs.indexOf(input);
           if (idx < allInputs.length - 1) {
             allInputs[idx + 1].focus();
@@ -237,27 +252,24 @@ function mod(score: number | undefined) {
     });
     rollAllBtn.textContent = 'Confirm Rolls';
     rollAllBtn.classList.add('btn-confirm');
-    // Focus first input
-    const firstInput = list.querySelector('.manual-init-input') as HTMLInputElement;
+    const firstInput = list.querySelector('.manual-init-input');
     if (firstInput) firstInput.focus();
   }
 
   function confirmManualRolls() {
     const cards = getAllCards();
-    let allValid = true;
     cards.forEach(card => {
-      const input = card.querySelector('.manual-init-input') as HTMLInputElement | null;
+      const input = card.querySelector('.manual-init-input');
       if (input) {
         const val = parseInt(input.value);
         if (!isNaN(val)) {
           card.dataset.init = String(val);
-          card.querySelector('.init-value')!.textContent = String(val);
+          card.querySelector('.init-value').textContent = String(val);
         } else {
-          // If empty, roll automatically as fallback
-          const dex = parseInt(card.dataset.dex ?? '0');
+          const dex = parseInt(card.dataset.dex || '0');
           const roll = d20() + dex;
           card.dataset.init = String(roll);
-          card.querySelector('.init-value')!.textContent = String(roll);
+          card.querySelector('.init-value').textContent = String(roll);
         }
       }
     });
@@ -274,7 +286,7 @@ function mod(score: number | undefined) {
   function clearManualInputs() {
     manualInputsShowing = false;
     list.querySelectorAll('.manual-init-input').forEach(input => input.remove());
-    list.querySelectorAll('.init-value').forEach(el => (el as HTMLElement).style.display = '');
+    list.querySelectorAll('.init-value').forEach(el => el.style.display = '');
     rollAllBtn.textContent = 'Roll All Initiative';
     rollAllBtn.classList.remove('btn-confirm');
   }
@@ -282,16 +294,13 @@ function mod(score: number | undefined) {
   // Roll all (or confirm manual rolls)
   rollAllBtn.addEventListener('click', () => {
     if (manualMode && !manualInputsShowing) {
-      // First click in manual mode: show inputs
       showManualInputs();
       return;
     }
     if (manualMode && manualInputsShowing) {
-      // Second click: confirm manual rolls
       confirmManualRolls();
       return;
     }
-    // Auto mode: original behavior
     getAllCards().forEach(card => rollInitiative(card));
     sortByInitiative();
     combatStarted = true;
@@ -315,24 +324,69 @@ function mod(score: number | undefined) {
     highlightCurrent();
   });
 
-  // Add enemy
-  addEnemyBtn.addEventListener('click', () => {
-    const clone = template.content.cloneNode(true) as DocumentFragment;
-    const card = clone.querySelector('.init-card') as HTMLElement;
+  // Add enemy from monster database
+  function addEnemyFromMonster(mon) {
+    const clone = template.content.cloneNode(true);
+    const card = clone.querySelector('.init-card');
+    const dexMod = Math.floor((mon.dex - 10) / 2);
 
-    card.querySelector('.enemy-remove')!.addEventListener('click', () => card.remove());
+    card.querySelector('.enemy-remove').addEventListener('click', () => card.remove());
 
-    const acInput = card.querySelector('.enemy-ac') as HTMLInputElement;
-    const hpInput = card.querySelector('.enemy-hp') as HTMLInputElement;
-    const dexInput = card.querySelector('.enemy-dex') as HTMLInputElement;
-    const nameInput = card.querySelector('.enemy-name-input') as HTMLInputElement;
+    const acInput = card.querySelector('.enemy-ac');
+    const hpInput = card.querySelector('.enemy-hp');
+    const dexInput = card.querySelector('.enemy-dex');
+    const nameInput = card.querySelector('.enemy-name-input');
+
+    // Pre-fill with monster data
+    nameInput.value = mon.n || mon.name || '';
+    acInput.value = String(mon.ac);
+    hpInput.value = String(mon.hp);
+    dexInput.value = String(dexMod);
+
+    card.dataset.name = nameInput.value;
+    card.dataset.hp = String(mon.hp);
+    card.dataset.maxHp = String(mon.hp);
+    card.dataset.dex = String(dexMod);
+    card.dataset.ac = String(mon.ac);
+
+    card.querySelector('.init-hp-text').textContent = mon.hp + ' / ' + mon.hp;
 
     hpInput.addEventListener('change', () => {
       const hp = parseInt(hpInput.value);
       card.dataset.hp = String(hp);
       card.dataset.maxHp = String(hp);
-      card.querySelector('.init-hp-text')!.textContent = `${hp} / ${hp}`;
-      (card.querySelector('.init-hp-bar') as HTMLElement).style.width = '100%';
+      card.querySelector('.init-hp-text').textContent = hp + ' / ' + hp;
+      card.querySelector('.init-hp-bar').style.width = '100%';
+    });
+    dexInput.addEventListener('change', () => {
+      card.dataset.dex = dexInput.value;
+    });
+    nameInput.addEventListener('input', () => {
+      card.dataset.name = nameInput.value;
+    });
+
+    setupHPButtons(card);
+    list.appendChild(card);
+  }
+
+  // Add custom enemy (manual entry)
+  addEnemyBtn.addEventListener('click', () => {
+    const clone = template.content.cloneNode(true);
+    const card = clone.querySelector('.init-card');
+
+    card.querySelector('.enemy-remove').addEventListener('click', () => card.remove());
+
+    const acInput = card.querySelector('.enemy-ac');
+    const hpInput = card.querySelector('.enemy-hp');
+    const dexInput = card.querySelector('.enemy-dex');
+    const nameInput = card.querySelector('.enemy-name-input');
+
+    hpInput.addEventListener('change', () => {
+      const hp = parseInt(hpInput.value);
+      card.dataset.hp = String(hp);
+      card.dataset.maxHp = String(hp);
+      card.querySelector('.init-hp-text').textContent = hp + ' / ' + hp;
+      card.querySelector('.init-hp-bar').style.width = '100%';
     });
     dexInput.addEventListener('change', () => {
       card.dataset.dex = dexInput.value;
@@ -351,6 +405,52 @@ function mod(score: number | undefined) {
     nameInput.focus();
   });
 
+  // Monster search autocomplete
+  monsterSearchInput.addEventListener('input', () => {
+    const query = monsterSearchInput.value.toLowerCase().trim();
+    if (query.length < 2) {
+      monsterSearchResults.style.display = 'none';
+      return;
+    }
+    const matches = monsterList.filter(m => m.n.toLowerCase().includes(query)).slice(0, 12);
+    if (matches.length === 0) {
+      monsterSearchResults.innerHTML = '<div class="ms-item ms-empty">No monsters found</div>';
+    } else {
+      monsterSearchResults.innerHTML = matches.map(m =>
+        '<div class="ms-item" data-slug="' + m.s + '">' +
+          '<span class="ms-name">' + m.n + '</span>' +
+          '<span class="ms-meta">CR ' + m.cr + ' · AC ' + m.ac + ' · HP ' + m.hp + '</span>' +
+        '</div>'
+      ).join('');
+    }
+    monsterSearchResults.style.display = '';
+
+    monsterSearchResults.querySelectorAll('.ms-item[data-slug]').forEach(item => {
+      item.addEventListener('click', () => {
+        const slug = item.dataset.slug;
+        const mon = monsterList.find(m => m.s === slug);
+        if (mon) {
+          addEnemyFromMonster(mon);
+        }
+        monsterSearchInput.value = '';
+        monsterSearchResults.style.display = 'none';
+      });
+    });
+  });
+
+  document.addEventListener('click', (e) => {
+    if (!monsterSearchInput.contains(e.target) && !monsterSearchResults.contains(e.target)) {
+      monsterSearchResults.style.display = 'none';
+    }
+  });
+
+  monsterSearchInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      monsterSearchResults.style.display = 'none';
+      monsterSearchInput.value = '';
+    }
+  });
+
   // Reset
   resetBtn.addEventListener('click', () => {
     combatStarted = false;
@@ -362,33 +462,33 @@ function mod(score: number | undefined) {
     const cards = getAllCards();
     cards.forEach(card => {
       card.classList.remove('active-turn', 'downed');
-      card.querySelector('.init-value')!.textContent = '--';
+      card.querySelector('.init-value').textContent = '--';
       card.dataset.init = '0';
       if (card.dataset.type === 'enemy') {
         card.remove();
       } else {
-        const maxHp = parseInt(card.dataset.maxHp ?? '20');
+        const maxHp = parseInt(card.dataset.maxHp || '20');
         card.dataset.hp = String(maxHp);
-        const bar = card.querySelector('.init-hp-bar') as HTMLElement;
+        const bar = card.querySelector('.init-hp-bar');
         bar.style.width = '100%';
         bar.style.background = '#27ae60';
-        card.querySelector('.init-hp-text')!.textContent = `${maxHp} / ${maxHp}`;
+        card.querySelector('.init-hp-text').textContent = maxHp + ' / ' + maxHp;
       }
     });
   });
 
   // HP buttons — click: ±1, shift+click: show custom input
-  function setupHPButtons(card: HTMLElement) {
-    const dmgBtn = card.querySelector('.hp-dmg') as HTMLElement;
-    const healBtn = card.querySelector('.hp-heal') as HTMLElement;
-    const customWrap = card.querySelector('.hp-custom-input') as HTMLElement;
-    const customInput = card.querySelector('.hp-custom-val') as HTMLInputElement;
-    const applyDmg = card.querySelector('.hp-custom-dmg') as HTMLElement;
-    const applyHeal = card.querySelector('.hp-custom-heal-btn') as HTMLElement;
+  function setupHPButtons(card) {
+    const dmgBtn = card.querySelector('.hp-dmg');
+    const healBtn = card.querySelector('.hp-heal');
+    const customWrap = card.querySelector('.hp-custom-input');
+    const customInput = card.querySelector('.hp-custom-val');
+    const applyDmg = card.querySelector('.hp-custom-dmg');
+    const applyHeal = card.querySelector('.hp-custom-heal-btn');
 
-    let customMode: 'damage' | 'heal' | null = null;
+    let customMode = null;
 
-    function showCustomInput(mode: 'damage' | 'heal') {
+    function showCustomInput(mode) {
       customMode = mode;
       customInput.value = '';
       customWrap.style.display = 'flex';
@@ -411,7 +511,7 @@ function mod(score: number | undefined) {
       hideCustomInput();
     }
 
-    dmgBtn.addEventListener('click', (e: MouseEvent) => {
+    dmgBtn.addEventListener('click', (e) => {
       if (e.shiftKey) {
         showCustomInput('damage');
       } else {
@@ -420,7 +520,7 @@ function mod(score: number | undefined) {
       }
     });
 
-    healBtn.addEventListener('click', (e: MouseEvent) => {
+    healBtn.addEventListener('click', (e) => {
       if (e.shiftKey) {
         showCustomInput('heal');
       } else {
@@ -432,13 +532,12 @@ function mod(score: number | undefined) {
     applyDmg.addEventListener('click', applyCustom);
     applyHeal.addEventListener('click', applyCustom);
 
-    customInput.addEventListener('keydown', (e: KeyboardEvent) => {
+    customInput.addEventListener('keydown', (e) => {
       if (e.key === 'Enter') applyCustom();
       if (e.key === 'Escape') hideCustomInput();
     });
 
-    // Long-press for mobile (hold 500ms = open custom input as damage)
-    let pressTimer: ReturnType<typeof setTimeout>;
+    let pressTimer;
     dmgBtn.addEventListener('pointerdown', () => {
       pressTimer = setTimeout(() => showCustomInput('damage'), 500);
     });
@@ -453,6 +552,22 @@ function mod(score: number | undefined) {
   }
 
   getAllCards().forEach(card => setupHPButtons(card));
+
+  // Pick up pending enemies from localStorage (from Encounter Planner or Monster detail pages)
+  try {
+    const pending = JSON.parse(localStorage.getItem('sbtf-pending-enemies') || '[]');
+    if (pending.length > 0) {
+      pending.forEach(enemy => {
+        addEnemyFromMonster({
+          n: enemy.name,
+          ac: parseInt(enemy.ac) || 12,
+          hp: parseInt(enemy.hp) || 20,
+          dex: (parseInt(enemy.dex) || 0) * 2 + 10, // convert mod back to score for addEnemyFromMonster
+        });
+      });
+      localStorage.removeItem('sbtf-pending-enemies');
+    }
+  } catch(e) { /* ignore parse errors */ }
 </script>
 
 <style>
@@ -606,11 +721,51 @@ function mod(score: number | undefined) {
 }
 .enemy-remove:hover { background: rgba(192,57,43,0.3); }
 
+/* Monster search */
+.monster-search-wrap {
+  position: relative;
+  min-width: 200px;
+}
+.monster-search-wrap input {
+  width: 100%;
+  padding: 0.4rem 0.6rem;
+  font-size: 0.82rem;
+  background: rgba(0,0,0,0.3);
+  border: 1px solid rgba(139,105,20,0.3);
+  border-radius: 6px;
+  color: var(--text-parchment);
+}
+.monster-search-wrap input:focus { outline: none; border-color: var(--text-gold); }
+.monster-search-results {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  background: #1a1510;
+  border: 1px solid rgba(139,105,20,0.3);
+  border-top: none;
+  border-radius: 0 0 6px 6px;
+  max-height: 250px;
+  overflow-y: auto;
+}
+.ms-item {
+  padding: 0.45rem 0.6rem;
+  cursor: pointer;
+  transition: background 0.1s;
+  border-bottom: 1px solid rgba(100,100,100,0.1);
+}
+.ms-item:hover { background: rgba(139,105,20,0.12); }
+.ms-item.ms-empty { cursor: default; color: var(--text-muted); font-style: italic; font-size: 0.82rem; }
+.ms-name { display: block; font-size: 0.82rem; font-weight: 600; color: var(--text-parchment); }
+.ms-meta { display: block; font-size: 0.68rem; color: var(--text-muted); }
+
 @media (max-width: 640px) {
   .init-card { flex-wrap: wrap; gap: 0.5rem; }
   .init-portrait { width: 32px; height: 32px; }
   .init-hp-block { width: 100%; order: 10; }
   .controls { gap: 0.5rem; }
   .btn { padding: 0.4rem 0.75rem; font-size: 0.78rem; }
+  .monster-search-wrap { min-width: auto; width: 100%; order: -1; }
 }
 </style>

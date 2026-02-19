@@ -1,0 +1,582 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { monsters, crXpTable, encounterThresholds, getEncounterMultiplier } from '../../data/monsters';
+import { getCollection } from 'astro:content';
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+
+// Get active party for thresholds
+const characters = await getCollection('characters');
+const activeParty = characters.filter(c => c.data.status === 'active');
+const partyLevels = activeParty.map(c => c.data.level);
+
+// Calculate party thresholds
+const partyThresholds = { easy: 0, medium: 0, hard: 0, deadly: 0 };
+partyLevels.forEach(lvl => {
+  const t = encounterThresholds[lvl];
+  if (t) {
+    partyThresholds.easy += t.easy;
+    partyThresholds.medium += t.medium;
+    partyThresholds.hard += t.hard;
+    partyThresholds.deadly += t.deadly;
+  }
+});
+
+// Serialize monster data for client-side use (compact: just what the encounter builder needs)
+const monsterList = monsters.map(m => ({
+  n: m.name,
+  s: m.slug,
+  cr: m.cr,
+  xp: m.xp,
+  ac: m.ac,
+  hp: m.hp,
+  dex: m.dex,
+  type: m.type,
+  size: m.size,
+}));
+---
+
+<BaseLayout title="Encounter Planner">
+  <div class="page-container">
+    <h1>Encounter Planner</h1>
+    <p class="intro-text">Build encounters, check difficulty, and launch into the combat tracker.</p>
+
+    <!-- Party Summary -->
+    <div class="party-summary">
+      <span class="party-count">{activeParty.length} PCs</span>
+      <span class="party-levels">Levels: {partyLevels.join(', ')}</span>
+      <div class="threshold-bar">
+        <span class="thresh easy">Easy {partyThresholds.easy.toLocaleString()}</span>
+        <span class="thresh medium">Medium {partyThresholds.medium.toLocaleString()}</span>
+        <span class="thresh hard">Hard {partyThresholds.hard.toLocaleString()}</span>
+        <span class="thresh deadly">Deadly {partyThresholds.deadly.toLocaleString()}</span>
+      </div>
+    </div>
+
+    <!-- Monster Search + Add -->
+    <div class="add-section">
+      <div class="search-wrap">
+        <input type="text" id="monsterSearch" placeholder="Search monsters..." autocomplete="off" />
+        <div id="searchResults" class="search-results" style="display:none;"></div>
+      </div>
+      <button id="addCustom" class="btn btn-secondary">+ Custom Enemy</button>
+    </div>
+
+    <!-- Encounter List -->
+    <div id="encounterList" class="encounter-list">
+      <div class="encounter-empty" id="encounterEmpty">
+        Add monsters to build your encounter.
+      </div>
+    </div>
+
+    <!-- Difficulty Gauge -->
+    <div class="difficulty-section" id="difficultySection" style="display:none;">
+      <div class="difficulty-bar">
+        <div class="difficulty-fill" id="difficultyFill"></div>
+        <div class="difficulty-markers">
+          <span class="marker easy" style="left:0%">Easy</span>
+          <span class="marker medium" id="markerMedium">Med</span>
+          <span class="marker hard" id="markerHard">Hard</span>
+          <span class="marker deadly" id="markerDeadly">Deadly</span>
+        </div>
+      </div>
+      <div class="difficulty-info">
+        <span class="diff-label" id="diffLabel">—</span>
+        <span class="diff-xp" id="diffXP">0 XP</span>
+        <span class="diff-adj" id="diffAdj">Adjusted: 0 XP</span>
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="encounter-actions" id="encounterActions" style="display:none;">
+      <button id="launchCombat" class="btn btn-primary">Launch in Combat Tracker</button>
+      <button id="clearEncounter" class="btn btn-muted">Clear Encounter</button>
+    </div>
+  </div>
+</BaseLayout>
+
+<script define:vars={{ monsterList, partyThresholds, base }}>
+  const searchInput = document.getElementById('monsterSearch');
+  const searchResults = document.getElementById('searchResults');
+  const encounterList = document.getElementById('encounterList');
+  const encounterEmpty = document.getElementById('encounterEmpty');
+  const diffSection = document.getElementById('difficultySection');
+  const diffFill = document.getElementById('difficultyFill');
+  const diffLabel = document.getElementById('diffLabel');
+  const diffXP = document.getElementById('diffXP');
+  const diffAdj = document.getElementById('diffAdj');
+  const markerMedium = document.getElementById('markerMedium');
+  const markerHard = document.getElementById('markerHard');
+  const markerDeadly = document.getElementById('markerDeadly');
+  const encActions = document.getElementById('encounterActions');
+  const addCustomBtn = document.getElementById('addCustom');
+  const launchBtn = document.getElementById('launchCombat');
+  const clearBtn = document.getElementById('clearEncounter');
+
+  // Encounter state: array of { name, slug, cr, xp, ac, hp, dex, count }
+  let encounter = [];
+
+  // Search functionality
+  searchInput.addEventListener('input', () => {
+    const query = searchInput.value.toLowerCase().trim();
+    if (query.length < 2) {
+      searchResults.style.display = 'none';
+      return;
+    }
+    const matches = monsterList.filter(m => m.n.toLowerCase().includes(query)).slice(0, 15);
+    if (matches.length === 0) {
+      searchResults.innerHTML = '<div class="search-item no-match">No monsters found</div>';
+    } else {
+      searchResults.innerHTML = matches.map(m =>
+        `<div class="search-item" data-slug="${m.s}">
+          <span class="si-name">${m.n}</span>
+          <span class="si-meta">CR ${m.cr} · ${m.type} · AC ${m.ac} · HP ${m.hp}</span>
+        </div>`
+      ).join('');
+    }
+    searchResults.style.display = '';
+
+    // Attach click handlers
+    searchResults.querySelectorAll('.search-item[data-slug]').forEach(item => {
+      item.addEventListener('click', () => {
+        const slug = item.dataset.slug;
+        const mon = monsterList.find(m => m.s === slug);
+        if (mon) addMonster(mon);
+        searchInput.value = '';
+        searchResults.style.display = 'none';
+      });
+    });
+  });
+
+  // Close search on click outside
+  document.addEventListener('click', (e) => {
+    if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) {
+      searchResults.style.display = 'none';
+    }
+  });
+
+  // Close search on Escape
+  searchInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      searchResults.style.display = 'none';
+      searchInput.value = '';
+    }
+  });
+
+  // Add custom enemy
+  addCustomBtn.addEventListener('click', () => {
+    addMonster({ n: 'Custom Enemy', s: '', cr: '1', xp: 200, ac: 12, hp: 20, dex: 10, type: 'humanoid', size: 'Medium', custom: true });
+  });
+
+  function addMonster(mon) {
+    // Check if already in encounter
+    const existing = encounter.find(e => e.slug === mon.s && mon.s !== '');
+    if (existing) {
+      existing.count++;
+      renderEncounter();
+      return;
+    }
+    encounter.push({
+      name: mon.n,
+      slug: mon.s,
+      cr: mon.cr,
+      xp: mon.xp,
+      ac: mon.ac,
+      hp: mon.hp,
+      dex: mon.dex,
+      count: 1,
+      custom: mon.custom || false,
+    });
+    renderEncounter();
+  }
+
+  function removeMonster(index) {
+    encounter.splice(index, 1);
+    renderEncounter();
+  }
+
+  function changeCount(index, delta) {
+    encounter[index].count = Math.max(1, encounter[index].count + delta);
+    renderEncounter();
+  }
+
+  function getEncounterMultiplier(count) {
+    if (count === 0) return 1;
+    if (count === 1) return 1;
+    if (count === 2) return 1.5;
+    if (count <= 6) return 2;
+    if (count <= 10) return 2.5;
+    if (count <= 14) return 3;
+    return 4;
+  }
+
+  function renderEncounter() {
+    if (encounter.length === 0) {
+      encounterEmpty.style.display = '';
+      diffSection.style.display = 'none';
+      encActions.style.display = 'none';
+      // Remove all encounter rows
+      encounterList.querySelectorAll('.encounter-row').forEach(r => r.remove());
+      return;
+    }
+
+    encounterEmpty.style.display = 'none';
+    diffSection.style.display = '';
+    encActions.style.display = 'flex';
+
+    // Remove old rows
+    encounterList.querySelectorAll('.encounter-row').forEach(r => r.remove());
+
+    // Render rows
+    encounter.forEach((mon, i) => {
+      const row = document.createElement('div');
+      row.className = 'encounter-row';
+      row.innerHTML = `
+        <div class="er-info">
+          ${mon.slug ? `<a href="${base}/monsters/${mon.slug}" class="er-name">${mon.name}</a>` : `<span class="er-name">${mon.name}</span>`}
+          <span class="er-meta">CR ${mon.cr} · AC ${mon.ac} · HP ${mon.hp} · ${mon.xp.toLocaleString()} XP</span>
+        </div>
+        <div class="er-controls">
+          <button class="er-btn er-minus" data-i="${i}">−</button>
+          <span class="er-count">${mon.count}</span>
+          <button class="er-btn er-plus" data-i="${i}">+</button>
+          <span class="er-total-xp">${(mon.xp * mon.count).toLocaleString()} XP</span>
+          <button class="er-btn er-remove" data-i="${i}">×</button>
+        </div>
+      `;
+      encounterList.appendChild(row);
+    });
+
+    // Attach event handlers
+    encounterList.querySelectorAll('.er-minus').forEach(btn => {
+      btn.addEventListener('click', () => changeCount(parseInt(btn.dataset.i), -1));
+    });
+    encounterList.querySelectorAll('.er-plus').forEach(btn => {
+      btn.addEventListener('click', () => changeCount(parseInt(btn.dataset.i), 1));
+    });
+    encounterList.querySelectorAll('.er-remove').forEach(btn => {
+      btn.addEventListener('click', () => removeMonster(parseInt(btn.dataset.i)));
+    });
+
+    updateDifficulty();
+  }
+
+  function updateDifficulty() {
+    const totalMonsters = encounter.reduce((s, m) => s + m.count, 0);
+    const rawXP = encounter.reduce((s, m) => s + m.xp * m.count, 0);
+    const multiplier = getEncounterMultiplier(totalMonsters);
+    const adjustedXP = Math.round(rawXP * multiplier);
+
+    diffXP.textContent = `${rawXP.toLocaleString()} XP (raw)`;
+    diffAdj.textContent = `Adjusted: ${adjustedXP.toLocaleString()} XP (×${multiplier})`;
+
+    // Determine difficulty
+    let difficulty = 'Trivial';
+    let diffColor = '#666';
+    if (adjustedXP >= partyThresholds.deadly) { difficulty = 'Deadly'; diffColor = '#c0392b'; }
+    else if (adjustedXP >= partyThresholds.hard) { difficulty = 'Hard'; diffColor = '#d35400'; }
+    else if (adjustedXP >= partyThresholds.medium) { difficulty = 'Medium'; diffColor = '#f39c12'; }
+    else if (adjustedXP >= partyThresholds.easy) { difficulty = 'Easy'; diffColor = '#27ae60'; }
+
+    diffLabel.textContent = difficulty;
+    diffLabel.style.color = diffColor;
+
+    // Difficulty bar fill (scale: 0 to deadly * 1.5)
+    const maxScale = partyThresholds.deadly * 1.5;
+    const pct = Math.min(100, (adjustedXP / maxScale) * 100);
+    diffFill.style.width = `${pct}%`;
+    diffFill.style.background = diffColor;
+
+    // Position markers
+    const medPct = (partyThresholds.medium / maxScale) * 100;
+    const hardPct = (partyThresholds.hard / maxScale) * 100;
+    const deadlyPct = (partyThresholds.deadly / maxScale) * 100;
+    markerMedium.style.left = `${medPct}%`;
+    markerHard.style.left = `${hardPct}%`;
+    markerDeadly.style.left = `${deadlyPct}%`;
+  }
+
+  // Launch combat — store encounter in localStorage, navigate to initiative
+  launchBtn.addEventListener('click', () => {
+    const enemies = [];
+    encounter.forEach(mon => {
+      for (let i = 0; i < mon.count; i++) {
+        enemies.push({
+          name: mon.count > 1 ? `${mon.name} ${i + 1}` : mon.name,
+          ac: String(mon.ac),
+          hp: String(mon.hp),
+          dex: String(Math.floor((mon.dex - 10) / 2)),
+        });
+      }
+    });
+    localStorage.setItem('sbtf-pending-enemies', JSON.stringify(enemies));
+    window.location.href = `${base}/party/initiative`;
+  });
+
+  // Clear
+  clearBtn.addEventListener('click', () => {
+    encounter = [];
+    renderEncounter();
+  });
+</script>
+
+<style>
+h1 { margin-bottom: 0.25rem; }
+.intro-text { color: var(--text-muted); font-size: 0.88rem; margin-bottom: 1.5rem; }
+
+/* Party Summary */
+.party-summary {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  padding: 0.75rem 1rem;
+  background: rgba(139,105,20,0.06);
+  border: 1px solid rgba(139,105,20,0.2);
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  font-size: 0.82rem;
+}
+.party-count { color: var(--text-gold-bright); font-weight: bold; }
+.party-levels { color: var(--text-muted); }
+.threshold-bar {
+  display: flex;
+  gap: 0.5rem;
+  margin-left: auto;
+  flex-wrap: wrap;
+}
+.thresh {
+  font-size: 0.68rem;
+  padding: 0.12rem 0.45rem;
+  border-radius: 3px;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.thresh.easy { background: rgba(39,174,96,0.15); color: #6ec97a; border: 1px solid rgba(39,174,96,0.3); }
+.thresh.medium { background: rgba(243,156,18,0.15); color: #f5b041; border: 1px solid rgba(243,156,18,0.3); }
+.thresh.hard { background: rgba(211,84,0,0.15); color: #e67e22; border: 1px solid rgba(211,84,0,0.3); }
+.thresh.deadly { background: rgba(192,57,43,0.15); color: #e74c3c; border: 1px solid rgba(192,57,43,0.3); }
+
+/* Add Section */
+.add-section {
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+  margin-bottom: 1.5rem;
+}
+.search-wrap {
+  position: relative;
+  flex: 1;
+  max-width: 400px;
+}
+.search-wrap input {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.88rem;
+  background: rgba(0,0,0,0.3);
+  border: 1px solid rgba(139,105,20,0.3);
+  border-radius: 6px;
+  color: var(--text-parchment);
+}
+.search-wrap input:focus { outline: none; border-color: var(--text-gold); }
+
+.search-results {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  background: #1a1510;
+  border: 1px solid rgba(139,105,20,0.3);
+  border-top: none;
+  border-radius: 0 0 6px 6px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+.search-item {
+  padding: 0.5rem 0.75rem;
+  cursor: pointer;
+  transition: background 0.1s;
+  border-bottom: 1px solid rgba(100,100,100,0.1);
+}
+.search-item:hover { background: rgba(139,105,20,0.12); }
+.search-item.no-match { cursor: default; color: var(--text-muted); font-style: italic; }
+.si-name { display: block; font-size: 0.85rem; font-weight: 600; color: var(--text-parchment); }
+.si-meta { display: block; font-size: 0.7rem; color: var(--text-muted); }
+
+.btn {
+  padding: 0.5rem 1rem;
+  border: 1px solid;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+.btn-primary { background: rgba(139,105,20,0.2); border-color: var(--border-gold); color: var(--text-gold-bright); }
+.btn-primary:hover { background: rgba(139,105,20,0.35); }
+.btn-secondary { background: rgba(100,100,100,0.15); border-color: rgba(100,100,100,0.3); color: var(--text-parchment); }
+.btn-secondary:hover { background: rgba(100,100,100,0.25); }
+.btn-muted { background: rgba(100,100,100,0.08); border-color: rgba(100,100,100,0.2); color: var(--text-muted); }
+.btn-muted:hover { background: rgba(100,100,100,0.15); }
+
+/* Encounter list */
+.encounter-list {
+  min-height: 60px;
+  margin-bottom: 1.5rem;
+}
+.encounter-empty {
+  text-align: center;
+  padding: 2rem;
+  color: var(--text-muted);
+  font-style: italic;
+  font-size: 0.88rem;
+}
+.encounter-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.6rem 0.8rem;
+  background: rgba(139,105,20,0.04);
+  border: 1px solid rgba(139,105,20,0.12);
+  border-radius: 6px;
+  margin-bottom: 0.4rem;
+}
+.er-info { flex: 1; min-width: 0; }
+.er-name {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--text-parchment);
+  text-decoration: none;
+}
+a.er-name:hover { color: var(--text-gold); text-decoration: underline; }
+.er-meta { display: block; font-size: 0.7rem; color: var(--text-muted); }
+
+.er-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-shrink: 0;
+}
+.er-btn {
+  width: 26px;
+  height: 26px;
+  border-radius: 4px;
+  border: 1px solid rgba(139,105,20,0.3);
+  background: rgba(139,105,20,0.1);
+  color: var(--text-gold);
+  font-size: 0.9rem;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s;
+}
+.er-btn:hover { background: rgba(139,105,20,0.25); }
+.er-remove {
+  border-color: rgba(192,57,43,0.3);
+  background: rgba(192,57,43,0.1);
+  color: #e74c3c;
+}
+.er-remove:hover { background: rgba(192,57,43,0.25); }
+.er-count {
+  font-size: 0.88rem;
+  font-weight: bold;
+  color: var(--text-gold-bright);
+  min-width: 1.5rem;
+  text-align: center;
+}
+.er-total-xp {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  min-width: 4rem;
+  text-align: right;
+}
+
+/* Difficulty section */
+.difficulty-section {
+  padding: 1rem;
+  background: rgba(139,105,20,0.06);
+  border: 1px solid rgba(139,105,20,0.2);
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+}
+.difficulty-bar {
+  position: relative;
+  height: 12px;
+  background: rgba(100,100,100,0.15);
+  border-radius: 6px;
+  overflow: visible;
+  margin-bottom: 1.5rem;
+}
+.difficulty-fill {
+  height: 100%;
+  border-radius: 6px;
+  transition: width 0.3s, background 0.3s;
+  min-width: 2px;
+}
+.difficulty-markers {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+.marker {
+  position: absolute;
+  top: 16px;
+  font-size: 0.6rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  transform: translateX(-50%);
+}
+.marker::before {
+  content: '';
+  position: absolute;
+  top: -14px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 1px;
+  height: 10px;
+  background: rgba(139,105,20,0.3);
+}
+.marker.easy { color: #6ec97a; }
+.marker.medium { color: #f5b041; }
+.marker.hard { color: #e67e22; }
+.marker.deadly { color: #e74c3c; }
+
+.difficulty-info {
+  display: flex;
+  align-items: baseline;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+.diff-label {
+  font-size: 1.1rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.diff-xp { font-size: 0.82rem; color: var(--text-muted); }
+.diff-adj { font-size: 0.75rem; color: var(--text-dim); }
+
+/* Encounter actions */
+.encounter-actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 640px) {
+  .add-section { flex-direction: column; }
+  .search-wrap { max-width: none; }
+  .threshold-bar { margin-left: 0; width: 100%; }
+  .encounter-row { flex-direction: column; align-items: stretch; gap: 0.5rem; }
+  .er-controls { justify-content: flex-end; }
+}
+</style>

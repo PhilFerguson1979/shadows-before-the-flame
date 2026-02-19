@@ -1,0 +1,411 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { monsters, crXpTable } from '../../data/monsters';
+
+export function getStaticPaths() {
+  return monsters.map(mon => ({
+    params: { slug: mon.slug },
+    props: { mon },
+  }));
+}
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const { mon } = Astro.props;
+
+// Ability score helpers
+function abilityMod(score: number): string {
+  const mod = Math.floor((score - 10) / 2);
+  return mod >= 0 ? `+${mod}` : `${mod}`;
+}
+
+const abilities = [
+  { label: 'STR', score: mon.str },
+  { label: 'DEX', score: mon.dex },
+  { label: 'CON', score: mon.con },
+  { label: 'INT', score: mon.int },
+  { label: 'WIS', score: mon.wis },
+  { label: 'CHA', score: mon.cha },
+];
+---
+
+<BaseLayout title={mon.name}>
+  <div class="page-container">
+    <div class="back-link"><a href={`${base}/monsters`}>&larr; Bestiary</a></div>
+
+    <!-- Stat Block -->
+    <div class="stat-block">
+      <div class="stat-block-header">
+        <h1>{mon.name}</h1>
+        <p class="monster-subtitle">{mon.size} {mon.type}, {mon.alignment}</p>
+      </div>
+
+      <div class="stat-block-divider"></div>
+
+      <!-- Core Stats -->
+      <div class="core-stats">
+        <div class="core-stat">
+          <span class="core-label">Armor Class</span>
+          <span class="core-value">{mon.ac}{mon.acType ? ` (${mon.acType})` : ''}</span>
+        </div>
+        <div class="core-stat">
+          <span class="core-label">Hit Points</span>
+          <span class="core-value">{mon.hp} ({mon.hitDice})</span>
+        </div>
+        <div class="core-stat">
+          <span class="core-label">Speed</span>
+          <span class="core-value">{mon.speed}</span>
+        </div>
+      </div>
+
+      <div class="stat-block-divider"></div>
+
+      <!-- Ability Scores -->
+      <div class="ability-row">
+        {abilities.map(a => (
+          <div class="ability-cell">
+            <span class="ability-label">{a.label}</span>
+            <span class="ability-score">{a.score} ({abilityMod(a.score)})</span>
+          </div>
+        ))}
+      </div>
+
+      <div class="stat-block-divider"></div>
+
+      <!-- Challenge Rating -->
+      <div class="cr-section">
+        <span class="cr-label">Challenge</span>
+        <span class="cr-value">CR {mon.cr} ({mon.xp.toLocaleString()} XP)</span>
+      </div>
+
+      {mon.legendary && (
+        <div class="legendary-badge">
+          <span>&#9733; Legendary Creature</span>
+        </div>
+      )}
+
+      <!-- Traits -->
+      {mon.traits && mon.traits.length > 0 && (
+        <div class="stat-section">
+          <h2>Traits</h2>
+          {mon.traits.map(trait => {
+            const boldMatch = trait.match(/^(.+?)\.\s/);
+            return (
+              <div class="trait-entry">
+                {boldMatch ? (
+                  <p><strong>{boldMatch[1]}.</strong> {trait.slice(boldMatch[0].length)}</p>
+                ) : (
+                  <p>{trait}</p>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      <!-- Actions -->
+      {mon.actions && mon.actions.length > 0 && (
+        <div class="stat-section">
+          <h2>Actions</h2>
+          {mon.actions.map(action => {
+            const boldMatch = action.match(/^(.+?)\.\s/);
+            return (
+              <div class="action-entry">
+                {boldMatch ? (
+                  <p><strong>{boldMatch[1]}.</strong> {action.slice(boldMatch[0].length)}</p>
+                ) : (
+                  <p>{action}</p>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      <!-- Meta -->
+      <div class="stat-block-divider"></div>
+      <div class="meta-row">
+        <span class="meta-tag source">{mon.source}</span>
+        {mon.category && <span class="meta-tag category">{mon.category}</span>}
+      </div>
+    </div>
+
+    <!-- Quick Reference for Initiative -->
+    <div class="initiative-ref">
+      <h2>Quick Reference for Initiative</h2>
+      <div class="ref-grid">
+        <div class="ref-item">
+          <span class="ref-label">AC</span>
+          <span class="ref-val">{mon.ac}</span>
+        </div>
+        <div class="ref-item">
+          <span class="ref-label">HP</span>
+          <span class="ref-val">{mon.hp}</span>
+        </div>
+        <div class="ref-item">
+          <span class="ref-label">DEX Mod</span>
+          <span class="ref-val">{abilityMod(mon.dex)}</span>
+        </div>
+        <div class="ref-item">
+          <span class="ref-label">CR</span>
+          <span class="ref-val">{mon.cr}</span>
+        </div>
+        <div class="ref-item">
+          <span class="ref-label">XP</span>
+          <span class="ref-val">{mon.xp.toLocaleString()}</span>
+        </div>
+      </div>
+      <button class="add-to-combat-btn" data-name={mon.name} data-ac={mon.ac} data-hp={mon.hp} data-dex={mon.dex}>
+        Add to Combat Tracker
+      </button>
+    </div>
+  </div>
+</BaseLayout>
+
+<script define:vars={{ base }}>
+  document.querySelector('.add-to-combat-btn')?.addEventListener('click', function() {
+    const btn = this;
+    const monsterData = {
+      name: btn.dataset.name,
+      ac: btn.dataset.ac,
+      hp: btn.dataset.hp,
+      dex: btn.dataset.dex,
+    };
+    // Store in localStorage for initiative page to pick up
+    const pending = JSON.parse(localStorage.getItem('sbtf-pending-enemies') || '[]');
+    pending.push(monsterData);
+    localStorage.setItem('sbtf-pending-enemies', JSON.stringify(pending));
+    btn.textContent = '✓ Added!';
+    btn.classList.add('added');
+    setTimeout(() => {
+      btn.textContent = 'Add to Combat Tracker';
+      btn.classList.remove('added');
+    }, 1500);
+  });
+</script>
+
+<style>
+.back-link { margin-bottom: 1.5rem; }
+.back-link a { color: var(--text-muted); font-size: 0.85rem; }
+.back-link a:hover { color: var(--text-gold); }
+
+/* Stat Block — classic D&D style */
+.stat-block {
+  max-width: 600px;
+  background: rgba(139,105,20,0.04);
+  border: 2px solid rgba(139,105,20,0.25);
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+}
+.stat-block-header h1 {
+  color: var(--text-gold-bright);
+  margin-bottom: 0.15rem;
+  font-size: 1.5rem;
+}
+.monster-subtitle {
+  font-size: 0.88rem;
+  font-style: italic;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.stat-block-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(139,105,20,0.4), transparent);
+  margin: 0.75rem 0;
+}
+
+/* Core stats */
+.core-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+.core-stat {
+  display: flex;
+  gap: 0.5rem;
+  font-size: 0.88rem;
+}
+.core-label {
+  font-weight: bold;
+  color: var(--text-gold);
+  min-width: 5.5rem;
+}
+.core-value {
+  color: var(--text-parchment);
+}
+
+/* Ability scores */
+.ability-row {
+  display: flex;
+  justify-content: space-between;
+  text-align: center;
+  gap: 0.25rem;
+}
+.ability-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 3rem;
+}
+.ability-label {
+  font-size: 0.7rem;
+  font-weight: bold;
+  color: var(--text-gold);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.ability-score {
+  font-size: 0.85rem;
+  color: var(--text-parchment);
+}
+
+/* CR */
+.cr-section {
+  display: flex;
+  gap: 0.5rem;
+  font-size: 0.88rem;
+  margin-bottom: 0.5rem;
+}
+.cr-section .cr-label {
+  font-weight: bold;
+  color: var(--text-gold);
+}
+.cr-section .cr-value {
+  color: var(--text-parchment);
+}
+
+.legendary-badge {
+  margin-bottom: 0.75rem;
+}
+.legendary-badge span {
+  font-size: 0.72rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-gold-bright);
+  background: rgba(218,165,32,0.15);
+  border: 1px solid rgba(218,165,32,0.35);
+  padding: 0.2rem 0.6rem;
+  border-radius: 3px;
+}
+
+/* Traits / Actions */
+.stat-section {
+  margin-bottom: 1rem;
+}
+.stat-section h2 {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-gold);
+  margin-bottom: 0.5rem;
+  padding-bottom: 0.2rem;
+  border-bottom: 1px solid rgba(139,105,20,0.2);
+}
+.trait-entry p,
+.action-entry p {
+  font-size: 0.85rem;
+  color: var(--text-parchment);
+  line-height: 1.6;
+  margin: 0 0 0.4rem 0;
+}
+.trait-entry strong,
+.action-entry strong {
+  color: var(--text-gold);
+}
+
+/* Meta */
+.meta-row {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+.meta-tag {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0.12rem 0.45rem;
+  border-radius: 3px;
+  font-weight: bold;
+}
+.meta-tag.source {
+  background: rgba(100,100,100,0.15);
+  color: var(--text-muted);
+  border: 1px solid rgba(100,100,100,0.25);
+}
+.meta-tag.category {
+  background: rgba(100,80,200,0.12);
+  color: #9d8aff;
+  border: 1px solid rgba(100,80,200,0.2);
+}
+
+/* Initiative Quick Ref */
+.initiative-ref {
+  max-width: 600px;
+  padding: 1rem 1.25rem;
+  background: rgba(139,105,20,0.06);
+  border: 1px solid rgba(139,105,20,0.2);
+  border-radius: 8px;
+  margin-bottom: 2rem;
+}
+.initiative-ref h2 {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  margin-bottom: 0.75rem;
+}
+.ref-grid {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.75rem;
+}
+.ref-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.1rem;
+}
+.ref-label {
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-dim);
+}
+.ref-val {
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: var(--text-gold-bright);
+}
+
+.add-to-combat-btn {
+  width: 100%;
+  padding: 0.5rem 1rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  background: rgba(139,105,20,0.15);
+  border: 1px solid rgba(139,105,20,0.4);
+  border-radius: 5px;
+  color: var(--text-gold);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.add-to-combat-btn:hover {
+  background: rgba(139,105,20,0.25);
+  border-color: var(--text-gold);
+}
+.add-to-combat-btn.added {
+  background: rgba(39,174,96,0.2);
+  border-color: rgba(39,174,96,0.5);
+  color: #6ec97a;
+}
+
+@media (max-width: 640px) {
+  .stat-block { padding: 1rem; }
+  .ability-row { flex-wrap: wrap; justify-content: center; gap: 0.5rem; }
+  .ability-cell { min-width: 4rem; }
+  .ref-grid { gap: 0.75rem; }
+}
+</style>

@@ -1,0 +1,425 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { monsters, monsterTypes, monsterCRs, monsterSources, crXpTable } from '../../data/monsters';
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+
+// Group monsters by CR for display
+const crOrder = ['0','1/8','1/4','1/2','1','2','3','4','5','6','7','8','9','10','11','12','13','14','15','16','17','18','19','20','21','22','23','24','25','26','27','28','29','30'];
+const grouped = crOrder
+  .map(cr => ({
+    cr,
+    xp: crXpTable[cr] || 0,
+    monsters: monsters.filter(m => m.cr === cr).sort((a, b) => a.name.localeCompare(b.name)),
+  }))
+  .filter(g => g.monsters.length > 0);
+---
+
+<BaseLayout title="Bestiary">
+  <div class="page-container">
+    <h1>Bestiary</h1>
+    <p class="monster-count">{monsters.length} creatures from D&D 5e &amp; Dragonlance</p>
+
+    <!-- Filter Bar -->
+    <div class="filter-bar">
+      <div class="filter-group">
+        <label for="search-input">Search</label>
+        <input type="text" id="search-input" placeholder="Monster name..." autocomplete="off" />
+      </div>
+      <div class="filter-group">
+        <label for="cr-filter">Challenge Rating</label>
+        <select id="cr-filter">
+          <option value="">All CRs</option>
+          {monsterCRs.map(cr => (
+            <option value={cr}>CR {cr}</option>
+          ))}
+        </select>
+      </div>
+      <div class="filter-group">
+        <label for="type-filter">Type</label>
+        <select id="type-filter">
+          <option value="">All Types</option>
+          {monsterTypes.map(t => (
+            <option value={t}>{t}</option>
+          ))}
+        </select>
+      </div>
+      <div class="filter-group">
+        <label for="source-filter">Source</label>
+        <select id="source-filter">
+          <option value="">All Sources</option>
+          {monsterSources.map(s => (
+            <option value={s}>{s}</option>
+          ))}
+        </select>
+      </div>
+      <div class="filter-group filter-toggles">
+        <label>
+          <input type="checkbox" id="legendary-filter" /> Legendary Only
+        </label>
+      </div>
+      <button id="clear-filters" class="clear-btn">Clear</button>
+    </div>
+
+    <div id="no-results" class="no-results" style="display:none;">
+      No monsters match your filters.
+    </div>
+
+    <!-- CR Group Sections -->
+    {grouped.map(group => (
+      <div class="cr-section" data-cr={group.cr}>
+        <button class="cr-header" data-toggle={group.cr}>
+          <span class="cr-label">CR {group.cr}</span>
+          <span class="cr-xp">{group.xp.toLocaleString()} XP</span>
+          <span class="cr-count">{group.monsters.length} creatures</span>
+          <span class="toggle-icon">▼</span>
+        </button>
+        <div class="monster-grid" id={`cr-${group.cr.replace('/', '-')}`}>
+          {group.monsters.map(mon => (
+            <a
+              href={`${base}/monsters/${mon.slug}`}
+              class="monster-card"
+              data-name={mon.name.toLowerCase()}
+              data-cr={mon.cr}
+              data-type={mon.type}
+              data-source={mon.source}
+              data-legendary={mon.legendary ? 'true' : 'false'}
+            >
+              <div class="monster-card-top">
+                <span class="monster-name">{mon.name}</span>
+                <span class="monster-cr-tag">CR {mon.cr}</span>
+              </div>
+              <div class="monster-card-info">
+                <span class="monster-type">{mon.size} {mon.type}</span>
+                <span class="monster-align">{mon.alignment}</span>
+              </div>
+              <div class="monster-card-stats">
+                <span class="stat">AC {mon.ac}</span>
+                <span class="stat">HP {mon.hp}</span>
+                <span class="stat">{mon.xp.toLocaleString()} XP</span>
+              </div>
+              <div class="monster-card-tags">
+                {mon.legendary && <span class="tag legendary">Legendary</span>}
+                <span class="tag source-tag">{mon.source}</span>
+              </div>
+            </a>
+          ))}
+        </div>
+      </div>
+    ))}
+  </div>
+</BaseLayout>
+
+<script>
+  const searchInput = document.getElementById('search-input') as HTMLInputElement;
+  const crFilter = document.getElementById('cr-filter') as HTMLSelectElement;
+  const typeFilter = document.getElementById('type-filter') as HTMLSelectElement;
+  const sourceFilter = document.getElementById('source-filter') as HTMLSelectElement;
+  const legendaryFilter = document.getElementById('legendary-filter') as HTMLInputElement;
+  const clearBtn = document.getElementById('clear-filters');
+  const noResults = document.getElementById('no-results');
+
+  // Toggle sections
+  document.querySelectorAll('.cr-header').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const cr = (btn as HTMLElement).dataset.toggle || '';
+      const grid = document.getElementById(`cr-${cr.replace('/', '-')}`);
+      const icon = btn.querySelector('.toggle-icon');
+      if (grid) {
+        grid.classList.toggle('collapsed');
+        if (icon) icon.textContent = grid.classList.contains('collapsed') ? '▶' : '▼';
+      }
+    });
+  });
+
+  function applyFilters() {
+    const search = searchInput.value.toLowerCase().trim();
+    const cr = crFilter.value;
+    const type = typeFilter.value;
+    const source = sourceFilter.value;
+    const legendaryOnly = legendaryFilter.checked;
+    let totalVisible = 0;
+
+    document.querySelectorAll('.monster-card').forEach(card => {
+      const el = card as HTMLElement;
+      const name = el.dataset.name || '';
+      const mCr = el.dataset.cr || '';
+      const mType = el.dataset.type || '';
+      const mSource = el.dataset.source || '';
+      const isLegendary = el.dataset.legendary === 'true';
+
+      let show = true;
+      if (search && !name.includes(search)) show = false;
+      if (cr && mCr !== cr) show = false;
+      if (type && mType !== type) show = false;
+      if (source && mSource !== source) show = false;
+      if (legendaryOnly && !isLegendary) show = false;
+
+      el.style.display = show ? '' : 'none';
+      if (show) totalVisible++;
+    });
+
+    document.querySelectorAll('.cr-section').forEach(section => {
+      const cards = section.querySelectorAll('.monster-card');
+      let sectionVisible = 0;
+      cards.forEach(c => {
+        if ((c as HTMLElement).style.display !== 'none') sectionVisible++;
+      });
+      (section as HTMLElement).style.display = sectionVisible > 0 ? '' : 'none';
+
+      const countEl = section.querySelector('.cr-count');
+      if (countEl) {
+        const total = cards.length;
+        countEl.textContent = sectionVisible === total
+          ? `${total} creatures`
+          : `${sectionVisible} / ${total} creatures`;
+      }
+    });
+
+    if (noResults) {
+      noResults.style.display = totalVisible === 0 ? '' : 'none';
+    }
+  }
+
+  searchInput.addEventListener('input', applyFilters);
+  crFilter.addEventListener('change', applyFilters);
+  typeFilter.addEventListener('change', applyFilters);
+  sourceFilter.addEventListener('change', applyFilters);
+  legendaryFilter.addEventListener('change', applyFilters);
+  clearBtn?.addEventListener('click', () => {
+    searchInput.value = '';
+    crFilter.value = '';
+    typeFilter.value = '';
+    sourceFilter.value = '';
+    legendaryFilter.checked = false;
+    applyFilters();
+  });
+</script>
+
+<style>
+h1 { margin-bottom: 0.25rem; }
+.monster-count {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  margin-bottom: 1.5rem;
+}
+
+/* Filter bar */
+.filter-bar {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  margin-bottom: 2rem;
+  padding: 1rem;
+  background: rgba(139,105,20,0.04);
+  border: 1px solid rgba(139,105,20,0.15);
+  border-radius: 8px;
+}
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+.filter-group label {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+}
+.filter-group input[type="text"],
+.filter-group select {
+  padding: 0.4rem 0.6rem;
+  font-size: 0.82rem;
+  background: rgba(0,0,0,0.3);
+  border: 1px solid rgba(139,105,20,0.3);
+  border-radius: 4px;
+  color: var(--text-parchment);
+  min-width: 140px;
+}
+.filter-group input[type="text"]:focus,
+.filter-group select:focus {
+  outline: none;
+  border-color: var(--text-gold);
+}
+.filter-toggles {
+  flex-direction: row;
+  gap: 0.75rem;
+  align-items: center;
+  padding-bottom: 0.2rem;
+}
+.filter-toggles label {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.78rem;
+  cursor: pointer;
+  text-transform: none;
+  letter-spacing: normal;
+}
+.filter-toggles input[type="checkbox"] { accent-color: var(--text-gold); }
+.clear-btn {
+  padding: 0.4rem 0.8rem;
+  font-size: 0.78rem;
+  background: rgba(139,105,20,0.15);
+  border: 1px solid rgba(139,105,20,0.3);
+  border-radius: 4px;
+  color: var(--text-gold);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.clear-btn:hover { background: rgba(139,105,20,0.25); }
+
+.no-results {
+  text-align: center;
+  padding: 3rem;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+/* CR sections */
+.cr-section { margin-bottom: 1.5rem; }
+.cr-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 0.6rem 0.8rem;
+  background: rgba(139,105,20,0.08);
+  border: 1px solid rgba(139,105,20,0.2);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  color: inherit;
+  font-family: inherit;
+  text-align: left;
+}
+.cr-header:hover { background: rgba(139,105,20,0.14); }
+.cr-label {
+  font-size: 0.88rem;
+  font-weight: bold;
+  color: var(--text-gold);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  min-width: 3.5rem;
+}
+.cr-xp {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  background: rgba(139,105,20,0.1);
+  padding: 0.1rem 0.4rem;
+  border-radius: 3px;
+  border: 1px solid rgba(139,105,20,0.15);
+}
+.cr-count {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+.toggle-icon {
+  margin-left: auto;
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+
+/* Monster grid */
+.monster-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 0.5rem;
+  padding: 0.75rem 0;
+}
+.monster-grid.collapsed { display: none; }
+
+/* Monster cards */
+.monster-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding: 0.6rem 0.85rem;
+  background: rgba(139,105,20,0.04);
+  border: 1px solid rgba(139,105,20,0.12);
+  border-radius: 5px;
+  text-decoration: none;
+  transition: all 0.15s ease;
+}
+.monster-card:hover {
+  background: rgba(139,105,20,0.1);
+  border-color: rgba(139,105,20,0.3);
+  transform: translateY(-1px);
+}
+.monster-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+.monster-name {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--text-parchment);
+}
+.monster-cr-tag {
+  font-size: 0.6rem;
+  color: var(--text-gold);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 0.08rem 0.3rem;
+  background: rgba(139,105,20,0.15);
+  border: 1px solid rgba(139,105,20,0.3);
+  border-radius: 2px;
+  font-weight: bold;
+  white-space: nowrap;
+}
+.monster-card-info {
+  display: flex;
+  gap: 0.5rem;
+  font-size: 0.72rem;
+}
+.monster-type { color: var(--text-muted); }
+.monster-align { color: var(--text-dim); font-style: italic; }
+
+.monster-card-stats {
+  display: flex;
+  gap: 0.6rem;
+  margin-top: 0.15rem;
+}
+.stat {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  background: rgba(0,0,0,0.2);
+  padding: 0.1rem 0.35rem;
+  border-radius: 2px;
+}
+
+.monster-card-tags {
+  display: flex;
+  gap: 0.3rem;
+  flex-wrap: wrap;
+  margin-top: 0.15rem;
+}
+.tag {
+  font-size: 0.58rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 0.08rem 0.3rem;
+  border-radius: 2px;
+  font-weight: bold;
+}
+.tag.legendary {
+  background: rgba(218,165,32,0.2);
+  color: var(--text-gold-bright);
+  border: 1px solid rgba(218,165,32,0.4);
+}
+.tag.source-tag {
+  background: rgba(100,100,100,0.12);
+  color: var(--text-dim);
+  border: 1px solid rgba(100,100,100,0.2);
+}
+
+@media (max-width: 640px) {
+  .filter-bar { flex-direction: column; align-items: stretch; }
+  .filter-group input[type="text"],
+  .filter-group select { min-width: auto; width: 100%; }
+  .monster-grid { grid-template-columns: 1fr; }
+}
+</style>
