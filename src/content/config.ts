@@ -87,6 +87,12 @@ const characters = defineCollection({
     skillProficiencies: z.array(z.string()).optional(),   // ["Perception", "Stealth"]
     skillExpertise: z.array(z.string()).optional(),       // ["Thieves' Tools", "Stealth"]
     savingThrowProficiencies: z.array(z.string()).optional(), // ["dex", "int"]
+    // Feats
+    feats: z.array(z.object({
+      name: z.string(),
+      level: z.number().optional(),    // Level when feat was taken
+      notes: z.string().optional(),
+    })).optional(),
   }),
 });
 const sessions = defineCollection({

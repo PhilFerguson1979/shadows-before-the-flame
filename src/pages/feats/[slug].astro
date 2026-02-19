@@ -1,0 +1,251 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { feats } from '../../data/feats';
+import { getCollection } from 'astro:content';
+
+export function getStaticPaths() {
+  return feats.map(feat => ({
+    params: { slug: feat.slug },
+    props: { feat },
+  }));
+}
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const { feat } = Astro.props;
+
+// Find party members who have this feat
+const characters = await getCollection('characters');
+const partyWithFeat = characters.filter(c =>
+  c.data.feats?.some(f => f.name.toLowerCase() === feat.name.toLowerCase())
+);
+---
+
+<BaseLayout title={feat.name}>
+  <div class="page-container">
+    <div class="back-link"><a href={`${base}/feats`}>← Feats Reference</a></div>
+
+    <div class="feat-detail-header">
+      <h1>{feat.name}</h1>
+      <div class="feat-meta-row">
+        <span class="feat-cat-badge">{feat.category}</span>
+        <span class="feat-source-badge">{feat.source}</span>
+        {feat.halfFeat && <span class="feat-half-badge">Half-Feat (+1 {feat.halfFeat.toUpperCase()})</span>}
+      </div>
+      {feat.prerequisite && (
+        <div class="feat-prerequisite">
+          <strong>Prerequisite:</strong> {feat.prerequisite}
+        </div>
+      )}
+    </div>
+
+    <div class="feat-description">
+      <h2>Description</h2>
+      <p>{feat.description}</p>
+    </div>
+
+    <div class="feat-benefits-section">
+      <h2>Benefits</h2>
+      <ul class="feat-benefits-list">
+        {feat.benefits.map(benefit => (
+          <li>{benefit}</li>
+        ))}
+      </ul>
+    </div>
+
+    <!-- Party Members -->
+    {partyWithFeat.length > 0 && (
+      <div class="party-section">
+        <h2>Party Members with this Feat</h2>
+        <div class="party-list">
+          {partyWithFeat.map(c => {
+            const charFeat = c.data.feats?.find(f => f.name.toLowerCase() === feat.name.toLowerCase());
+            return (
+              <a href={`${base}/characters/${c.slug}`} class="party-member-link">
+                {c.data.portrait && (
+                  <img src={`${base}${c.data.portrait}`} alt={c.data.name} class="party-portrait" />
+                )}
+                <div class="party-info">
+                  <span class="party-name">{c.data.name}</span>
+                  <span class="party-class">{c.data.class} · Level {c.data.level}</span>
+                  {charFeat?.notes && <span class="party-notes">{charFeat.notes}</span>}
+                </div>
+                {charFeat?.level && (
+                  <span class="party-feat-level">Taken at Lvl {charFeat.level}</span>
+                )}
+              </a>
+            );
+          })}
+        </div>
+      </div>
+    )}
+
+    {partyWithFeat.length === 0 && (
+      <div class="no-party">
+        <h2>Party Members</h2>
+        <p>No party members currently have this feat.</p>
+      </div>
+    )}
+  </div>
+</BaseLayout>
+
+<style>
+.back-link { margin-bottom: 1.5rem; }
+.back-link a { color: var(--text-muted); font-size: 0.85rem; }
+.back-link a:hover { color: var(--text-gold); }
+
+.feat-detail-header {
+  margin-bottom: 2rem;
+}
+.feat-detail-header h1 {
+  margin-bottom: 0.5rem;
+  color: var(--text-gold-bright);
+}
+.feat-meta-row {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.5rem;
+}
+.feat-cat-badge, .feat-source-badge, .feat-half-badge {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0.15rem 0.5rem;
+  border-radius: 3px;
+  font-weight: bold;
+}
+.feat-cat-badge {
+  background: rgba(100,80,200,0.15);
+  color: #9d8aff;
+  border: 1px solid rgba(100,80,200,0.25);
+}
+.feat-source-badge {
+  background: rgba(100,100,100,0.15);
+  color: var(--text-muted);
+  border: 1px solid rgba(100,100,100,0.25);
+}
+.feat-half-badge {
+  background: rgba(39,174,96,0.15);
+  color: #6ec97a;
+  border: 1px solid rgba(39,174,96,0.3);
+}
+.feat-prerequisite {
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  padding: 0.5rem 0.75rem;
+  background: rgba(200,150,20,0.06);
+  border-left: 3px solid rgba(200,150,20,0.3);
+  border-radius: 0 4px 4px 0;
+}
+.feat-prerequisite strong { color: var(--text-gold); }
+
+.feat-description { margin-bottom: 2rem; }
+.feat-description h2,
+.feat-benefits-section h2,
+.party-section h2,
+.no-party h2 {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.3rem;
+  border-bottom: 1px solid rgba(139,105,20,0.3);
+}
+.feat-description p {
+  font-size: 0.92rem;
+  line-height: 1.7;
+  color: var(--text-parchment);
+}
+
+.feat-benefits-section { margin-bottom: 2rem; }
+.feat-benefits-list {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+.feat-benefits-list li {
+  font-size: 0.88rem;
+  color: var(--text-parchment);
+  padding: 0.5rem 0.85rem;
+  background: rgba(139,105,20,0.06);
+  border-left: 3px solid rgba(139,105,20,0.3);
+  border-radius: 0 5px 5px 0;
+  line-height: 1.5;
+}
+
+/* Party section */
+.party-section { margin-bottom: 2rem; }
+.party-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.party-member-link {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.6rem 0.8rem;
+  background: rgba(139,105,20,0.06);
+  border: 1px solid rgba(139,105,20,0.2);
+  border-radius: 6px;
+  text-decoration: none;
+  transition: all 0.15s ease;
+}
+.party-member-link:hover {
+  background: rgba(139,105,20,0.12);
+  border-color: rgba(139,105,20,0.4);
+  transform: translateX(4px);
+}
+.party-portrait {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 2px solid rgba(139,105,20,0.4);
+  object-fit: cover;
+}
+.party-info {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+.party-name {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--text-parchment);
+}
+.party-class {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+.party-notes {
+  font-size: 0.72rem;
+  color: var(--text-gold);
+  font-style: italic;
+}
+.party-feat-level {
+  font-size: 0.68rem;
+  color: var(--text-muted);
+  background: rgba(139,105,20,0.1);
+  padding: 0.15rem 0.5rem;
+  border-radius: 3px;
+  border: 1px solid rgba(139,105,20,0.2);
+  white-space: nowrap;
+}
+
+.no-party {
+  margin-bottom: 2rem;
+}
+.no-party p {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+@media (max-width: 640px) {
+  .feat-meta-row { flex-direction: column; gap: 0.3rem; }
+  .feat-meta-row > * { display: inline-block; width: fit-content; }
+}
+</style>

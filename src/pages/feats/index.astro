@@ -1,0 +1,394 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { feats, featCategories, featSources } from '../../data/feats';
+import { getCollection } from 'astro:content';
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+
+// Party data for "who has this feat" indicators
+const characters = await getCollection('characters');
+
+// Group feats by category
+const grouped = featCategories.map(cat => ({
+  category: cat,
+  feats: feats.filter(f => f.category === cat).sort((a, b) => a.name.localeCompare(b.name)),
+}));
+---
+
+<BaseLayout title="Feats Reference">
+  <div class="page-container">
+    <h1>Feats Reference</h1>
+    <p class="feat-count">{feats.length} feats from D&D 5e</p>
+
+    <!-- Filter Bar -->
+    <div class="filter-bar">
+      <div class="filter-group">
+        <label for="search-input">Search</label>
+        <input type="text" id="search-input" placeholder="Feat name..." autocomplete="off" />
+      </div>
+      <div class="filter-group">
+        <label for="category-filter">Category</label>
+        <select id="category-filter">
+          <option value="">All Categories</option>
+          {featCategories.map(cat => (
+            <option value={cat}>{cat}</option>
+          ))}
+        </select>
+      </div>
+      <div class="filter-group">
+        <label for="source-filter">Source</label>
+        <select id="source-filter">
+          <option value="">All Sources</option>
+          {featSources.map(src => (
+            <option value={src}>{src}</option>
+          ))}
+        </select>
+      </div>
+      <div class="filter-group filter-toggles">
+        <label>
+          <input type="checkbox" id="halffeat-filter" /> Half-Feats Only
+        </label>
+      </div>
+      <button id="clear-filters" class="clear-btn">Clear</button>
+    </div>
+
+    <div id="no-results" class="no-results" style="display:none;">
+      No feats match your filters.
+    </div>
+
+    <!-- Feat Category Sections -->
+    {grouped.map(group => (
+      <div class="category-section" data-category={group.category}>
+        <button class="category-header" data-toggle={group.category}>
+          <span class="category-label">{group.category}</span>
+          <span class="category-count">{group.feats.length} feats</span>
+          <span class="toggle-icon">▼</span>
+        </button>
+        <div class="feat-grid" id={`cat-${group.category.toLowerCase().replace(/\s/g, '-')}`}>
+          {group.feats.map(feat => {
+            const partyWithFeat = characters.filter(c =>
+              c.data.feats?.some(f => f.name.toLowerCase() === feat.name.toLowerCase())
+            );
+
+            return (
+              <a
+                href={`${base}/feats/${feat.slug}`}
+                class="feat-card"
+                data-name={feat.name.toLowerCase()}
+                data-category={feat.category}
+                data-source={feat.source}
+                data-halffeat={feat.halfFeat ? 'true' : 'false'}
+              >
+                <div class="feat-card-top">
+                  <span class="feat-name">{feat.name}</span>
+                  <span class="feat-source-tag">{feat.source}</span>
+                </div>
+                {feat.prerequisite && (
+                  <div class="feat-card-prereq">Req: {feat.prerequisite}</div>
+                )}
+                <div class="feat-card-desc">
+                  {feat.description.slice(0, 100)}...
+                </div>
+                <div class="feat-card-tags">
+                  {feat.halfFeat && <span class="tag half-feat">+1 ASI</span>}
+                  {partyWithFeat.length > 0 && (
+                    <span class="tag party-has">
+                      {partyWithFeat.map(c => c.data.name.split(' ')[0]).join(', ')}
+                    </span>
+                  )}
+                </div>
+              </a>
+            );
+          })}
+        </div>
+      </div>
+    ))}
+  </div>
+</BaseLayout>
+
+<script>
+  const searchInput = document.getElementById('search-input') as HTMLInputElement;
+  const categoryFilter = document.getElementById('category-filter') as HTMLSelectElement;
+  const sourceFilter = document.getElementById('source-filter') as HTMLSelectElement;
+  const halfFeatFilter = document.getElementById('halffeat-filter') as HTMLInputElement;
+  const clearBtn = document.getElementById('clear-filters');
+  const noResults = document.getElementById('no-results');
+
+  // Toggle sections
+  document.querySelectorAll('.category-header').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const cat = (btn as HTMLElement).dataset.toggle || '';
+      const grid = document.getElementById(`cat-${cat.toLowerCase().replace(/\s/g, '-')}`);
+      const icon = btn.querySelector('.toggle-icon');
+      if (grid) {
+        grid.classList.toggle('collapsed');
+        if (icon) icon.textContent = grid.classList.contains('collapsed') ? '▶' : '▼';
+      }
+    });
+  });
+
+  function applyFilters() {
+    const search = searchInput.value.toLowerCase().trim();
+    const category = categoryFilter.value;
+    const source = sourceFilter.value;
+    const halfOnly = halfFeatFilter.checked;
+    let totalVisible = 0;
+
+    document.querySelectorAll('.feat-card').forEach(card => {
+      const el = card as HTMLElement;
+      const name = el.dataset.name || '';
+      const cat = el.dataset.category || '';
+      const src = el.dataset.source || '';
+      const isHalf = el.dataset.halffeat === 'true';
+
+      let show = true;
+      if (search && !name.includes(search)) show = false;
+      if (category && cat !== category) show = false;
+      if (source && src !== source) show = false;
+      if (halfOnly && !isHalf) show = false;
+
+      el.style.display = show ? '' : 'none';
+      if (show) totalVisible++;
+    });
+
+    document.querySelectorAll('.category-section').forEach(section => {
+      const cards = section.querySelectorAll('.feat-card');
+      let sectionVisible = 0;
+      cards.forEach(c => {
+        if ((c as HTMLElement).style.display !== 'none') sectionVisible++;
+      });
+      (section as HTMLElement).style.display = sectionVisible > 0 ? '' : 'none';
+
+      const countEl = section.querySelector('.category-count');
+      if (countEl) {
+        const total = cards.length;
+        countEl.textContent = sectionVisible === total
+          ? `${total} feats`
+          : `${sectionVisible} / ${total} feats`;
+      }
+    });
+
+    if (noResults) {
+      noResults.style.display = totalVisible === 0 ? '' : 'none';
+    }
+  }
+
+  searchInput.addEventListener('input', applyFilters);
+  categoryFilter.addEventListener('change', applyFilters);
+  sourceFilter.addEventListener('change', applyFilters);
+  halfFeatFilter.addEventListener('change', applyFilters);
+  clearBtn?.addEventListener('click', () => {
+    searchInput.value = '';
+    categoryFilter.value = '';
+    sourceFilter.value = '';
+    halfFeatFilter.checked = false;
+    applyFilters();
+  });
+</script>
+
+<style>
+h1 { margin-bottom: 0.25rem; }
+.feat-count {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  margin-bottom: 1.5rem;
+}
+
+/* Filter bar */
+.filter-bar {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  margin-bottom: 2rem;
+  padding: 1rem;
+  background: rgba(139,105,20,0.04);
+  border: 1px solid rgba(139,105,20,0.15);
+  border-radius: 8px;
+}
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+.filter-group label {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+}
+.filter-group input[type="text"],
+.filter-group select {
+  padding: 0.4rem 0.6rem;
+  font-size: 0.82rem;
+  background: rgba(0,0,0,0.3);
+  border: 1px solid rgba(139,105,20,0.3);
+  border-radius: 4px;
+  color: var(--text-parchment);
+  min-width: 140px;
+}
+.filter-group input[type="text"]:focus,
+.filter-group select:focus {
+  outline: none;
+  border-color: var(--text-gold);
+}
+.filter-toggles {
+  flex-direction: row;
+  gap: 0.75rem;
+  align-items: center;
+  padding-bottom: 0.2rem;
+}
+.filter-toggles label {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.78rem;
+  cursor: pointer;
+  text-transform: none;
+  letter-spacing: normal;
+}
+.filter-toggles input[type="checkbox"] { accent-color: var(--text-gold); }
+.clear-btn {
+  padding: 0.4rem 0.8rem;
+  font-size: 0.78rem;
+  background: rgba(139,105,20,0.15);
+  border: 1px solid rgba(139,105,20,0.3);
+  border-radius: 4px;
+  color: var(--text-gold);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.clear-btn:hover { background: rgba(139,105,20,0.25); }
+
+.no-results {
+  text-align: center;
+  padding: 3rem;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+/* Category sections */
+.category-section { margin-bottom: 1.5rem; }
+.category-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 0.6rem 0.8rem;
+  background: rgba(139,105,20,0.08);
+  border: 1px solid rgba(139,105,20,0.2);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  color: inherit;
+  font-family: inherit;
+  text-align: left;
+}
+.category-header:hover { background: rgba(139,105,20,0.14); }
+.category-label {
+  font-size: 0.88rem;
+  font-weight: bold;
+  color: var(--text-gold);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.category-count {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+.toggle-icon {
+  margin-left: auto;
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+
+/* Feat grid */
+.feat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 0.5rem;
+  padding: 0.75rem 0;
+}
+.feat-grid.collapsed { display: none; }
+
+/* Feat cards */
+.feat-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.6rem 0.85rem;
+  background: rgba(139,105,20,0.04);
+  border: 1px solid rgba(139,105,20,0.12);
+  border-radius: 5px;
+  text-decoration: none;
+  transition: all 0.15s ease;
+}
+.feat-card:hover {
+  background: rgba(139,105,20,0.1);
+  border-color: rgba(139,105,20,0.3);
+  transform: translateY(-1px);
+}
+.feat-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+.feat-name {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--text-parchment);
+}
+.feat-source-tag {
+  font-size: 0.58rem;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 0.08rem 0.3rem;
+  background: rgba(100,100,100,0.12);
+  border: 1px solid rgba(100,100,100,0.2);
+  border-radius: 2px;
+  font-weight: bold;
+}
+.feat-card-prereq {
+  font-size: 0.68rem;
+  color: var(--text-muted);
+  font-style: italic;
+}
+.feat-card-desc {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+.feat-card-tags {
+  display: flex;
+  gap: 0.3rem;
+  flex-wrap: wrap;
+  margin-top: 0.15rem;
+}
+.tag {
+  font-size: 0.58rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 0.08rem 0.3rem;
+  border-radius: 2px;
+  font-weight: bold;
+}
+.tag.half-feat {
+  background: rgba(39,174,96,0.15);
+  color: #6ec97a;
+  border: 1px solid rgba(39,174,96,0.3);
+}
+.tag.party-has {
+  background: rgba(218,165,32,0.15);
+  color: var(--text-gold-bright);
+  border: 1px solid rgba(218,165,32,0.3);
+}
+
+@media (max-width: 640px) {
+  .filter-bar { flex-direction: column; align-items: stretch; }
+  .filter-group input[type="text"],
+  .filter-group select { min-width: auto; width: 100%; }
+  .feat-grid { grid-template-columns: 1fr; }
+}
+</style>

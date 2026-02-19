@@ -6,6 +6,7 @@ import LevelUpTracker from '../../components/LevelUpTracker.astro';
 import SpellManager from '../../components/SpellManager.astro';
 import XPTracker from '../../components/XPTracker.astro';
 import SkillsPanel from '../../components/SkillsPanel.astro';
+import FeatManager from '../../components/FeatManager.astro';
 import { getCollection } from 'astro:content';
 
 export async function getStaticPaths() {
@@ -129,6 +130,15 @@ function modStr(score) {
         baseUrl={base}
       />
     )}
+
+    <!-- Feats -->
+    <FeatManager
+      characterName={char.data.name}
+      characterSlug={char.slug}
+      characterLevel={char.data.level ?? 1}
+      feats={char.data.feats}
+      baseUrl={base}
+    />
 
     <!-- Currency -->
     {char.data.currency && <CurrencyDisplay currency={char.data.currency} />}

@@ -1,0 +1,278 @@
+---
+import { getFeatByName, type Feat } from '../data/feats';
+
+interface CharFeat {
+  name: string;
+  level?: number;
+  notes?: string;
+}
+
+interface Props {
+  characterName: string;
+  characterSlug: string;
+  characterLevel: number;
+  feats?: CharFeat[];
+  baseUrl: string;
+}
+
+const { characterName, characterSlug, characterLevel, feats = [], baseUrl } = Astro.props;
+
+// ASI/feat levels for standard classes
+const featLevels = [4, 8, 12, 16, 19];
+const unlockedSlots = featLevels.filter(l => l <= characterLevel).length;
+const usedSlots = feats.length;
+
+// Enrich with data from feats database
+const enrichedFeats = feats.map(cf => {
+  const dbFeat = getFeatByName(cf.name);
+  return {
+    ...cf,
+    slug: dbFeat?.slug,
+    category: dbFeat?.category,
+    description: dbFeat?.description,
+    benefits: dbFeat?.benefits ?? [],
+    prerequisite: dbFeat?.prerequisite,
+    source: dbFeat?.source,
+  };
+});
+---
+
+<div class="feat-manager" id="featManager">
+  <div class="feat-header">
+    <div class="feat-title">
+      <span class="feat-icon">⚔️</span>
+      <span>Feats</span>
+    </div>
+    <div class="feat-slots">
+      <span class="slots-used">{usedSlots}</span>
+      <span class="slots-divider">/</span>
+      <span class="slots-total">{unlockedSlots} slots</span>
+    </div>
+  </div>
+
+  {enrichedFeats.length === 0 && (
+    <div class="feat-empty">
+      {unlockedSlots > 0
+        ? 'No feats selected yet. Feats can be chosen at ASI levels (4, 8, 12, 16, 19).'
+        : 'Feats unlock at level 4 (or level 1 for Variant Human).'}
+    </div>
+  )}
+
+  {enrichedFeats.length > 0 && (
+    <div class="feat-list">
+      {enrichedFeats.map(feat => (
+        <div class="feat-card">
+          <div class="feat-card-header">
+            {feat.slug ? (
+              <a href={`${baseUrl}/feats/${feat.slug}`} class="feat-name-link">{feat.name}</a>
+            ) : (
+              <span class="feat-name">{feat.name}</span>
+            )}
+            <div class="feat-card-meta">
+              {feat.level && <span class="feat-level">Lvl {feat.level}</span>}
+              {feat.category && <span class="feat-category">{feat.category}</span>}
+              {feat.source && <span class="feat-source">{feat.source}</span>}
+            </div>
+          </div>
+          {feat.prerequisite && (
+            <div class="feat-prereq">Prerequisite: {feat.prerequisite}</div>
+          )}
+          {feat.benefits.length > 0 && (
+            <ul class="feat-benefits">
+              {feat.benefits.slice(0, 3).map(b => (
+                <li>{b}</li>
+              ))}
+              {feat.benefits.length > 3 && (
+                <li class="feat-more">+{feat.benefits.length - 3} more — click for details</li>
+              )}
+            </ul>
+          )}
+          {feat.notes && (
+            <div class="feat-notes">{feat.notes}</div>
+          )}
+        </div>
+      ))}
+    </div>
+  )}
+
+  <!-- Next feat levels -->
+  {characterLevel < 19 && (
+    <div class="feat-upcoming">
+      <span class="upcoming-label">Next ASI/Feat:</span>
+      {featLevels.filter(l => l > characterLevel).slice(0, 2).map(l => (
+        <span class="upcoming-level">Level {l}</span>
+      ))}
+    </div>
+  )}
+</div>
+
+<style>
+.feat-manager {
+  margin: 1.25rem 0;
+  padding: 1rem 1.25rem;
+  background: rgba(139,105,20,0.06);
+  border: 1px solid rgba(139,105,20,0.2);
+  border-radius: 8px;
+}
+
+.feat-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+.feat-title {
+  font-size: 0.85rem;
+  font-weight: bold;
+  color: var(--text-gold);
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.feat-icon { font-size: 1rem; }
+.feat-slots {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+.slots-used {
+  font-weight: bold;
+  color: var(--text-gold-bright);
+}
+.slots-divider { color: var(--text-dim); }
+
+.feat-empty {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  font-style: italic;
+  padding: 0.5rem 0;
+}
+
+/* Feat list */
+.feat-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.feat-card {
+  padding: 0.6rem 0.8rem;
+  background: rgba(139,105,20,0.05);
+  border: 1px solid rgba(139,105,20,0.15);
+  border-radius: 6px;
+  transition: border-color 0.15s;
+}
+.feat-card:hover { border-color: rgba(139,105,20,0.35); }
+
+.feat-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.3rem;
+}
+.feat-name-link {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-gold-bright);
+  text-decoration: none;
+}
+.feat-name-link:hover { text-decoration: underline; }
+.feat-name {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-parchment);
+}
+
+.feat-card-meta {
+  display: flex;
+  gap: 0.3rem;
+  align-items: center;
+}
+.feat-level, .feat-category, .feat-source {
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 0.08rem 0.3rem;
+  border-radius: 2px;
+  font-weight: bold;
+}
+.feat-level {
+  background: rgba(139,105,20,0.15);
+  color: var(--text-gold);
+  border: 1px solid rgba(139,105,20,0.3);
+}
+.feat-category {
+  background: rgba(100,80,200,0.1);
+  color: #9d8aff;
+  border: 1px solid rgba(100,80,200,0.2);
+}
+.feat-source {
+  background: rgba(100,100,100,0.12);
+  color: var(--text-dim);
+  border: 1px solid rgba(100,100,100,0.2);
+}
+
+.feat-prereq {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  font-style: italic;
+  margin-bottom: 0.3rem;
+}
+
+.feat-benefits {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.feat-benefits li {
+  font-size: 0.78rem;
+  color: var(--text-parchment);
+  padding: 0.15rem 0 0.15rem 0.8rem;
+  position: relative;
+}
+.feat-benefits li::before {
+  content: '•';
+  position: absolute;
+  left: 0;
+  color: var(--text-gold);
+}
+.feat-more {
+  color: var(--text-muted) !important;
+  font-style: italic;
+}
+.feat-more::before { content: '' !important; }
+
+.feat-notes {
+  font-size: 0.72rem;
+  color: var(--text-gold);
+  font-style: italic;
+  margin-top: 0.3rem;
+  padding-top: 0.3rem;
+  border-top: 1px solid rgba(139,105,20,0.1);
+}
+
+/* Upcoming */
+.feat-upcoming {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 0.75rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid rgba(100,100,100,0.15);
+  font-size: 0.72rem;
+}
+.upcoming-label { color: var(--text-dim); }
+.upcoming-level {
+  color: var(--text-muted);
+  background: rgba(100,100,100,0.1);
+  padding: 0.1rem 0.4rem;
+  border-radius: 3px;
+  border: 1px solid rgba(100,100,100,0.15);
+}
+
+@media (max-width: 640px) {
+  .feat-manager { padding: 0.75rem; }
+  .feat-card-header { flex-direction: column; gap: 0.25rem; }
+}
+</style>
