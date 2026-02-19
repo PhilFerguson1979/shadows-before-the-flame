@@ -4748,4 +4748,65 @@ A satirical letter from **Master Yap Sizzlegizzard, Wizard** (self-proclaimed fi
 
 ---
 
-> **Document Statistics:** ~5800+ lines covering the complete D&D 5e SRD (core rules, all races, all 13 classes with features/subclasses, backgrounds, feats, full weapon/armor/equipment tables, spellcasting rules, class spell lists, cantrip reference, combat spell quick reference, 150+ magic items, 200+ monsters organized by CR, conditions, combat rules, adventuring) PLUS comprehensive Dragonlance/Krynn world lore extracted from Tales of the Lance (AD&D 2e), Dragonlance Campaign Setting (3.5e), Raistlin's Guide to Krynn (5e v2.5), Monstrous Compendium Vol 2, Shadow of the Dragon Queen (5e), **DL6 Dragons of Ice, DL7 Dragons of Light, DL10 Dragons of Dreams, Lost Leaves from the Inn of the Last Home, DLR3 Unsung Heroes** — including complete timeline from the Age of Starbirth through 369 AC, detailed geography of all Ansalon nations, full pantheon of 16 gods with 5e domains, complete cosmology, Orders of High Sorcery, Laws of Krynn, dying curse mechanics, detailed adventure module lore with 5e NPC/creature/item conversions, Dragonlance forging requirements, the Oath of the Good Dragons, Dragon Orb history, elven sub-races and caste system, **Lost Relics and Artifacts (Brightblade, Staff of Argon, Dragon Orb Shards, War Drums of the High Ogres), Renegade Hunter organization, Lost Tower artifacts, Kirath Wildrunner equipment, Knights of Balif, 12 secret societies, Seeker religion, Bardic College of Ergoth, Bundesphar wolf warriors, Phaethon winged elves, Othlorx Dragon Curse, Solamnic feast traditions, 14 Ansalonian recipes, Monstrous Compendium Vol 2 creatures (11 monsters including Verminaard CR 17 and Ember/Pyros CR 22), 7 converted Unsung Heroes NPCs with full 5e stat blocks, and 3 named dragon conversions (Skie, Dargent/Silvara, Cyan Bloodbane)**, and campaign-specific data for Shadows Before The Flame.
+## Supplemental Extract Files
+
+*The following companion files contain detailed content extracted from AD&D 2e sourcebooks, with stat blocks converted to D&D 5e approximations. These files supplement the Dragonlance lore in this document.*
+
+### TALES_EXTRACT.md (1,519 lines)
+**Source:** AD&D 2e "Tales of the Lance" boxed set (15,021 lines of source material)
+- **20+ Nation Entries** with borders, population, government, military, trade, alignment
+- **Barbarian Weapons** — 5 cultural groups (Desert, Ice, Mountain, Plains, Sea) with 5e conversion tables
+- **Dwarven Deep-Dive** — 8 clans table, racial traits, 4 unique weapons
+- **Gully Dwarves** — 7 personality hallmarks, Gullytalk, religion
+- **Elven Subraces** — 6 types (Silvanesti, Qualinesti, Kagonesti, Dargonesti, Dimernesti, half-elves)
+- **Minotaur Weapons** — 9 unique weapons with 5e conversions
+- **Irda (High Ogres)** — Shapechanging 5e mechanics
+- **Knights of Solamnia** — 3 orders complete (Crown/Sword/Rose) with advancement
+- **Wizards of High Sorcery** — Moon Phase Effects, Conclave rules, Test of High Sorcery, 5 Towers
+- **Holy Orders of the Stars** — 3 orders with advancement titles
+- **Social Status System** — Full d100 table with racial penalties
+- **30+ NPC Profiles** with 5e stat conversions (Alhana, Ariakas, Astinus, Crysania, Fistandantilus, Lord Soth, etc.)
+- **21 Deity Avatar Stat Blocks** (all Good, Evil, and Neutral gods with 5e approximations)
+- **6 Lost Folk Races** (Bakali, Huldrefolk, Kyrie, Scions, Shadowpeople, Thanoi) with full stat blocks
+- **50+ Monster Entries** including all 5 draconian types, 12 dragon types, goblin weapons, spectral minions
+- **30+ Magic Items** including all artifacts (Staff of Magius, Dragonlances, Dragonorbs, Triad of Betrayal)
+- **Adventure Locations** — 15+ Solace region sites with NPCs, 8+ wilderness adventure sites
+- **Ansalonian Calendar** — Day/month names across 4 cultures
+- **Currency Exchange Rates** — Steel standard economy
+- **Krynn-Specific Magic Item Modifications** — Items that don't exist on Krynn, renamed items
+
+### DRAGONS_OF_WAR_EXTRACT.md (660 lines)
+**Source:** AD&D 2e "DL8 Dragons of War" adventure module (3,172 lines of source material)
+- **Whitestone Council** full political encounter
+- **High Clerist's Tower** fortress layout and battle mechanics
+- **Mass Combat Rules** — Dragon Highlord armies, troop compositions
+- **Dragon Orb** detailed usage and dangers
+- **Derek Crownguard** NPC profile and arc
+
+### CLASSICS_VOL1_EXTRACT.md (364 lines)
+**Source:** AD&D 2e "Dragonlance Classics Volume I" (DL1-DL4 compilation, 9,599 lines)
+- **Canticle of the Dragon** epic poem (central prophecy of the saga)
+- **Adventure-Specific NPCs** — Blaize (brass dragon), Evenstar/T'holoth (gold dragon guardian), Fewmaster Toede, Eben Shatterstone (traitor), Elistan, Fizban
+- **Skullcap Dungeon** — Full encounter map with Iron Hydra construct, Shadow Dragon, Helm of Grallen, treasure
+- **Derkin's Tomb** — Floating castle, Evenstar's puzzles, Hammer of Kharas location
+- **Dream Cards** — 11 unique nightmare sequences for each hero character (foreshadow real events)
+- **Kender Taunt** ability mechanics (DC 13 WIS save, 1d10 rounds of reckless rage)
+- **Iron Hydra** — Mechanical construct (AC 20, 12 heads × 20 HP, 6d6 fire breath)
+- **Unique Magic Items** — Vorpal longsword +3, Ruby Spectacles (true seeing), Keys of the Guardian
+
+### 15TH_ANNIVERSARY_EXTRACT.md (303 lines)
+**Source:** AD&D 2e "Dragonlance Classics 15th Anniversary Edition" (DL5-DL14 compilation, 18,714 lines)
+- **Complete Campaign Structure** — Chapter-by-chapter breakdown of DL5-DL14
+- **10+ Major Locations** — Tarsis, Icewall Region/Castle, Palanthas (full city), Whitestone Council, Kalaman, Neraka, Temple of Darkness
+- **Silvanesti Nightmare** — Dream system rules, Cyan Bloodbane's method, Dreamshadow mechanics
+- **Temple of Darkness** — Final dungeon: Foundation Stone origin, dungeon/main/upper levels, Council Chamber, Highlord apartments
+- **14 Named Dragons** — 10 Evil (Cyan Bloodbane, Ember, Firestorm, Flamestrike, Harkiel, Onyx, Skie, Sleet, Tombfyre, Whisper) + 4 Good (Aurumnus, Blaize, Cymbal, Dargent)
+- **Dragon Highlords** — All 5 detailed (Ariakas, Kitiara, Lucien, Verminaard/Sevil Rev, Toede career arc)
+- **Agents of Good** — Alhana (detailed), Dalamar, Harald Haakan, Kronn Thistleknot, Ladine Dralathalas
+- **Kitiara's Gambit** — Key roleplaying encounter at Neraka
+- **Unique Magic Items** — Ice Razor, Shield of Huma, Sword of Huma, Star Jewels, Key of Quinarost
+- **Foundation Stone & Campaign Climax** — Multiple victory paths, novel solution
+
+---
+
+> **Document Statistics:** ~4,750+ lines in this file covering the complete D&D 5e SRD (core rules, all races, all 13 classes with features/subclasses, backgrounds, feats, full weapon/armor/equipment tables, spellcasting rules, class spell lists, cantrip reference, combat spell quick reference, 150+ magic items, 200+ monsters organized by CR, conditions, combat rules, adventuring) PLUS comprehensive Dragonlance/Krynn world lore extracted from Tales of the Lance (AD&D 2e), Dragonlance Campaign Setting (3.5e), Raistlin's Guide to Krynn (5e v2.5), Monstrous Compendium Vol 2, Shadow of the Dragon Queen (5e), DL6 Dragons of Ice, DL7 Dragons of Light, DL10 Dragons of Dreams, Lost Leaves from the Inn of the Last Home, DLR3 Unsung Heroes. **Plus 4 companion extract files (2,845 lines total) covering Tales of the Lance, Dragons of War, Classics Vol I (DL1-DL4), and 15th Anniversary Edition (DL5-DL14) — providing complete War of the Lance campaign content with 5e stat conversions for 70+ NPCs, 21 deity avatars, 14 named dragons, 50+ monsters, 60+ magic items/artifacts, 10+ major dungeon locations, dream mechanics, mass combat rules, and the complete Temple of Darkness final dungeon.**
