@@ -9,8 +9,9 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 const characters = await getCollection('characters');
 const activeParty = characters.filter(c => c.data.status === 'active');
 const partyLevels = activeParty.map(c => c.data.level);
+const partySize = activeParty.length;
 
-// Calculate party thresholds
+// Calculate party thresholds (sum of each PC's threshold)
 const partyThresholds = { easy: 0, medium: 0, hard: 0, deadly: 0 };
 partyLevels.forEach(lvl => {
   const t = encounterThresholds[lvl];
@@ -22,7 +23,7 @@ partyLevels.forEach(lvl => {
   }
 });
 
-// Serialize monster data for client-side use (compact: just what the encounter builder needs)
+// Serialize monster data for client-side use
 const monsterList = monsters.map(m => ({
   n: m.name,
   s: m.slug,
@@ -39,12 +40,12 @@ const monsterList = monsters.map(m => ({
 <BaseLayout title="Encounter Planner">
   <div class="page-container">
     <h1>Encounter Planner</h1>
-    <p class="intro-text">Build encounters, check difficulty, and launch into the combat tracker.</p>
+    <p class="intro-text">Build encounters, check difficulty, save presets, and launch into the combat tracker.</p>
 
     <!-- Party Summary -->
     <div class="party-summary">
-      <span class="party-count">{activeParty.length} PCs</span>
-      <span class="party-levels">Levels: {partyLevels.join(', ')}</span>
+      <span class="party-count">{partySize} PCs (Level {partyLevels[0]}{partyLevels.some(l => l !== partyLevels[0]) ? '+' : ''})</span>
+      <span class="party-note">Large party — multipliers adjusted per DMG</span>
       <div class="threshold-bar">
         <span class="thresh easy">Easy {partyThresholds.easy.toLocaleString()}</span>
         <span class="thresh medium">Medium {partyThresholds.medium.toLocaleString()}</span>
@@ -53,7 +54,21 @@ const monsterList = monsters.map(m => ({
       </div>
     </div>
 
+    <!-- Saved Encounters -->
+    <div class="saved-section" id="savedSection">
+      <div class="saved-header">
+        <h2>Saved Encounters</h2>
+        <span class="saved-count" id="savedCount">0 saved</span>
+      </div>
+      <div class="saved-list" id="savedList">
+        <div class="saved-empty" id="savedEmpty">No saved encounters yet. Build one below and save it.</div>
+      </div>
+    </div>
+
     <!-- Monster Search + Add -->
+    <div class="builder-header">
+      <h2>Build Encounter</h2>
+    </div>
     <div class="add-section">
       <div class="search-wrap">
         <input type="text" id="monsterSearch" placeholder="Search monsters..." autocomplete="off" />
@@ -85,17 +100,47 @@ const monsterList = monsters.map(m => ({
         <span class="diff-xp" id="diffXP">0 XP</span>
         <span class="diff-adj" id="diffAdj">Adjusted: 0 XP</span>
       </div>
+      <div class="difficulty-detail" id="diffDetail"></div>
     </div>
 
     <!-- Actions -->
     <div class="encounter-actions" id="encounterActions" style="display:none;">
+      <button id="saveEncounter" class="btn btn-secondary">Save Encounter</button>
       <button id="launchCombat" class="btn btn-primary">Launch in Combat Tracker</button>
-      <button id="clearEncounter" class="btn btn-muted">Clear Encounter</button>
+      <button id="clearEncounter" class="btn btn-muted">Clear</button>
+    </div>
+
+    <!-- Save Dialog (hidden) -->
+    <div class="save-dialog-overlay" id="saveDialogOverlay" style="display:none;">
+      <div class="save-dialog">
+        <h3>Save Encounter</h3>
+        <div class="save-field">
+          <label for="saveName">Name</label>
+          <input type="text" id="saveName" placeholder="e.g. Hederick's Guard Patrol" autocomplete="off" />
+        </div>
+        <div class="save-field">
+          <label for="saveCategory">Category</label>
+          <select id="saveCategory">
+            <option value="Planned">Planned Encounter</option>
+            <option value="Random">Random Encounter</option>
+            <option value="Boss">Boss Fight</option>
+            <option value="Preset">Reusable Preset</option>
+          </select>
+        </div>
+        <div class="save-field">
+          <label for="saveNotes">Notes (optional)</label>
+          <textarea id="saveNotes" rows="2" placeholder="Setup notes, terrain, tactics..."></textarea>
+        </div>
+        <div class="save-actions">
+          <button id="saveConfirm" class="btn btn-primary">Save</button>
+          <button id="saveCancel" class="btn btn-muted">Cancel</button>
+        </div>
+      </div>
     </div>
   </div>
 </BaseLayout>
 
-<script define:vars={{ monsterList, partyThresholds, base }}>
+<script define:vars={{ monsterList, partyThresholds, partySize, base }}>
   const searchInput = document.getElementById('monsterSearch');
   const searchResults = document.getElementById('searchResults');
   const encounterList = document.getElementById('encounterList');
@@ -105,6 +150,7 @@ const monsterList = monsters.map(m => ({
   const diffLabel = document.getElementById('diffLabel');
   const diffXP = document.getElementById('diffXP');
   const diffAdj = document.getElementById('diffAdj');
+  const diffDetail = document.getElementById('diffDetail');
   const markerMedium = document.getElementById('markerMedium');
   const markerHard = document.getElementById('markerHard');
   const markerDeadly = document.getElementById('markerDeadly');
@@ -112,9 +158,60 @@ const monsterList = monsters.map(m => ({
   const addCustomBtn = document.getElementById('addCustom');
   const launchBtn = document.getElementById('launchCombat');
   const clearBtn = document.getElementById('clearEncounter');
+  const saveBtn = document.getElementById('saveEncounter');
+  const savedList = document.getElementById('savedList');
+  const savedEmpty = document.getElementById('savedEmpty');
+  const savedCount = document.getElementById('savedCount');
+  const saveDialogOverlay = document.getElementById('saveDialogOverlay');
+  const saveNameInput = document.getElementById('saveName');
+  const saveCategorySelect = document.getElementById('saveCategory');
+  const saveNotesInput = document.getElementById('saveNotes');
+  const saveConfirmBtn = document.getElementById('saveConfirm');
+  const saveCancelBtn = document.getElementById('saveCancel');
 
-  // Encounter state: array of { name, slug, cr, xp, ac, hp, dex, count }
   let encounter = [];
+  const SAVE_KEY = 'sbtf-saved-encounters';
+
+  // ============================================================
+  // CORRECTED ENCOUNTER MULTIPLIER — DMG rules for large parties
+  // ============================================================
+  // The standard multiplier table (DMG p.82) is for 3-5 PCs.
+  // For 6+ PCs: use one row lower on the multiplier table.
+  // For very large parties (we go further for 9+):
+  //   Drop two rows for massive parties.
+  //
+  // Standard multipliers by monster count:
+  //   1 monster: x1, 2: x1.5, 3-6: x2, 7-10: x2.5, 11-14: x3, 15+: x4
+  //
+  // For 6-8 PCs (one step lower):
+  //   1: x1, 2: x1, 3-6: x1.5, 7-10: x2, 11-14: x2.5, 15+: x3
+  //
+  // For 9+ PCs (two steps lower):
+  //   1: x0.5, 2: x1, 3-6: x1, 7-10: x1.5, 11-14: x2, 15+: x2.5
+
+  function getAdjustedMultiplier(monsterCount) {
+    // Standard multipliers indexed by bracket
+    // Brackets: [1], [2], [3-6], [7-10], [11-14], [15+]
+    const standardMultipliers = [1, 1.5, 2, 2.5, 3, 4];
+
+    // Determine bracket index from monster count
+    let bracketIndex = 0;
+    if (monsterCount >= 15) bracketIndex = 5;
+    else if (monsterCount >= 11) bracketIndex = 4;
+    else if (monsterCount >= 7) bracketIndex = 3;
+    else if (monsterCount >= 3) bracketIndex = 2;
+    else if (monsterCount === 2) bracketIndex = 1;
+    else bracketIndex = 0;
+
+    // Determine how many steps to drop based on party size
+    let dropSteps = 0;
+    if (partySize >= 9) dropSteps = 2;      // Very large party
+    else if (partySize >= 6) dropSteps = 1;  // Large party
+
+    // Apply the drop (can't go below index 0)
+    const adjustedIndex = Math.max(0, bracketIndex - dropSteps);
+    return standardMultipliers[adjustedIndex];
+  }
 
   // Search functionality
   searchInput.addEventListener('input', () => {
@@ -128,15 +225,13 @@ const monsterList = monsters.map(m => ({
       searchResults.innerHTML = '<div class="search-item no-match">No monsters found</div>';
     } else {
       searchResults.innerHTML = matches.map(m =>
-        `<div class="search-item" data-slug="${m.s}">
-          <span class="si-name">${m.n}</span>
-          <span class="si-meta">CR ${m.cr} · ${m.type} · AC ${m.ac} · HP ${m.hp}</span>
-        </div>`
+        '<div class="search-item" data-slug="' + m.s + '">' +
+          '<span class="si-name">' + m.n + '</span>' +
+          '<span class="si-meta">CR ' + m.cr + ' · ' + m.type + ' · AC ' + m.ac + ' · HP ' + m.hp + '</span>' +
+        '</div>'
       ).join('');
     }
     searchResults.style.display = '';
-
-    // Attach click handlers
     searchResults.querySelectorAll('.search-item[data-slug]').forEach(item => {
       item.addEventListener('click', () => {
         const slug = item.dataset.slug;
@@ -148,28 +243,20 @@ const monsterList = monsters.map(m => ({
     });
   });
 
-  // Close search on click outside
   document.addEventListener('click', (e) => {
     if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) {
       searchResults.style.display = 'none';
     }
   });
-
-  // Close search on Escape
   searchInput.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') {
-      searchResults.style.display = 'none';
-      searchInput.value = '';
-    }
+    if (e.key === 'Escape') { searchResults.style.display = 'none'; searchInput.value = ''; }
   });
 
-  // Add custom enemy
   addCustomBtn.addEventListener('click', () => {
     addMonster({ n: 'Custom Enemy', s: '', cr: '1', xp: 200, ac: 12, hp: 20, dex: 10, type: 'humanoid', size: 'Medium', custom: true });
   });
 
   function addMonster(mon) {
-    // Check if already in encounter
     const existing = encounter.find(e => e.slug === mon.s && mon.s !== '');
     if (existing) {
       existing.count++;
@@ -200,22 +287,11 @@ const monsterList = monsters.map(m => ({
     renderEncounter();
   }
 
-  function getEncounterMultiplier(count) {
-    if (count === 0) return 1;
-    if (count === 1) return 1;
-    if (count === 2) return 1.5;
-    if (count <= 6) return 2;
-    if (count <= 10) return 2.5;
-    if (count <= 14) return 3;
-    return 4;
-  }
-
   function renderEncounter() {
     if (encounter.length === 0) {
       encounterEmpty.style.display = '';
       diffSection.style.display = 'none';
       encActions.style.display = 'none';
-      // Remove all encounter rows
       encounterList.querySelectorAll('.encounter-row').forEach(r => r.remove());
       return;
     }
@@ -224,30 +300,26 @@ const monsterList = monsters.map(m => ({
     diffSection.style.display = '';
     encActions.style.display = 'flex';
 
-    // Remove old rows
     encounterList.querySelectorAll('.encounter-row').forEach(r => r.remove());
 
-    // Render rows
     encounter.forEach((mon, i) => {
       const row = document.createElement('div');
       row.className = 'encounter-row';
-      row.innerHTML = `
-        <div class="er-info">
-          ${mon.slug ? `<a href="${base}/monsters/${mon.slug}" class="er-name">${mon.name}</a>` : `<span class="er-name">${mon.name}</span>`}
-          <span class="er-meta">CR ${mon.cr} · AC ${mon.ac} · HP ${mon.hp} · ${mon.xp.toLocaleString()} XP</span>
-        </div>
-        <div class="er-controls">
-          <button class="er-btn er-minus" data-i="${i}">−</button>
-          <span class="er-count">${mon.count}</span>
-          <button class="er-btn er-plus" data-i="${i}">+</button>
-          <span class="er-total-xp">${(mon.xp * mon.count).toLocaleString()} XP</span>
-          <button class="er-btn er-remove" data-i="${i}">×</button>
-        </div>
-      `;
+      row.innerHTML =
+        '<div class="er-info">' +
+          (mon.slug ? '<a href="' + base + '/monsters/' + mon.slug + '" class="er-name">' + mon.name + '</a>' : '<span class="er-name">' + mon.name + '</span>') +
+          '<span class="er-meta">CR ' + mon.cr + ' · AC ' + mon.ac + ' · HP ' + mon.hp + ' · ' + mon.xp.toLocaleString() + ' XP</span>' +
+        '</div>' +
+        '<div class="er-controls">' +
+          '<button class="er-btn er-minus" data-i="' + i + '">-</button>' +
+          '<span class="er-count">' + mon.count + '</span>' +
+          '<button class="er-btn er-plus" data-i="' + i + '">+</button>' +
+          '<span class="er-total-xp">' + (mon.xp * mon.count).toLocaleString() + ' XP</span>' +
+          '<button class="er-btn er-remove" data-i="' + i + '">x</button>' +
+        '</div>';
       encounterList.appendChild(row);
     });
 
-    // Attach event handlers
     encounterList.querySelectorAll('.er-minus').forEach(btn => {
       btn.addEventListener('click', () => changeCount(parseInt(btn.dataset.i), -1));
     });
@@ -264,13 +336,34 @@ const monsterList = monsters.map(m => ({
   function updateDifficulty() {
     const totalMonsters = encounter.reduce((s, m) => s + m.count, 0);
     const rawXP = encounter.reduce((s, m) => s + m.xp * m.count, 0);
-    const multiplier = getEncounterMultiplier(totalMonsters);
+    const multiplier = getAdjustedMultiplier(totalMonsters);
     const adjustedXP = Math.round(rawXP * multiplier);
 
-    diffXP.textContent = `${rawXP.toLocaleString()} XP (raw)`;
-    diffAdj.textContent = `Adjusted: ${adjustedXP.toLocaleString()} XP (×${multiplier})`;
+    // Also show what the standard (3-5 PC) multiplier would be for comparison
+    const stdMultipliers = [1, 1.5, 2, 2.5, 3, 4];
+    let stdBracket = 0;
+    if (totalMonsters >= 15) stdBracket = 5;
+    else if (totalMonsters >= 11) stdBracket = 4;
+    else if (totalMonsters >= 7) stdBracket = 3;
+    else if (totalMonsters >= 3) stdBracket = 2;
+    else if (totalMonsters === 2) stdBracket = 1;
+    const stdMultiplier = stdMultipliers[stdBracket];
+    const stdAdjusted = Math.round(rawXP * stdMultiplier);
 
-    // Determine difficulty
+    diffXP.textContent = rawXP.toLocaleString() + ' XP (raw)';
+    diffAdj.textContent = 'Adjusted: ' + adjustedXP.toLocaleString() + ' XP (x' + multiplier + ' for ' + partySize + ' PCs)';
+
+    // Detail explanation
+    let detailText = totalMonsters + ' monster' + (totalMonsters !== 1 ? 's' : '') + ' vs ' + partySize + ' PCs. ';
+    if (partySize >= 9) {
+      detailText += 'Very large party: multiplier dropped 2 steps (x' + stdMultiplier + ' -> x' + multiplier + '). ';
+      detailText += 'Standard 4-PC adjusted would be ' + stdAdjusted.toLocaleString() + ' XP.';
+    } else if (partySize >= 6) {
+      detailText += 'Large party: multiplier dropped 1 step (x' + stdMultiplier + ' -> x' + multiplier + '). ';
+      detailText += 'Standard 4-PC adjusted would be ' + stdAdjusted.toLocaleString() + ' XP.';
+    }
+    diffDetail.textContent = detailText;
+
     let difficulty = 'Trivial';
     let diffColor = '#666';
     if (adjustedXP >= partyThresholds.deadly) { difficulty = 'Deadly'; diffColor = '#c0392b'; }
@@ -281,28 +374,99 @@ const monsterList = monsters.map(m => ({
     diffLabel.textContent = difficulty;
     diffLabel.style.color = diffColor;
 
-    // Difficulty bar fill (scale: 0 to deadly * 1.5)
     const maxScale = partyThresholds.deadly * 1.5;
     const pct = Math.min(100, (adjustedXP / maxScale) * 100);
-    diffFill.style.width = `${pct}%`;
+    diffFill.style.width = pct + '%';
     diffFill.style.background = diffColor;
 
-    // Position markers
     const medPct = (partyThresholds.medium / maxScale) * 100;
     const hardPct = (partyThresholds.hard / maxScale) * 100;
     const deadlyPct = (partyThresholds.deadly / maxScale) * 100;
-    markerMedium.style.left = `${medPct}%`;
-    markerHard.style.left = `${hardPct}%`;
-    markerDeadly.style.left = `${deadlyPct}%`;
+    markerMedium.style.left = medPct + '%';
+    markerHard.style.left = hardPct + '%';
+    markerDeadly.style.left = deadlyPct + '%';
   }
 
-  // Launch combat — store encounter in localStorage, navigate to initiative
-  launchBtn.addEventListener('click', () => {
+  // ============================================================
+  // SAVE / LOAD ENCOUNTERS
+  // ============================================================
+  function getSavedEncounters() {
+    try {
+      return JSON.parse(localStorage.getItem(SAVE_KEY) || '[]');
+    } catch(e) { return []; }
+  }
+
+  function saveSavedEncounters(data) {
+    localStorage.setItem(SAVE_KEY, JSON.stringify(data));
+  }
+
+  function renderSavedEncounters() {
+    const saved = getSavedEncounters();
+    savedCount.textContent = saved.length + ' saved';
+
+    // Clear old entries
+    savedList.querySelectorAll('.saved-entry').forEach(e => e.remove());
+
+    if (saved.length === 0) {
+      savedEmpty.style.display = '';
+      return;
+    }
+    savedEmpty.style.display = 'none';
+
+    saved.forEach((enc, i) => {
+      const totalMonsters = enc.monsters.reduce((s, m) => s + m.count, 0);
+      const totalXP = enc.monsters.reduce((s, m) => s + m.xp * m.count, 0);
+      const monsterSummary = enc.monsters.map(m => m.count > 1 ? m.count + 'x ' + m.name : m.name).join(', ');
+
+      const entry = document.createElement('div');
+      entry.className = 'saved-entry';
+      entry.innerHTML =
+        '<div class="se-info">' +
+          '<div class="se-top">' +
+            '<span class="se-name">' + enc.name + '</span>' +
+            '<span class="se-cat">' + enc.category + '</span>' +
+          '</div>' +
+          '<span class="se-monsters">' + monsterSummary + '</span>' +
+          '<span class="se-meta">' + totalMonsters + ' creatures · ' + totalXP.toLocaleString() + ' XP</span>' +
+          (enc.notes ? '<span class="se-notes">' + enc.notes + '</span>' : '') +
+        '</div>' +
+        '<div class="se-actions">' +
+          '<button class="se-btn se-load" data-i="' + i + '" title="Load into builder">Load</button>' +
+          '<button class="se-btn se-launch" data-i="' + i + '" title="Launch directly into combat">Combat</button>' +
+          '<button class="se-btn se-delete" data-i="' + i + '" title="Delete">x</button>' +
+        '</div>';
+      savedList.appendChild(entry);
+    });
+
+    // Event handlers
+    savedList.querySelectorAll('.se-load').forEach(btn => {
+      btn.addEventListener('click', () => loadEncounter(parseInt(btn.dataset.i)));
+    });
+    savedList.querySelectorAll('.se-launch').forEach(btn => {
+      btn.addEventListener('click', () => launchSavedEncounter(parseInt(btn.dataset.i)));
+    });
+    savedList.querySelectorAll('.se-delete').forEach(btn => {
+      btn.addEventListener('click', () => deleteSavedEncounter(parseInt(btn.dataset.i)));
+    });
+  }
+
+  function loadEncounter(index) {
+    const saved = getSavedEncounters();
+    if (!saved[index]) return;
+    encounter = saved[index].monsters.map(m => ({...m}));
+    renderEncounter();
+    // Scroll to builder
+    document.querySelector('.builder-header').scrollIntoView({ behavior: 'smooth' });
+  }
+
+  function launchSavedEncounter(index) {
+    const saved = getSavedEncounters();
+    if (!saved[index]) return;
     const enemies = [];
-    encounter.forEach(mon => {
-      for (let i = 0; i < mon.count; i++) {
+    saved[index].monsters.forEach(mon => {
+      for (let j = 0; j < mon.count; j++) {
         enemies.push({
-          name: mon.count > 1 ? `${mon.name} ${i + 1}` : mon.name,
+          name: mon.count > 1 ? mon.name + ' ' + (j + 1) : mon.name,
           ac: String(mon.ac),
           hp: String(mon.hp),
           dex: String(Math.floor((mon.dex - 10) / 2)),
@@ -310,7 +474,71 @@ const monsterList = monsters.map(m => ({
       }
     });
     localStorage.setItem('sbtf-pending-enemies', JSON.stringify(enemies));
-    window.location.href = `${base}/party/initiative`;
+    window.location.href = base + '/party/initiative';
+  }
+
+  function deleteSavedEncounter(index) {
+    const saved = getSavedEncounters();
+    saved.splice(index, 1);
+    saveSavedEncounters(saved);
+    renderSavedEncounters();
+  }
+
+  // Save dialog
+  saveBtn.addEventListener('click', () => {
+    saveNameInput.value = '';
+    saveNotesInput.value = '';
+    saveCategorySelect.value = 'Planned';
+    saveDialogOverlay.style.display = 'flex';
+    saveNameInput.focus();
+  });
+
+  saveCancelBtn.addEventListener('click', () => {
+    saveDialogOverlay.style.display = 'none';
+  });
+
+  saveDialogOverlay.addEventListener('click', (e) => {
+    if (e.target === saveDialogOverlay) saveDialogOverlay.style.display = 'none';
+  });
+
+  saveConfirmBtn.addEventListener('click', () => {
+    const name = saveNameInput.value.trim();
+    if (!name) { saveNameInput.style.borderColor = '#c0392b'; return; }
+    saveNameInput.style.borderColor = '';
+
+    const saved = getSavedEncounters();
+    saved.push({
+      name: name,
+      category: saveCategorySelect.value,
+      notes: saveNotesInput.value.trim(),
+      monsters: encounter.map(m => ({...m})),
+      createdAt: new Date().toISOString(),
+    });
+    saveSavedEncounters(saved);
+    saveDialogOverlay.style.display = 'none';
+    renderSavedEncounters();
+  });
+
+  saveNameInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') saveConfirmBtn.click();
+    if (e.key === 'Escape') saveCancelBtn.click();
+  });
+
+  // Launch combat from current builder
+  launchBtn.addEventListener('click', () => {
+    const enemies = [];
+    encounter.forEach(mon => {
+      for (let i = 0; i < mon.count; i++) {
+        enemies.push({
+          name: mon.count > 1 ? mon.name + ' ' + (i + 1) : mon.name,
+          ac: String(mon.ac),
+          hp: String(mon.hp),
+          dex: String(Math.floor((mon.dex - 10) / 2)),
+        });
+      }
+    });
+    localStorage.setItem('sbtf-pending-enemies', JSON.stringify(enemies));
+    window.location.href = base + '/party/initiative';
   });
 
   // Clear
@@ -318,6 +546,9 @@ const monsterList = monsters.map(m => ({
     encounter = [];
     renderEncounter();
   });
+
+  // Initialize saved encounters display
+  renderSavedEncounters();
 </script>
 
 <style>
@@ -338,7 +569,11 @@ h1 { margin-bottom: 0.25rem; }
   font-size: 0.82rem;
 }
 .party-count { color: var(--text-gold-bright); font-weight: bold; }
-.party-levels { color: var(--text-muted); }
+.party-note {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  font-style: italic;
+}
 .threshold-bar {
   display: flex;
   gap: 0.5rem;
@@ -357,6 +592,118 @@ h1 { margin-bottom: 0.25rem; }
 .thresh.medium { background: rgba(243,156,18,0.15); color: #f5b041; border: 1px solid rgba(243,156,18,0.3); }
 .thresh.hard { background: rgba(211,84,0,0.15); color: #e67e22; border: 1px solid rgba(211,84,0,0.3); }
 .thresh.deadly { background: rgba(192,57,43,0.15); color: #e74c3c; border: 1px solid rgba(192,57,43,0.3); }
+
+/* Saved Encounters */
+.saved-section {
+  margin-bottom: 2rem;
+}
+.saved-header {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+.saved-header h2 {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  margin: 0;
+}
+.saved-count {
+  font-size: 0.72rem;
+  color: var(--text-dim);
+}
+.saved-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+.saved-empty {
+  text-align: center;
+  padding: 1.5rem;
+  color: var(--text-muted);
+  font-style: italic;
+  font-size: 0.82rem;
+  background: rgba(139,105,20,0.03);
+  border: 1px dashed rgba(139,105,20,0.15);
+  border-radius: 6px;
+}
+.saved-entry {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.6rem 0.8rem;
+  background: rgba(139,105,20,0.04);
+  border: 1px solid rgba(139,105,20,0.15);
+  border-radius: 6px;
+  transition: border-color 0.15s;
+}
+.saved-entry:hover { border-color: rgba(139,105,20,0.3); }
+.se-info { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 0.1rem; }
+.se-top { display: flex; align-items: baseline; gap: 0.5rem; }
+.se-name { font-size: 0.88rem; font-weight: 600; color: var(--text-parchment); }
+.se-cat {
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 0.08rem 0.3rem;
+  border-radius: 2px;
+  font-weight: bold;
+  background: rgba(100,80,200,0.12);
+  color: #9d8aff;
+  border: 1px solid rgba(100,80,200,0.2);
+}
+.se-monsters { font-size: 0.75rem; color: var(--text-gold); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.se-meta { font-size: 0.68rem; color: var(--text-muted); }
+.se-notes { font-size: 0.68rem; color: var(--text-dim); font-style: italic; }
+
+.se-actions {
+  display: flex;
+  gap: 0.3rem;
+  flex-shrink: 0;
+}
+.se-btn {
+  padding: 0.3rem 0.6rem;
+  font-size: 0.72rem;
+  font-weight: bold;
+  border-radius: 4px;
+  border: 1px solid;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.se-load {
+  background: rgba(139,105,20,0.1);
+  border-color: rgba(139,105,20,0.3);
+  color: var(--text-gold);
+}
+.se-load:hover { background: rgba(139,105,20,0.25); }
+.se-launch {
+  background: rgba(39,174,96,0.1);
+  border-color: rgba(39,174,96,0.3);
+  color: #6ec97a;
+}
+.se-launch:hover { background: rgba(39,174,96,0.25); }
+.se-delete {
+  background: rgba(192,57,43,0.1);
+  border-color: rgba(192,57,43,0.3);
+  color: #e74c3c;
+  padding: 0.3rem 0.5rem;
+}
+.se-delete:hover { background: rgba(192,57,43,0.25); }
+
+/* Builder header */
+.builder-header {
+  margin-bottom: 0.75rem;
+}
+.builder-header h2 {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  margin: 0;
+}
 
 /* Add Section */
 .add-section {
@@ -564,12 +911,82 @@ a.er-name:hover { color: var(--text-gold); text-decoration: underline; }
 }
 .diff-xp { font-size: 0.82rem; color: var(--text-muted); }
 .diff-adj { font-size: 0.75rem; color: var(--text-dim); }
+.difficulty-detail {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  margin-top: 0.5rem;
+  font-style: italic;
+  line-height: 1.5;
+}
 
 /* Encounter actions */
 .encounter-actions {
   display: flex;
   gap: 0.75rem;
   flex-wrap: wrap;
+  margin-bottom: 2rem;
+}
+
+/* Save dialog */
+.save-dialog-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.7);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.save-dialog {
+  background: #1a1510;
+  border: 1px solid rgba(139,105,20,0.4);
+  border-radius: 10px;
+  padding: 1.5rem;
+  width: 90%;
+  max-width: 400px;
+}
+.save-dialog h3 {
+  color: var(--text-gold-bright);
+  margin-bottom: 1rem;
+  font-size: 1rem;
+}
+.save-field {
+  margin-bottom: 0.75rem;
+}
+.save-field label {
+  display: block;
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  margin-bottom: 0.25rem;
+}
+.save-field input,
+.save-field select,
+.save-field textarea {
+  width: 100%;
+  padding: 0.45rem 0.65rem;
+  font-size: 0.85rem;
+  background: rgba(0,0,0,0.3);
+  border: 1px solid rgba(139,105,20,0.3);
+  border-radius: 5px;
+  color: var(--text-parchment);
+  font-family: inherit;
+}
+.save-field input:focus,
+.save-field select:focus,
+.save-field textarea:focus {
+  outline: none;
+  border-color: var(--text-gold);
+}
+.save-actions {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
+  margin-top: 1rem;
 }
 
 @media (max-width: 640px) {
@@ -578,5 +995,7 @@ a.er-name:hover { color: var(--text-gold); text-decoration: underline; }
   .threshold-bar { margin-left: 0; width: 100%; }
   .encounter-row { flex-direction: column; align-items: stretch; gap: 0.5rem; }
   .er-controls { justify-content: flex-end; }
+  .saved-entry { flex-direction: column; align-items: stretch; gap: 0.5rem; }
+  .se-actions { justify-content: flex-end; }
 }
 </style>
