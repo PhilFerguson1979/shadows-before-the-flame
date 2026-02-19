@@ -3748,6 +3748,96 @@ After the Cataclysm, when all prayers went unanswered, the Seeker movement arose
 
 Other false religions: demon cults, snake cults, dragon cults, ancestor worship (Que-Shu), deification of the living.
 
+### Shadow of the Dragon Queen — Official 5e Content
+
+*Source: D&D 5e Shadow of the Dragon Queen (WotC, 2022)*
+
+**Official 5e Dragonlance Feats:**
+
+| Feat | Prerequisite | Effect |
+|------|-------------|--------|
+| **Divinely Favored** | None (bonus at 4th level) | Learn a cleric cantrip + 1st-level spell (cast 1/long rest free or with slots). Choose Good/Neutral/Evil deity for different bonus spells. Divine spell uses WIS |
+| **Initiate of High Sorcery** | Sorcerer, Wizard, or Mage of High Sorcery background | Choose Moon (White/Red/Black). Learn 2 cantrips from specific schools + 1st-level spell (1/long rest free). INT, WIS, or CHA casting |
+| **Adept of the White Robes** | 4th level + Initiate of High Sorcery | Protective Ward: when ally hit within 30ft, reaction to reduce damage by 2d6. +Spell: *protection from evil and good* (1/long rest free) |
+| **Adept of the Red Robes** | 4th level + Initiate of High Sorcery | Insightful Magic: after failing ability check, add d4 to result (potentially turning failure to success). +Spell: *see invisibility* (1/long rest free) |
+| **Adept of the Black Robes** | 4th level + Initiate of High Sorcery | Life Channel: when you cast a damage spell, spend HP to increase damage to one target by 1d6 per HP spent (max your level). +Spell: *crown of madness* (1/long rest free) |
+| **Squire of Solamnia** | Knight of Solamnia background | Squire's Rallying Cry: when you roll initiative, you and allies within 30ft gain temp HP = proficiency bonus |
+| **Knight of the Crown** | 4th level + Squire of Solamnia | Commanding Rally: as bonus action, one ally within 30ft gains advantage on next attack roll this turn. Uses = proficiency bonus per long rest |
+| **Knight of the Sword** | 4th level + Squire of Solamnia | Demoralizing Strike: when you hit with weapon, target has disadvantage on next saving throw before your next turn. Uses = proficiency bonus per long rest |
+| **Knight of the Rose** | 4th level + Squire of Solamnia | Inspiring Sacrifice: when you or ally within 30ft takes damage, use reaction to grant temp HP to up to 3 allies within 30ft (2d8 + proficiency). 1/long rest |
+
+**Official 5e Backgrounds:**
+
+| Background | Skill Proficiencies | Feature |
+|------------|-------------------|---------|
+| **Knight of Solamnia** | Athletics, Survival | Squire of Solamnia feat. Equipment: insignia of rank, deck of cards, common clothes, pouch with 10 gp |
+| **Mage of High Sorcery** | Arcana, History | Initiate of High Sorcery feat. Equipment: robes, scroll case, pouch with 10 gp |
+
+**Official 5e Kender Race (SotDQ version):**
+- **Creature Type:** Humanoid | **Size:** Small | **Speed:** 30 ft
+- **Ability Score Increase:** +2 one score, +1 another (or +1 three scores)
+- **Fearless:** Advantage on saving throws to avoid/end the frightened condition
+- **Kender Aptitude:** Proficiency in one: Insight, Investigation, Sleight of Hand, Stealth, or Survival
+- **Taunt:** Bonus action to taunt creature within 60ft that can hear you. Target makes DC 8 + proficiency + CHA mod WIS save or has disadvantage on attack rolls against targets other than you until start of your next turn. Usable = proficiency bonus times per long rest
+
+**Lunar Sorcery (Sorcerer Subclass):**
+- **Moon Fire:** At 1st level, sacred flame cantrip + additional spells based on current lunar phase
+- **Lunar Embodiment:** At 1st level, choose a phase (Full/New/Crescent). Gain bonus spells. Can change phase at end of long rest
+- **Lunar Boons:** At 6th level, bonus effect when casting spells of 1st level+. Effect depends on current phase (Full: allies glow and grant advantage; New: advantage on Stealth; Crescent: resistance to damage)
+- **Waxing and Waning:** At 6th level, spend 1 sorcery point to change lunar phase as bonus action
+- **Lunar Empowerment:** At 14th level, Full Moon = resistance to radiant/disadvantage on saves vs. your enchantment/divination; New Moon = resistance to necrotic/disadvantage on saves vs. your necromancy/evocation; Crescent = resistance to psychic/disadvantage on saves vs. your illusion/transmutation
+- **Lunar Phenomenon:** At 18th level, unleash power of current phase as bonus action (Full: healing burst; New: darkness/frightened; Crescent: teleport + damage)
+
+**Official 5e Magic Items from SotDQ:**
+
+| Item | Type | Rarity | Properties |
+|------|------|--------|------------|
+| **Dragonlance** | Lance or Pike | Legendary (attunement) | +3 to attack/damage. On hit vs Dragon: +3d6 force damage. When you hit a Dragon, any Dragon of your choice within 30ft can use reaction to make a melee attack |
+| **Flying Citadel Helm** | Wondrous | Very Rare (attunement, spellcaster) | Ornate chair that propels and steers a flying citadel at 80 ft/round (8 mph). See/hear from highest point. Concentration required. Crash: citadel descends 30ft/round if destroyed |
+| **Kagonesti Forest Shroud** | Cloak | Rare (attunement) | Advantage on Stealth. Bonus action: teleport to unoccupied space within 30ft + advantage on next attack. 1/dawn |
+| **Mirror of Reflected Pasts** | Wondrous | Very Rare (attunement) | 3ft mirror. Command word activates (hovers). Non-Construct creatures seeing reflection: DC 15 WIS save or paralyzed (see idealized past memories). Repeat save each turn. 1/dawn |
+
+**Official 5e Monster Stat Blocks (SotDQ):**
+
+| Creature | CR | Type | Key Features |
+|----------|-----|------|-------------|
+| **Aurak Draconian** | 6 | Monstrosity | Created from gold eggs. Wingless. Noxious breath. Spellcasting. Death: burst of lightning |
+| **Baaz Draconian** | 1/2 | Monstrosity | Created from brass eggs. Glide. Disguise. Death: petrification + gas cloud |
+| **Bozak Draconian** | 2 | Monstrosity | Created from bronze eggs. Glide. Spellcasting. Death: bones explode in magical splinters |
+| **Kapak Draconian** | 3 | Monstrosity | Created from copper eggs. Glide. Paralytic saliva on weapons. Death: dissolve to acid |
+| **Sivak Draconian** | 4 | Monstrosity | Created from silver eggs. Fly. Shape Theft (mimic killed humanoid). Death: mimic killer's form + shriek |
+| **Kansaldi Fire-Eyes** | 10 | Humanoid | Dragon Highmaster. Gem of Seeing replaces left eye. Fanatical devotion. Spellcasting. Red Dragon Army commander |
+| **Lord Soth** | 19 | Undead | Death knight. Former Knight of the Rose. Cataclysmic Fire. Legendary actions. Spellcasting (paladin/wizard) |
+| **Skeletal Knight** | 5 | Undead | Soth's cursed retainers. Life-draining blade. Relentless |
+| **Dragon Army Officer** | 3 | Humanoid | Dragon-blessed weapons (fire damage). Rally troops |
+| **Dragon Army Soldier** | 1 | Humanoid | Dragon-blessed weapons. Basic troops |
+| **Greater Death Dragon** | 14 | Undead | Skeletal dragon with Cataclysmic fire breath. Creates fire zombies. Retains personality |
+| **Lesser Death Dragon** | 7 | Undead | Pale imitation of former self. Flashes of memory drive to rage and destruction |
+| **Red Ruin** | 7 | Humanoid | Dragonnel-riding ace. Airborne commander. Distinctive dragonnel helmet. Unknown identity |
+| **Caradoc** | 6 | Undead | Soth's spectral seneschal. Can possess living humanoids. Tethered to bones in Dargaard Keep |
+| **Dragon Army Dragonnel** | 3 | Dragon | Red dragon relative. Mount for officers. Fire-immune. Ember claws/teeth |
+| **Wasteland Dragonnel** | 3 | Dragon | Copper dragon relative. Acid spit. Playful but territorial |
+| **Anhkolox** | 4 | Undead | Bear-bone undead. Barbed rib cage trap. Territorial predator |
+| **Istarian Drone** | 2 | Construct | Ancient marble mantis-construct. Creates crystal mortar gel. Builder of Istar |
+| **Kender Skirmisher** | 1/2 | Humanoid | Hoopak weapon. Taunt ability. Stealth. Fearless |
+
+**Dragon Army Organization:**
+
+| Army | Dragon Color | Highlord | Status (351 AC) |
+|------|-------------|----------|-----------------|
+| **Red Dragon Army** | Red | Verminaard (Kansaldi Fire-Eyes commanding Solamnia forces) | Largest, most powerful. Invading Solamnia |
+| **Blue Dragon Army** | Blue | Kitiara Uth Matar | Second most powerful. Preparing to join Solamnia invasion |
+| **Green Dragon Army** | Green | Salah-Khan (Khur leader) | Occupying Khur and surrounding lands |
+| **Black Dragon Army** | Black | Lucien of Takar (half-ogre) | Support army. Occupying Nordmaar and Goodlund |
+| **White Dragon Army** | White | Feal-Thas (Silvanesti elf, Black Robe) | Smallest. Conquering Icereach |
+
+**War of the Lance Timeline (351 AC):**
+- **348 AC:** Nordmaar falls to Red/Green Dragon Armies
+- **Early 349 AC:** Khur absorbed (Salah-Khan made Highlord)
+- **Mid 349 AC:** Balifor and Goodlund fall to Black/White armies. Kender guerrilla resistance
+- **Late 349–350 AC:** Siege of Silvanesti. Elves evacuate. Lorac's Dragon Orb warps the land
+- **351 AC:** Dragon Armies regroup. Red/Blue prepare Solamnia invasion. Adventure begins
+
 ---
 
 ### Party Roster — Shadows Before The Flame
