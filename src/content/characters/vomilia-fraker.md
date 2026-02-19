@@ -11,6 +11,12 @@ speed: 25
 profBonus: 2
 status: "active"
 xp: 0
+skillProficiencies:
+  - "Arcana"
+  - "Perception"
+savingThrowProficiencies:
+  - "con"
+  - "int"
 portrait: "/portraits/vomilia-fraker.svg"
 str: 11
 dex: 13

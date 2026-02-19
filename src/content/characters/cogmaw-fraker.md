@@ -11,6 +11,12 @@ speed: 25
 profBonus: 2
 status: "active"
 xp: 0
+skillProficiencies:
+  - "Arcana"
+  - "Investigation"
+savingThrowProficiencies:
+  - "con"
+  - "int"
 portrait: "/portraits/cogmaw-fraker.svg"
 str: 9
 dex: 13

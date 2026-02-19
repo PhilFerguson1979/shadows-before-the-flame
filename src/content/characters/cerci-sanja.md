@@ -11,6 +11,12 @@ speed: 35
 profBonus: 2
 status: "active"
 xp: 0
+skillProficiencies:
+  - "Nature"
+  - "Arcana"
+savingThrowProficiencies:
+  - "int"
+  - "wis"
 portrait: "/portraits/cerci-sanja.svg"
 str: 13
 dex: 17

@@ -83,6 +83,10 @@ const characters = defineCollection({
     casterType: z.enum(['prepared', 'known', 'none']).optional(),
     // Experience points
     xp: z.number().optional().default(0),
+    // Skill & saving throw proficiencies
+    skillProficiencies: z.array(z.string()).optional(),   // ["Perception", "Stealth"]
+    skillExpertise: z.array(z.string()).optional(),       // ["Thieves' Tools", "Stealth"]
+    savingThrowProficiencies: z.array(z.string()).optional(), // ["dex", "int"]
   }),
 });
 const sessions = defineCollection({

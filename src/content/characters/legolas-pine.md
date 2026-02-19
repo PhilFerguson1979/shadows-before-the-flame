@@ -11,6 +11,13 @@ speed: 35
 profBonus: 2
 status: "active"
 xp: 0
+skillProficiencies:
+  - "Perception"
+  - "Stealth"
+  - "Survival"
+savingThrowProficiencies:
+  - "str"
+  - "dex"
 portrait: "/portraits/legolas-pine.svg"
 str: 12
 dex: 20

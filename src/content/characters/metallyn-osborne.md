@@ -11,6 +11,12 @@ speed: 30
 profBonus: 2
 status: "active"
 xp: 0
+skillProficiencies:
+  - "Athletics"
+  - "Intimidation"
+savingThrowProficiencies:
+  - "str"
+  - "con"
 portrait: "/portraits/metallyn-osborne.svg"
 str: 18
 dex: 14

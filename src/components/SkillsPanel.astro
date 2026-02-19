@@ -1,0 +1,373 @@
+---
+import {
+  skills,
+  savingThrows,
+  abilityLabels,
+  abilityMod,
+  modString,
+  calcSkillMod,
+  calcPassiveScore,
+  type AbilityKey,
+} from '../data/skills';
+
+interface Props {
+  characterName: string;
+  characterSlug: string;
+  profBonus: number;
+  str: number;
+  dex: number;
+  con: number;
+  int: number;
+  wis: number;
+  cha: number;
+  skillProficiencies?: string[];
+  skillExpertise?: string[];
+  savingThrowProficiencies?: string[];
+  baseUrl: string;
+}
+
+const {
+  characterName,
+  characterSlug,
+  profBonus,
+  str, dex, con, int, wis, cha,
+  skillProficiencies = [],
+  skillExpertise = [],
+  savingThrowProficiencies = [],
+  baseUrl,
+} = Astro.props;
+
+const scores: Record<AbilityKey, number> = { str, dex, con, int, wis, cha };
+
+// Normalize for case-insensitive matching
+const profSet = new Set(skillProficiencies.map(s => s.toLowerCase()));
+const expSet = new Set(skillExpertise.map(s => s.toLowerCase()));
+const saveProfSet = new Set(savingThrowProficiencies.map(s => s.toLowerCase()));
+
+// Group skills by ability
+const abilityOrder: AbilityKey[] = ['str', 'dex', 'con', 'int', 'wis', 'cha'];
+const groupedSkills = abilityOrder.map(ab => ({
+  ability: ab,
+  label: abilityLabels[ab],
+  score: scores[ab],
+  mod: abilityMod(scores[ab]),
+  skills: skills.filter(s => s.ability === ab).map(s => {
+    const isProficient = profSet.has(s.name.toLowerCase());
+    const hasExpertise = expSet.has(s.name.toLowerCase());
+    const total = calcSkillMod(scores[s.ability], profBonus, isProficient, hasExpertise);
+    return { ...s, isProficient, hasExpertise, total };
+  }),
+}));
+
+// Passive Perception
+const perceptionSkill = skills.find(s => s.slug === 'perception')!;
+const perceptionProf = profSet.has('perception');
+const perceptionExp = expSet.has('perception');
+const passivePerception = calcPassiveScore(wis, profBonus, perceptionProf, perceptionExp);
+
+// Passive Investigation
+const investigationProf = profSet.has('investigation');
+const investigationExp = expSet.has('investigation');
+const passiveInvestigation = calcPassiveScore(int, profBonus, investigationProf, investigationExp);
+
+// Passive Insight
+const insightProf = profSet.has('insight');
+const insightExp = expSet.has('insight');
+const passiveInsight = calcPassiveScore(wis, profBonus, insightProf, insightExp);
+
+// Saving throws
+const saveRows = savingThrows.map(st => {
+  const isProficient = saveProfSet.has(st.ability);
+  const base = abilityMod(scores[st.ability]);
+  const total = isProficient ? base + profBonus : base;
+  return { ...st, isProficient, total };
+});
+---
+
+<div class="skills-panel" id="skillsPanel">
+  <div class="skills-header">
+    <div class="skills-title">
+      <span class="skills-icon">🎯</span>
+      <span>Skills & Saves</span>
+    </div>
+    <button class="skills-toggle-btn" id="skillsToggleBtn" title="Expand/Collapse">▼</button>
+  </div>
+
+  <div class="skills-body" id="skillsBody">
+    <!-- Passive Scores -->
+    <div class="passive-row">
+      <div class="passive-item">
+        <span class="passive-label">Passive Perception</span>
+        <span class="passive-value">{passivePerception}</span>
+      </div>
+      <div class="passive-item">
+        <span class="passive-label">Passive Investigation</span>
+        <span class="passive-value">{passiveInvestigation}</span>
+      </div>
+      <div class="passive-item">
+        <span class="passive-label">Passive Insight</span>
+        <span class="passive-value">{passiveInsight}</span>
+      </div>
+    </div>
+
+    <!-- Saving Throws -->
+    <div class="section-label">Saving Throws</div>
+    <div class="saves-row">
+      {saveRows.map(st => (
+        <div class={`save-block ${st.isProficient ? 'proficient' : ''}`}>
+          <span class="save-prof-dot">{st.isProficient ? '●' : '○'}</span>
+          <span class="save-mod">{modString(st.total)}</span>
+          <span class="save-name">{st.name.slice(0, 3).toUpperCase()}</span>
+        </div>
+      ))}
+    </div>
+
+    <!-- Skills by Ability -->
+    {groupedSkills.map(group => (
+      group.skills.length > 0 && (
+        <div class="skill-group">
+          <div class="skill-group-header">
+            <span class="skill-group-label">{group.label}</span>
+            <span class="skill-group-mod">{modString(group.mod)}</span>
+          </div>
+          {group.skills.map(skill => (
+            <a href={`${baseUrl}/skills/${skill.slug}`} class="skill-row" title={`${skill.name} — click for details`}>
+              <span class="skill-prof-indicator">
+                {skill.hasExpertise ? '◆' : skill.isProficient ? '●' : '○'}
+              </span>
+              <span class="skill-name">{skill.name}</span>
+              <span class={`skill-mod ${skill.total >= 0 ? 'positive' : 'negative'}`}>
+                {modString(skill.total)}
+              </span>
+            </a>
+          ))}
+        </div>
+      )
+    ))}
+
+    <!-- Legend -->
+    <div class="skills-legend">
+      <span>○ Not Proficient</span>
+      <span>● Proficient (+{profBonus})</span>
+      <span>◆ Expertise (+{profBonus * 2})</span>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Toggle collapse
+  const toggleBtn = document.getElementById('skillsToggleBtn');
+  const body = document.getElementById('skillsBody');
+  if (toggleBtn && body) {
+    toggleBtn.addEventListener('click', () => {
+      body.classList.toggle('collapsed');
+      toggleBtn.textContent = body.classList.contains('collapsed') ? '▶' : '▼';
+    });
+  }
+</script>
+
+<style>
+.skills-panel {
+  margin: 1.25rem 0;
+  background: rgba(139,105,20,0.06);
+  border: 1px solid rgba(139,105,20,0.2);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.skills-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1.25rem;
+  cursor: pointer;
+}
+.skills-title {
+  font-size: 0.85rem;
+  font-weight: bold;
+  color: var(--text-gold);
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.skills-icon { font-size: 1rem; }
+.skills-toggle-btn {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 0.7rem;
+  cursor: pointer;
+  padding: 0.2rem 0.4rem;
+  transition: color 0.2s;
+}
+.skills-toggle-btn:hover { color: var(--text-gold); }
+
+.skills-body {
+  padding: 0 1.25rem 1rem;
+  transition: all 0.3s ease;
+}
+.skills-body.collapsed {
+  display: none;
+}
+
+/* Passive scores */
+.passive-row {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+.passive-item {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.35rem 0.7rem;
+  background: rgba(139,105,20,0.1);
+  border: 1px solid rgba(139,105,20,0.25);
+  border-radius: 5px;
+  flex: 1;
+  min-width: 160px;
+}
+.passive-label {
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+}
+.passive-value {
+  font-size: 1rem;
+  font-weight: bold;
+  color: var(--text-gold-bright);
+  margin-left: auto;
+}
+
+/* Section labels */
+.section-label {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+  margin-bottom: 0.4rem;
+  padding-bottom: 0.2rem;
+  border-bottom: 1px solid rgba(139,105,20,0.15);
+}
+
+/* Saving throws row */
+.saves-row {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+.save-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0.35rem 0.6rem;
+  background: rgba(100,100,100,0.08);
+  border: 1px solid rgba(100,100,100,0.15);
+  border-radius: 6px;
+  min-width: 50px;
+  flex: 1;
+}
+.save-block.proficient {
+  background: rgba(139,105,20,0.1);
+  border-color: rgba(139,105,20,0.3);
+}
+.save-prof-dot {
+  font-size: 0.6rem;
+  color: var(--text-gold);
+  line-height: 1;
+}
+.save-mod {
+  font-size: 1rem;
+  font-weight: bold;
+  color: var(--text-parchment);
+  line-height: 1.2;
+}
+.save-name {
+  font-size: 0.55rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+}
+
+/* Skill groups */
+.skill-group {
+  margin-bottom: 0.6rem;
+}
+.skill-group-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.3rem 0;
+  margin-top: 0.4rem;
+  border-bottom: 1px solid rgba(139,105,20,0.15);
+}
+.skill-group-label {
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-gold);
+  font-weight: bold;
+}
+.skill-group-mod {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+/* Skill rows */
+.skill-row {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.3rem 0.4rem;
+  text-decoration: none;
+  border-radius: 4px;
+  transition: background 0.15s;
+}
+.skill-row:hover {
+  background: rgba(139,105,20,0.1);
+}
+.skill-prof-indicator {
+  font-size: 0.65rem;
+  color: var(--text-gold);
+  width: 14px;
+  text-align: center;
+  flex-shrink: 0;
+}
+.skill-name {
+  font-size: 0.82rem;
+  color: var(--text-parchment);
+  flex: 1;
+}
+.skill-mod {
+  font-size: 0.85rem;
+  font-weight: bold;
+  min-width: 28px;
+  text-align: right;
+}
+.skill-mod.positive { color: var(--text-gold-bright); }
+.skill-mod.negative { color: #e88; }
+
+/* Legend */
+.skills-legend {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-top: 0.75rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid rgba(100,100,100,0.15);
+  font-size: 0.65rem;
+  color: var(--text-dim);
+}
+
+@media (max-width: 640px) {
+  .skills-panel { margin: 0.75rem 0; }
+  .skills-body { padding: 0 0.75rem 0.75rem; }
+  .passive-row { flex-direction: column; }
+  .passive-item { min-width: auto; }
+  .saves-row { gap: 0.25rem; }
+  .save-block { min-width: 44px; padding: 0.25rem 0.4rem; }
+}
+</style>

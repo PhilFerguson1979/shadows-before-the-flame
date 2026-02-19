@@ -11,6 +11,12 @@ speed: 30
 profBonus: 2
 status: "active"
 xp: 0
+skillProficiencies:
+  - "Arcana"
+  - "Insight"
+savingThrowProficiencies:
+  - "con"
+  - "cha"
 portrait: "/portraits/dorthol-silifrey.svg"
 str: 10
 dex: 14

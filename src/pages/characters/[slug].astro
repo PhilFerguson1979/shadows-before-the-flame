@@ -5,6 +5,7 @@ import CurrencyDisplay from '../../components/CurrencyDisplay.astro';
 import LevelUpTracker from '../../components/LevelUpTracker.astro';
 import SpellManager from '../../components/SpellManager.astro';
 import XPTracker from '../../components/XPTracker.astro';
+import SkillsPanel from '../../components/SkillsPanel.astro';
 import { getCollection } from 'astro:content';
 
 export async function getStaticPaths() {
@@ -109,6 +110,25 @@ function modStr(score) {
       currentLevel={char.data.level ?? 1}
       baseUrl={base}
     />
+
+    <!-- Skills & Saves -->
+    {char.data.str !== undefined && (
+      <SkillsPanel
+        characterName={char.data.name}
+        characterSlug={char.slug}
+        profBonus={char.data.profBonus ?? 2}
+        str={char.data.str ?? 10}
+        dex={char.data.dex ?? 10}
+        con={char.data.con ?? 10}
+        int={char.data.int ?? 10}
+        wis={char.data.wis ?? 10}
+        cha={char.data.cha ?? 10}
+        skillProficiencies={char.data.skillProficiencies}
+        skillExpertise={char.data.skillExpertise}
+        savingThrowProficiencies={char.data.savingThrowProficiencies}
+        baseUrl={base}
+      />
+    )}
 
     <!-- Currency -->
     {char.data.currency && <CurrencyDisplay currency={char.data.currency} />}

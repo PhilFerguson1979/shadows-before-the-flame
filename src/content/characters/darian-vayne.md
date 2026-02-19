@@ -12,6 +12,17 @@ speed: 30
 profBonus: 2
 status: "active"
 xp: 0
+skillProficiencies:
+  - "Stealth"
+  - "Sleight of Hand"
+  - "Acrobatics"
+  - "Perception"
+skillExpertise:
+  - "Stealth"
+  - "Sleight of Hand"
+savingThrowProficiencies:
+  - "dex"
+  - "int"
 portrait: "/portraits/darian-vayne.svg"
 str: 13
 dex: 19

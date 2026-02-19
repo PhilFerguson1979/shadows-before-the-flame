@@ -11,6 +11,12 @@ speed: 30
 profBonus: 2
 status: "active"
 xp: 0
+skillProficiencies:
+  - "Acrobatics"
+  - "Insight"
+savingThrowProficiencies:
+  - "str"
+  - "dex"
 portrait: "/portraits/shoto-todoroki.svg"
 str: 12
 dex: 19

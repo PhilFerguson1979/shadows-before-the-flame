@@ -1,0 +1,299 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { skills, abilityLabels, abilityMod, modString, calcSkillMod } from '../../data/skills';
+import { getCollection } from 'astro:content';
+
+export function getStaticPaths() {
+  return skills.map(skill => ({
+    params: { slug: skill.slug },
+    props: { skill },
+  }));
+}
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const { skill } = Astro.props;
+
+// Find party members proficient or expert in this skill
+const characters = await getCollection('characters');
+
+type AbilityKey = 'str' | 'dex' | 'con' | 'int' | 'wis' | 'cha';
+
+const partySkillData = characters
+  .filter(c => c.data.str !== undefined) // only chars with ability scores
+  .map(c => {
+    const scores: Record<AbilityKey, number> = {
+      str: c.data.str ?? 10,
+      dex: c.data.dex ?? 10,
+      con: c.data.con ?? 10,
+      int: c.data.int ?? 10,
+      wis: c.data.wis ?? 10,
+      cha: c.data.cha ?? 10,
+    };
+    const profBonus = c.data.profBonus ?? 2;
+    const isProficient = c.data.skillProficiencies?.some(
+      sp => sp.toLowerCase() === skill.name.toLowerCase()
+    ) ?? false;
+    const hasExpertise = c.data.skillExpertise?.some(
+      se => se.toLowerCase() === skill.name.toLowerCase()
+    ) ?? false;
+    const total = calcSkillMod(scores[skill.ability], profBonus, isProficient, hasExpertise);
+
+    return {
+      name: c.data.name,
+      slug: c.slug,
+      portrait: c.data.portrait,
+      class: c.data.class,
+      level: c.data.level,
+      isProficient,
+      hasExpertise,
+      total,
+      abilityScore: scores[skill.ability],
+    };
+  })
+  .sort((a, b) => b.total - a.total); // Sort best to worst
+---
+
+<BaseLayout title={skill.name}>
+  <div class="page-container">
+    <div class="back-link"><a href={`${base}/skills`}>← Skills Reference</a></div>
+
+    <div class="skill-detail-header">
+      <h1>{skill.name}</h1>
+      <div class="skill-subtitle">
+        {abilityLabels[skill.ability]} Skill
+      </div>
+      <div class="skill-ability-badge">
+        {skill.ability.toUpperCase()}
+      </div>
+    </div>
+
+    <div class="skill-description">
+      <h2>Description</h2>
+      <p>{skill.description}</p>
+    </div>
+
+    <div class="skill-examples">
+      <h2>Example Checks</h2>
+      <ul>
+        {skill.examples.map(example => (
+          <li>{example}</li>
+        ))}
+      </ul>
+    </div>
+
+    <!-- Common DCs reference -->
+    <div class="dc-reference">
+      <h2>Difficulty Classes</h2>
+      <div class="dc-grid">
+        <div class="dc-item"><span class="dc-value">5</span><span class="dc-label">Very Easy</span></div>
+        <div class="dc-item"><span class="dc-value">10</span><span class="dc-label">Easy</span></div>
+        <div class="dc-item"><span class="dc-value">15</span><span class="dc-label">Medium</span></div>
+        <div class="dc-item dc-hard"><span class="dc-value">20</span><span class="dc-label">Hard</span></div>
+        <div class="dc-item dc-vhard"><span class="dc-value">25</span><span class="dc-label">Very Hard</span></div>
+        <div class="dc-item dc-impossible"><span class="dc-value">30</span><span class="dc-label">Nearly Impossible</span></div>
+      </div>
+    </div>
+
+    <!-- Party Members -->
+    {partySkillData.length > 0 && (
+      <div class="party-section">
+        <h2>Party Modifiers</h2>
+        <div class="party-list">
+          {partySkillData.map(c => (
+            <a href={`${base}/characters/${c.slug}`} class="party-member-link">
+              {c.portrait && (
+                <img src={`${base}${c.portrait}`} alt={c.name} class="party-portrait" />
+              )}
+              <div class="party-info">
+                <span class="party-name">{c.name}</span>
+                <span class="party-class">{c.class} · Level {c.level}</span>
+              </div>
+              <div class="party-skill-info">
+                <span class="party-prof-badge">
+                  {c.hasExpertise ? '◆ Expert' : c.isProficient ? '● Prof' : '○'}
+                </span>
+                <span class={`party-mod ${c.total >= 0 ? 'positive' : 'negative'}`}>
+                  {modString(c.total)}
+                </span>
+              </div>
+            </a>
+          ))}
+        </div>
+      </div>
+    )}
+  </div>
+</BaseLayout>
+
+<style>
+.back-link { margin-bottom: 1.5rem; }
+.back-link a { color: var(--text-muted); font-size: 0.85rem; }
+.back-link a:hover { color: var(--text-gold); }
+
+.skill-detail-header {
+  margin-bottom: 2rem;
+  position: relative;
+}
+.skill-detail-header h1 {
+  margin-bottom: 0.3rem;
+  color: var(--text-gold-bright);
+}
+.skill-subtitle {
+  font-size: 0.95rem;
+  color: var(--text-muted);
+  font-style: italic;
+}
+.skill-ability-badge {
+  position: absolute;
+  top: 0;
+  right: 0;
+  font-size: 0.78rem;
+  font-weight: bold;
+  color: var(--text-gold-bright);
+  background: rgba(139,105,20,0.2);
+  border: 1px solid rgba(139,105,20,0.4);
+  padding: 0.3rem 0.7rem;
+  border-radius: 5px;
+  letter-spacing: 0.08em;
+}
+
+.skill-description { margin-bottom: 2rem; }
+.skill-description h2,
+.skill-examples h2,
+.dc-reference h2,
+.party-section h2 {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.3rem;
+  border-bottom: 1px solid rgba(139,105,20,0.3);
+}
+.skill-description p {
+  font-size: 0.92rem;
+  line-height: 1.7;
+  color: var(--text-parchment);
+}
+
+.skill-examples { margin-bottom: 2rem; }
+.skill-examples ul {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+.skill-examples li {
+  font-size: 0.85rem;
+  color: var(--text-parchment);
+  padding: 0.4rem 0.75rem;
+  background: rgba(139,105,20,0.06);
+  border-left: 3px solid rgba(139,105,20,0.3);
+  border-radius: 0 4px 4px 0;
+}
+
+/* DC Reference */
+.dc-reference { margin-bottom: 2rem; }
+.dc-grid {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+.dc-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0.5rem 0.8rem;
+  background: rgba(139,105,20,0.06);
+  border: 1px solid rgba(139,105,20,0.15);
+  border-radius: 6px;
+  min-width: 80px;
+  flex: 1;
+}
+.dc-value {
+  font-size: 1.3rem;
+  font-weight: bold;
+  color: var(--text-parchment);
+  line-height: 1;
+}
+.dc-label {
+  font-size: 0.62rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  margin-top: 0.2rem;
+}
+.dc-hard { border-color: rgba(200,150,20,0.3); }
+.dc-hard .dc-value { color: var(--text-gold); }
+.dc-vhard { border-color: rgba(200,100,20,0.3); }
+.dc-vhard .dc-value { color: #e8a040; }
+.dc-impossible { border-color: rgba(200,50,50,0.3); }
+.dc-impossible .dc-value { color: #e88; }
+
+/* Party section */
+.party-section { margin-bottom: 2rem; }
+.party-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.party-member-link {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.6rem 0.8rem;
+  background: rgba(139,105,20,0.06);
+  border: 1px solid rgba(139,105,20,0.2);
+  border-radius: 6px;
+  text-decoration: none;
+  transition: all 0.15s ease;
+}
+.party-member-link:hover {
+  background: rgba(139,105,20,0.12);
+  border-color: rgba(139,105,20,0.4);
+  transform: translateX(4px);
+}
+.party-portrait {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 2px solid rgba(139,105,20,0.4);
+  object-fit: cover;
+}
+.party-info {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+.party-name {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--text-parchment);
+}
+.party-class {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+.party-skill-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.15rem;
+}
+.party-prof-badge {
+  font-size: 0.62rem;
+  color: var(--text-gold);
+}
+.party-mod {
+  font-size: 1.1rem;
+  font-weight: bold;
+}
+.party-mod.positive { color: var(--text-gold-bright); }
+.party-mod.negative { color: #e88; }
+
+@media (max-width: 640px) {
+  .dc-grid { flex-direction: column; }
+  .dc-item { flex-direction: row; gap: 0.5rem; min-width: auto; }
+  .skill-ability-badge { position: static; margin-top: 0.5rem; display: inline-block; }
+}
+</style>

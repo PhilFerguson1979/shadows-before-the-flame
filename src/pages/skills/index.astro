@@ -1,0 +1,359 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { skills, abilityLabels, abilityMod, modString, type AbilityKey } from '../../data/skills';
+import { getCollection } from 'astro:content';
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+
+// Load party data so we can show who is proficient
+const characters = await getCollection('characters');
+
+// Group skills by ability
+const abilityOrder: AbilityKey[] = ['str', 'dex', 'int', 'wis', 'cha'];
+const grouped = abilityOrder.map(ab => ({
+  ability: ab,
+  label: abilityLabels[ab],
+  skills: skills.filter(s => s.ability === ab),
+}));
+
+// Unique abilities for filter
+const allAbilities = [...new Set(skills.map(s => s.ability))];
+---
+
+<BaseLayout title="Skills Reference">
+  <div class="page-container">
+    <h1>Skills Reference</h1>
+    <p class="skill-count">{skills.length} skills from D&D 5e</p>
+
+    <!-- Filter Bar -->
+    <div class="filter-bar">
+      <div class="filter-group">
+        <label for="search-input">Search</label>
+        <input type="text" id="search-input" placeholder="Skill name..." autocomplete="off" />
+      </div>
+      <div class="filter-group">
+        <label for="ability-filter">Ability</label>
+        <select id="ability-filter">
+          <option value="">All Abilities</option>
+          {allAbilities.map(ab => (
+            <option value={ab}>{abilityLabels[ab]}</option>
+          ))}
+        </select>
+      </div>
+      <button id="clear-filters" class="clear-btn">Clear</button>
+    </div>
+
+    <div id="no-results" class="no-results" style="display:none;">
+      No skills match your filters.
+    </div>
+
+    <!-- Skill Sections by Ability -->
+    {grouped.map(group => (
+      <div class="ability-section" data-ability={group.ability}>
+        <button class="ability-header" data-toggle={group.ability}>
+          <span class="ability-label">{group.label}</span>
+          <span class="ability-count">{group.skills.length} skills</span>
+          <span class="toggle-icon">▼</span>
+        </button>
+        <div class="skill-grid" id={`ability-${group.ability}`}>
+          {group.skills.map(skill => {
+            // Find party members proficient in this skill
+            const profMembers = characters.filter(c =>
+              c.data.skillProficiencies?.some(sp => sp.toLowerCase() === skill.name.toLowerCase())
+            );
+            const expMembers = characters.filter(c =>
+              c.data.skillExpertise?.some(se => se.toLowerCase() === skill.name.toLowerCase())
+            );
+
+            return (
+              <a
+                href={`${base}/skills/${skill.slug}`}
+                class="skill-card"
+                data-name={skill.name.toLowerCase()}
+                data-ability={skill.ability}
+              >
+                <div class="skill-card-top">
+                  <span class="skill-name">{skill.name}</span>
+                  <span class="skill-ability-tag">{skill.ability.toUpperCase()}</span>
+                </div>
+                <div class="skill-card-desc">
+                  {skill.description.slice(0, 120)}...
+                </div>
+                {(profMembers.length > 0 || expMembers.length > 0) && (
+                  <div class="skill-card-party">
+                    {profMembers.map(c => (
+                      <span class="party-tag prof" title={`${c.data.name} — Proficient`}>
+                        {c.data.name.split(' ')[0]}
+                      </span>
+                    ))}
+                    {expMembers.map(c => (
+                      <span class="party-tag expert" title={`${c.data.name} — Expertise`}>
+                        {c.data.name.split(' ')[0]} ◆
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </a>
+            );
+          })}
+        </div>
+      </div>
+    ))}
+  </div>
+</BaseLayout>
+
+<script>
+  const searchInput = document.getElementById('search-input') as HTMLInputElement;
+  const abilityFilter = document.getElementById('ability-filter') as HTMLSelectElement;
+  const clearBtn = document.getElementById('clear-filters');
+  const noResults = document.getElementById('no-results');
+
+  // Toggle ability sections
+  document.querySelectorAll('.ability-header').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const ability = (btn as HTMLElement).dataset.toggle;
+      const grid = document.getElementById(`ability-${ability}`);
+      const icon = btn.querySelector('.toggle-icon');
+      if (grid) {
+        grid.classList.toggle('collapsed');
+        if (icon) icon.textContent = grid.classList.contains('collapsed') ? '▶' : '▼';
+      }
+    });
+  });
+
+  function applyFilters() {
+    const search = searchInput.value.toLowerCase().trim();
+    const ability = abilityFilter.value;
+    let totalVisible = 0;
+
+    document.querySelectorAll('.skill-card').forEach(card => {
+      const el = card as HTMLElement;
+      const name = el.dataset.name || '';
+      const cardAbility = el.dataset.ability || '';
+
+      let show = true;
+      if (search && !name.includes(search)) show = false;
+      if (ability && cardAbility !== ability) show = false;
+
+      el.style.display = show ? '' : 'none';
+      if (show) totalVisible++;
+    });
+
+    // Hide empty sections
+    document.querySelectorAll('.ability-section').forEach(section => {
+      const cards = section.querySelectorAll('.skill-card');
+      let sectionVisible = 0;
+      cards.forEach(c => {
+        if ((c as HTMLElement).style.display !== 'none') sectionVisible++;
+      });
+      (section as HTMLElement).style.display = sectionVisible > 0 ? '' : 'none';
+
+      const countEl = section.querySelector('.ability-count');
+      if (countEl) {
+        const total = cards.length;
+        countEl.textContent = sectionVisible === total
+          ? `${total} skills`
+          : `${sectionVisible} / ${total} skills`;
+      }
+    });
+
+    if (noResults) {
+      noResults.style.display = totalVisible === 0 ? '' : 'none';
+    }
+  }
+
+  searchInput.addEventListener('input', applyFilters);
+  abilityFilter.addEventListener('change', applyFilters);
+  clearBtn?.addEventListener('click', () => {
+    searchInput.value = '';
+    abilityFilter.value = '';
+    applyFilters();
+  });
+</script>
+
+<style>
+h1 { margin-bottom: 0.25rem; }
+.skill-count {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  margin-bottom: 1.5rem;
+}
+
+/* Filter bar */
+.filter-bar {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  margin-bottom: 2rem;
+  padding: 1rem;
+  background: rgba(139,105,20,0.04);
+  border: 1px solid rgba(139,105,20,0.15);
+  border-radius: 8px;
+}
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+.filter-group label {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+}
+.filter-group input[type="text"],
+.filter-group select {
+  padding: 0.4rem 0.6rem;
+  font-size: 0.82rem;
+  background: rgba(0,0,0,0.3);
+  border: 1px solid rgba(139,105,20,0.3);
+  border-radius: 4px;
+  color: var(--text-parchment);
+  min-width: 140px;
+}
+.filter-group input[type="text"]:focus,
+.filter-group select:focus {
+  outline: none;
+  border-color: var(--text-gold);
+}
+.clear-btn {
+  padding: 0.4rem 0.8rem;
+  font-size: 0.78rem;
+  background: rgba(139,105,20,0.15);
+  border: 1px solid rgba(139,105,20,0.3);
+  border-radius: 4px;
+  color: var(--text-gold);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.clear-btn:hover { background: rgba(139,105,20,0.25); }
+
+.no-results {
+  text-align: center;
+  padding: 3rem;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+/* Ability sections */
+.ability-section { margin-bottom: 1.5rem; }
+.ability-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 0.6rem 0.8rem;
+  background: rgba(139,105,20,0.08);
+  border: 1px solid rgba(139,105,20,0.2);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  color: inherit;
+  font-family: inherit;
+  text-align: left;
+}
+.ability-header:hover { background: rgba(139,105,20,0.14); }
+.ability-label {
+  font-size: 0.88rem;
+  font-weight: bold;
+  color: var(--text-gold);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.ability-count {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+.toggle-icon {
+  margin-left: auto;
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  transition: transform 0.2s ease;
+}
+
+/* Skill grid */
+.skill-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 0.5rem;
+  padding: 0.75rem 0;
+  transition: all 0.2s ease;
+}
+.skill-grid.collapsed { display: none; }
+
+/* Skill cards */
+.skill-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  padding: 0.6rem 0.85rem;
+  background: rgba(139,105,20,0.04);
+  border: 1px solid rgba(139,105,20,0.12);
+  border-radius: 5px;
+  text-decoration: none;
+  transition: all 0.15s ease;
+}
+.skill-card:hover {
+  background: rgba(139,105,20,0.1);
+  border-color: rgba(139,105,20,0.3);
+  transform: translateY(-1px);
+}
+.skill-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+.skill-name {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--text-parchment);
+}
+.skill-ability-tag {
+  font-size: 0.6rem;
+  color: var(--text-gold);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0.1rem 0.35rem;
+  background: rgba(139,105,20,0.15);
+  border: 1px solid rgba(139,105,20,0.25);
+  border-radius: 3px;
+  font-weight: bold;
+  white-space: nowrap;
+}
+.skill-card-desc {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+.skill-card-party {
+  display: flex;
+  gap: 0.3rem;
+  flex-wrap: wrap;
+  margin-top: 0.15rem;
+}
+.party-tag {
+  font-size: 0.6rem;
+  padding: 0.08rem 0.35rem;
+  border-radius: 3px;
+  font-weight: bold;
+}
+.party-tag.prof {
+  background: rgba(39,174,96,0.15);
+  color: #6ec97a;
+  border: 1px solid rgba(39,174,96,0.3);
+}
+.party-tag.expert {
+  background: rgba(218,165,32,0.15);
+  color: var(--text-gold-bright);
+  border: 1px solid rgba(218,165,32,0.3);
+}
+
+@media (max-width: 640px) {
+  .filter-bar { flex-direction: column; align-items: stretch; }
+  .filter-group input[type="text"],
+  .filter-group select { min-width: auto; width: 100%; }
+  .skill-grid { grid-template-columns: 1fr; }
+}
+</style>
