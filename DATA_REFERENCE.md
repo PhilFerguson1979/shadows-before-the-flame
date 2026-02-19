@@ -2,7 +2,7 @@
 
 > **Purpose:** Single-file reference for all D&D 5e SRD rules, mechanics, spells, monsters, items, and campaign data.
 > **Source:** D&D 5e Systems Reference Document 5.1 (Open Gaming License) + campaign-specific content.
-> **Last Updated:** 2026-02-18
+> **Last Updated:** 2026-02-19
 
 ---
 
@@ -2285,121 +2285,611 @@ Traits, Actions, Reactions, Legendary Actions
 
 ## Dragonlance / Krynn Lore
 
-### The World of Krynn
-- **Setting:** High fantasy world with a strong focus on the conflict between Good and Evil, embodied in the gods and the Dragonarmies
-- **Continent:** Ansalon is the primary landmass
-- **Calendar:** Uses the system of "After Cataclysm" (AC) dating
-- **The Cataclysm:** A fiery mountain fell from the sky, destroying the great city of Istar and reshaping continents. The gods withdrew from the world for ~350 years afterward.
+### The World of Krynn — Overview
+- **Setting:** High fantasy world centered on the eternal conflict between Good, Evil, and the Balance, embodied in the gods and their mortal champions
+- **Continent:** Ansalon is the primary landmass; Taladas lies far to the northeast; other continents exist but are largely unexplored
+- **Calendar:** Two dating systems — PC (Pre-Cataclysm, counting backward from year 0) and AC (After Cataclysm, counting forward). The Cataclysm (year 0) is the dividing event
+- **The Cataclysm:** The Kingpriest of Istar demanded godhood; the gods cast a fiery mountain from the sky, destroying Istar and reshaping continents. The gods withdrew from the world for ~350 years
+- **Key Theme:** The world runs in cycles — ages of light and darkness, with mortal free will as the driving force of history
+- **The Balance:** Krynn's fundamental cosmic law — Good, Evil, and Neutrality must remain in equilibrium. The gods of Neutrality enforce this
 
-### Key Locations
+### Complete Timeline of Krynn (River of Time)
+
+*Sources: Tales of the Lance (AD&D 2e), Dragonlance Campaign Setting (3.5e), Shadow of the Dragon Queen (5e)*
+
+**AGE OF STARBIRTH (Age of Gods) — Before Time**
+| Event | Description |
+|-------|-------------|
+| The High God Awakens | From Chaos, the High God drew plans for creation in a book called the Tobril |
+| Gods Are Called | Paladine (light) and Takhisis (darkness) answer the call — the King and Queen of creation |
+| Gilean Summoned | The High God draws forth Gilean from time itself, giving him the Tobril — Gilean becomes the god of knowledge |
+| Reorx Forges the World | Reorx hammers Chaos into form; sparks from his hammer become the stars; he shapes Krynn itself |
+| Companion Gods Arrive | Majere, Chislev, Sirrion, Mishakal, and others are summoned to help |
+| Dragons Created | Paladine and Takhisis guide Reorx to create five dragon rulers from base metals. Takhisis corrupts them — they become the chromatic (evil) dragons |
+| Good Dragons Created | Paladine mourns; Reorx forges five monument-statues from precious metals; Paladine breathes life into them — metallic (good) dragons born |
+| All-Dragons War | Gods and dragons war over Takhisis's treachery. Devastation threatens to unmake the world. Gods withdraw to their separate domains |
+| New Gods Born | In the peace, gods pair and produce children: Kiri-Jolith and Habbakuk (from Paladine/Mishakal), Zeboim (from Takhisis/Sargonnas), Branchala, Zivilyn, Shinare |
+| Stars Live | The gods discover the stars are living spirits (scattered from Reorx's hammer). They covet these spirits |
+| All-Saints War | Gods war over the star spirits. The High God returns in wrath and decrees the Balance |
+| Three Gifts | Good gives physical bodies; Evil gives mortality and suffering; Neutrality gives free will |
+| Three Races Born | Elves from wood (graceful, long-lived), Ogres from stone (strong, cold, beautiful), Humans from clay (short-lived, adaptable) |
+| Gods of Magic Born | Solinari (Good), Lunitari (Neutral), Nuitari (Evil) — created as blood-brothers to seal the peace |
+
+**AGE OF DREAMS: 9000–5000 PC (Foundation Age)**
+| Date (PC) | Event |
+|-----------|-------|
+| ~9000 | Peoples choose homes — Ogres claim mountains, Elves withdraw to forests, Humans get the exposed plains |
+| 8700 | Reorx gathers human worshippers as the "Smith folk" (forerunners of dwarves/gnomes/kender) |
+| 8500–5000 | Ogres build civilization using enslaved humans |
+| 6320–5980 | Heresy of Igraine — Ogre governor spares slave Eadamm who rescued his daughter; sparks human rebellion |
+| 6000–5000 | Decline of Ogres — Humans overthrow ogre masters; civilization collapses into barbarism |
+| 5000–3000 | Elves ascend as dominant civilization in the southern enchanted forests |
+
+**AGE OF LIGHT: 4000–2000 PC (Age of Elves)**
+| Date (PC) | Event |
+|-----------|-------|
+| 4000 | Rise of House Silvanos — First Sinthal-Elish (elven council); elves unify under Silvanos with Balif as lieutenant |
+| 3500–3350 | **First Dragon War** — Elves fight to drive dragons from their lands. Three gods of magic gift elves with five dragon-trapping stones. Dragons imprisoned. Gods of magic banished from Krynn |
+| ~3350 | Graystone Forged — Banished gods of magic trick Reorx into creating the Graystone; it is placed on moon Lunitari |
+| 3350 | Second Sinthal-Elish; Kingdom of Silvanesti decreed; city of Silvanost built |
+| ~3100 | Graystone Released — A Smith steals the Graystone from Lunitari; it escapes, releasing wild magic across Krynn. Smiths touched by the stone become dwarves, gnomes, kender, goblins, and minotaurs |
+| 3051 | Lord Gargath captures Graystone briefly; those present are transformed into new races based on their natures |
+| 2800 | Thoradin Delved — Dwarves establish their first great kingdom in the Khalkist Mountains |
+| 2750 | Balif (kender hero, friend of Silvanos) dies; founds first kender kingdom in Balifor |
+| 2710 | Dwarves discover the five dragon stones buried in mountains |
+| 2692–2645 | **Second Dragon War** — Awakened dragons attack Silvanesti with lizard-folk armies. Three wild mages command the earth to swallow the dragons. Thousands die. Mages create the laws of magic |
+| 2645–2550 | Towers of High Sorcery built — Five bastions of magic in remote regions |
+| 2600 | Rise of Ergoth — Ackal Ergot unites Khalkist barbarians, founds the nation of Ergoth |
+| 2500–2200 | Ergoth becomes dominant nation; expands to borders of Silvanesti; trade begins with elves; some intermarriage produces half-elves |
+| 2515 | Death of Silvanos — Buried in crystal tomb; son Sithel assumes command |
+| 2308 | Twin sons Sithas and Kith-Kanan born to Sithel |
+| 2192 | Sithel slain by human hunters on western border — Kinslayer War begins |
+| 2192–2140 | **Kinslayer War** — Elves vs. humans; half-elves forced to choose sides; Kith-Kanan negotiates truce |
+| 2140–2100 | Sundering of Silvanesti — Western elves declare independence, become the Qualinesti |
+| 2073 | **Swordsheath Scroll** — Peace treaty between elves, dwarves, and Ergoth; land granted for Qualinesti homeland |
+| 2072 | **Hammer of Kharas forged** — Greatest dwarven artifact, presented to Ergoth as peace offering |
+| 2050–2030 | The Great March — Western elves migrate to Qualinesti |
+
+**AGE OF MIGHT: 2000–0 PC (Age of Istar / Age of the False God)**
+| Date (PC) | Event |
+|-----------|-------|
+| 2000–1900 | Peace and prosperity; Pax Tharkas built as monument to cooperation between races |
+| 1900–1750 | Rebellions in eastern Ergoth as brutal kings exploit the kingdom |
+| 1812 | Vinas Solamnus commands the Imperial Guard of Ergoth |
+| 1800 | Solamnus discovers Ergoth's corruption and joins the rebel forces |
+| 1799–1791 | **Rose Rebellion** — Solamnus marches on Daltigoth; Ergoth falls |
+| 1775 | **Knights of Solamnia founded** — Inspired by Paladine, Kiri-Jolith, and Habbakuk; Crown, Sword, and Rose orders |
+| 1750–1300 | Birth of nations — Sancrist, Solamnia, and Istar arise from city-states |
+| 1480 | Istar grows as trade center; Solamnia becomes major military power |
+| 1399–1010 | Takhisis seeds dragon eggs disguised as gems across Krynn; hundreds of mature dragons return |
+| 1060–1018 | **Third Dragon War** — Dragonarmies unleash fury on Ansalon |
+| 1020–1018 | **Huma Dragonbane** — Young Solamnic knight falls in love with silver dragon Heart (as elf "Gwynneth"). Together they forge the first dragonlance. Takhisis defeated and agrees to withdraw, taking all dragons. Huma and Heart die |
+| 1000 | Thorbardin reopens Thoradin; Istar trade standards spread worldwide |
+| 980 | Solamnia grants dwarves mining rights in Garnet Mountains — Kingdom of Kayolin founded |
+| 850–727 | Istar's trade wars with kender end in humiliating "Kender Tax" exemption |
+| 673–630 | Istar and Silvanesti clash at sea; Elfmeld peace treaty signed |
+| 460 | Peace in the land — Istar reigns as center of commerce and culture |
+| 280 | Istar declares itself moral center of the world; first Kingpriest installed |
+| 260–212 | Temple of the Kingpriest built — finest artisans in Krynn |
+| 250–100 | Corruption of Istar — Repression of independence; elves withdraw in disgust |
+| 118 | Proclamation of Manifest Virtue — Evil acts listed and punished by execution or gladiatorial combat |
+| 80–20 | Istar clergy dominate all life; wizards hunted as ungodly; priesthood loses miraculous abilities |
+| 19 | **Siege on Sorcery / Lost Battles** — Mobs attack Towers of High Sorcery. Two towers destroyed by mages rather than let them fall into untrained hands. Kingpriest takes Tower of Istar |
+| 6 | Edict of Thought Control — ESP cast randomly on citizens; reign of terror |
+| 0 | **THE CATACLYSM** — Kingpriest demands godhood. Gods send 13 warning signs. Lord Soth refuses chance to prevent disaster. A fiery mountain strikes Istar, dragging it to the ocean depths. World reshaped. Gods withdraw |
+
+**AGE OF DARKNESS: 1–??? AC (Age of Dragons / Current Era)**
+| Date (AC) | Event |
+|-----------|-------|
+| 1–300 | **Shadow Years** — World reshaped; famine and plague; distrust and hatred. Good priests, knights, and mages go into hiding |
+| 3–140 | Takhisis finds the sunken Temple of Istar in the Infernal Realms; sends agents to gauge Krynn |
+| 39 | **Dwarfgate Wars** — Hill dwarves and men of Xak Tsaroth seek refuge in Thorbardin; rejected. Evil mage Fistandantilus wages war from fortress Zhaman; destroys it creating Skullcap |
+| 141 | Takhisis plants the Foundation Stone from the Temple of Istar in the vale of Neraka; it grows into a dark temple |
+| 142–152 | Dragons Awakened — Takhisis wanders Krynn awakening Evil dragons |
+| 157 | **Berem finds the Foundation Stone** — Pries loose a gem; his sister Jasla dies; gem bonds to Berem's chest; Jasla's spirit enters the stone. Berem becomes the "Everman," essentially immortal |
+| 210 | Takhisis discovers the gate is barred because the Foundation Stone is incomplete |
+| 287 | Evil dragons raid Good dragon nests and steal eggs; hide them beneath the Lords of Doom volcanoes |
+| 296 | **The Oath** — Good dragons forced to swear non-involvement in coming war or have their eggs destroyed |
+| 300–320 | Takhisis's agents search for Berem; he flees and is eventually imprisoned in Thorbardin for ~50 years |
+| 332–340 | **Dragonarmies formed** — Evil dragons ally with wicked men and ogres. Highlords appointed |
+| 337 | Sanction and Estwilde corrupted; Takhisis establishes Sanction as her port city |
+| 341 | Dragonarmies force alliance from Kern, Khur, Blode, and the Pirate Isles |
+| 342 | **Draconians created** — Dark mage and evil priest corrupt stolen Good dragon eggs to create dragonmen (Baaz, Kapak first; then Bozak, Sivak, Aurak) |
+| 343–347 | Evil marshals its forces; internal violence weeds out the weak |
+| 348 | **War of the Lance begins** — Dragonarmies pour east from the Khalkists, overrun Nordmaar and Balifor |
+| 349 | Silvanesti betrayed — Dragonarmies attack; King Lorac uses Dragon Orb but it seizes his mind; his nightmares corrupt the entire forest |
+| 350 | Dragonarmies rebuild; Takhisis controls all eastern Ansalon |
+| 351 | Evil turns west — Blue Army takes Kalaman, Hinterlund, Nightlund. Lemish betrays humanity. Red Army assaults Plains of Abanasinia. Qualinesti elves flee. Thorbardin besieged. Much of Ansalon falls |
+| 352 | **Whitestone Council** — Surviving nations forge alliance on Sancrist. Dragonlances rediscovered and forged anew. Good dragon eggs rescued. Good dragons enter the war. Armies of Whitestone strike back. Berem sighted again |
+| 352 | **Battle of Neraka** — Heroes of the Lance reach Neraka with Berem. He reunites the gem with the Foundation Stone. Jasla's spirit flees; Temple crumbles. Takhisis's gateway destroyed. Evil turns on itself |
+| 353 | War of the Lance officially ends; dragonarmies fragment and flee |
+| 353–357 | Whitestone forces scour the land, driving out remaining pockets of darkness |
+| 356 | **Raistlin's Gambit** — Raistlin Majere and Caramon use time-travel to reach pre-Cataclysm Istar. Raistlin merges with Fistandantilus and enters the Abyss to challenge Takhisis |
+| 357 | Blue Lady's War — Kitiara and Lord Soth lead dragonarmy from Neraka; attack northern Solamnia with flying citadel; defeated |
+| 358 | **Raistlin seals the Abyss** — Sacrifices his life to bar Takhisis's return. Heroes of the Lance grieve |
+| 358–369 | New generation of Knights rebuilds; youthful heroes replace the old guard |
+
+### Detailed Geography of Ansalon
+
+#### Abanasinia and the Seeker Lands (Campaign Primary Setting)
+
+**Overview:** Abanasinia occupies the northwest shores of New Sea. It is a collection of independent communities connected by trade roads through forests and plains. After the Cataclysm, the people lost faith in the old gods and turned to the Seeker religion — a false faith that provides no true divine magic.
 
 **Solace (Campaign Home Base):**
-- Tree-top community built among massive vallenwood trees
-- Bridges and walkways connect tree-houses high above the ground
-- Famous landmark: **Inn of the Last Home** — the most famous inn on Krynn, built in a vallenwood tree
-- Located in the region of Abanasinia, near Crystalmir Lake
-- Population: ~500-800 (primarily human)
+- Tree-top community built among massive vallenwood trees 30–40 feet above ground
+- Bridges, walkways, and rope ladders connect tree-houses high above the forest floor
+- Famous landmark: **Inn of the Last Home** — the most famous inn on Krynn, built in a vallenwood tree, known for Otik Sandath's spiced potatoes
+- Located on the eastern edge of Abanasinia, near Crystalmir Lake
+- Population: ~500–800 (primarily human, some half-elves)
+- Government: Town council under Seeker authority (pre-war); independent afterward
+- The party of heroes who became the Heroes of the Lance all grew up in or near Solace
+- During the War of the Lance, Solace was conquered and partially burned by the Red Dragonarmy under Highlord Verminaard; slave pens built in the town square
 
-**Key Surrounding Areas:**
-- **Crystalmir Lake:** Large lake south of Solace
-- **Haven:** Larger town west of Solace, center of Seeker religion
-- **Gateway:** Settlement northeast on the trade route
-- **Darken Wood:** Enchanted forest to the south, home to undead warriors and centaurs
-- **Pax Tharkas:** Ancient fortress in the Kharolis Mountains, key strategic point
+**Crystalmir Lake:** Large freshwater lake south of Solace. Crystal-clear waters fed by mountain streams. Good fishing; peaceful setting
+
+**Haven:** Larger town west of Solace. Center of the Seeker religion. Theocrat Hederick holds court here. Population ~2,000
+
+**Gateway:** Settlement northeast on the trade route toward Solace. Stop on the main road from Solamnia
+
+**Que-Shu:** Plains barbarian village — home of Goldmoon and Riverwind. Located east of Solace on the Abanasinian plains
+
+**Que-Kiri:** Another Plains barbarian village nearby
+
+**Xak Tsaroth:** Ruined city partially sunken into a swamp east of Que-Shu. Once a grand city of Istar, now haunted. The Disks of Mishakal were hidden here. Black dragon Onyx (Khisanth) laired here during the War of the Lance
+
+**Darken Wood:** Enchanted forest south of Solace, cursed since before the Cataclysm. Home to undead spectral warriors (cursed Solamnic Knights), centaurs, and the Forestmaster (a powerful unicorn). Travelers who enter uninvited are attacked by the undead guardians
+
+**Pax Tharkas:** Massive ancient fortress in the Kharolis Mountains south of Solace. Built as a monument to peace between elves, humans, and dwarves (2000 PC). During the War of the Lance, Verminaard used it as a slave camp and dragon stronghold. Two great mechanisms control the fortress's main gate
+
+**Prayer's Eye Peak:** Mountain near Solace with a path leading to a hidden temple
+
+#### Major Nations of Ansalon
+
+**Solamnia — The Great Northern Nation:**
+- Largest nation in Ansalon; spans ~500 miles of northern Ansalon
+- Capital: Palanthus — center of learning, theology, and writing; busiest port; home to the Great Library of Astinus, Temple of Paladine, and a Tower of High Sorcery
+- Key locations: Vingaard Keep (guards Vingaard River), High Clerist's Tower (Knights of the Sword HQ), Caergoth (port/shipwright city), Solanthus, Kalaman (northeastern jewel, partially occupied by Red Dragonarmy)
+- The Vingaard River valley is the most fertile region on the continent
+- Home of the Knights of Solamnia; regained honor through Sturm Brightblade's heroism
+- Dargaard Keep (Lord Soth's cursed castle) lies in the eastern region called Nightlund
+
+**Silvanesti — Ancient Elven Homeland:**
+- Southeastern Ansalon; once the most beautiful forest on Krynn
+- Capital: Silvanost — city of marble and living wood, Tower of the Stars
+- Corrupted by King Lorac's nightmare through the Dragon Orb (349 AC); now called the "Bleeding Woods" — twisted trees, oozing rivers, nightmare creatures
+- Silvanesti elves are dispossessed refugees seeking to reclaim their homeland
+- Oldest civilization; extremely isolationist and proud
+
+**Qualinesti — Western Elven Kingdom:**
+- Western Ansalon, just west of the Kharolis Mountains
+- Capital: Qualinost — gold-burnished Tower of the Sun, Hall of the Sky
+- Forest of oaks, maples, ash, vallenwood, apple, peach, and pear trees
+- Founded by Kith-Kanan after the Kinslayer War (2073 PC)
+- More open to other races than Silvanesti; active in trade
+- Fled during War of the Lance when Red Dragonarmy invaded
+
+**Ergoth (Northern and Southern):**
+- Northern Ergoth: Island west of mainland; once-great empire now in decline. Emperor Mercadior seeks to rebuild glory. Allies with Kenderhome
+- Southern Ergoth: Island south; home to Qualinesti and Silvanesti refugees, Kagonesti wild elves, storm ogres, and human knights
+
+**Thorbardin — Dwarven Underkingdom:**
+- Massive underground city-fortress in the Kharolis Mountains
+- Home to multiple dwarven clans: Hylar (ruling), Daewar (merchants), Theiwar (dark dwarves), Daergar (dark dwarves), Klar (wild dwarves), and Aghar (gully dwarves)
+- The Tree of Life (Zakhalax) is at its center
+- Barred its gates during the Dwarfgate Wars (39 AC), refusing refugees
+
+**Istar (destroyed):**
+- Once the moral and trade center of the world; destroyed in the Cataclysm
+- Now beneath the Blood Sea — a vast maelstrom marks where it sank
+- The Kingpriest's arrogance caused the gods to strike it down
+
+**Neraka — Dark Queen's Stronghold:**
+- Vale in the Khalkist Mountains; site of Takhisis's dark temple built from Istar's Foundation Stone
+- Headquarters of the five Dragonarmies during the War of the Lance
+- Temple destroyed when Berem reunited the gemstone (352 AC)
+
+**Sanction — City of Volcanoes:**
+- Takhisis's port city, gripped by three volcanoes called the Lords of Doom
+- Lava flows regularly destroy sections of the city; bridges span lava rivers
+- Blue Dragonarmy headquarters; mixture of evil humans, ogres, goblins, draconians
+
+**Blood Sea of Istar:**
+- Vast maelstrom where Istar once stood; treacherous waters
+- Islands: Saifhum (mariners), Karthay (ruins), Mithas and Kothas (minotaur nations)
+
+**Estwilde — Barbarian Wasteland:**
+- Broad hilly basin between Dargaard Mountains and northeastern Khalkists
+- Dry grasslands, rugged foothills, pine forests. Surly, treacherous humans who traffic with goblins and ogres
+- Blue Dragonarmy occupies southern regions
+
+**Khur — Desert Lands:**
+- Vast sandy wastes with nomadic desert tribes
+- Fierce horsemen who trade horses, spices, diamonds, and petrol
+- Green Dragonarmy occupies western regions after being driven from Silvanesti
+
+**Goodlund/Balifor — Kender Lands:**
+- Southeastern peninsula; Goodlund is the forest homeland of kender
+- Capital: Kendermore; kender produce surprisingly accurate maps
+- Balifor is now harsh desert; Port Balifor is a bawdy, crime-ridden port
+- Black Dragonarmy growing in the east
+
+**Icereach — Frozen South:**
+- Continent-sized glacier south of the Plains of Dust
+- Human ice barbarians vs. evil Thanoi (walrus-men) vs. White Dragonarmy
+- Ice may extend to the ocean floor — no one has found land beneath it
+
+**Sancrist — Gnome Island:**
+- Home to Mount Nevermind — the gnomish city inside a dormant volcano
+- Grand Council of 200+ clans and 50+ guilds governs
+- Also home to Whitestone Glade (where the Whitestone Council met) and Castle Uth Wistan (Knights of Solamnia)
+
+**Dragon Isles and Misty Isles:**
+- Eight magical islands north of Nordmaar — shift position and shape when human ships approach
+- Home to gold, bronze, and copper dragons, plus hulderfolk, kyrie, irda, and shadowpeople
+- City of Gold on Misty Isle — place of the dragons
+
+**Kayolin (Kaolyn) — Dwarven Colony:**
+- Garnet Mountains south of Solamnic plains; subterranean city of Garnet
+- Mines iron, gold, silver, copper, tin, nickel, and glowing sunstones
+- Northern Ansalon's greatest minter of steel, silver, and copper coins
+- Two clans: Hylar (rulers, grandeur) and Daewar (merchants, trade)
+
+#### Key Geographic Features
+
+| Feature | Description |
+|---------|-------------|
+| Khalkist Mountains | Massive central range; home to Neraka, Sanction, Thoradin |
+| Kharolis Mountains | Southern range containing Thorbardin, Pax Tharkas |
+| Vingaard Mountains | Northwestern range near Palanthus |
+| Dargaard Mountains | Eastern Solamnia; contains Dargaard Keep |
+| Garnet Mountains | Between Solamnia and New Sea; dwarven city of Garnet |
+| New Sea | Formed by the Cataclysm; separates Solamnia from southern lands |
+| Blood Sea of Istar | Vast maelstrom where Istar sank |
+| Sirrion Sea | Western sea between Ansalon and Ergoth islands |
+| Vingaard River | Longest river in Ansalon; runs through Solamnia |
+| Plains of Dust | Arid southern wasteland between Kharolis and Icereach |
+| Lords of Doom | Three active volcanoes surrounding Sanction |
+| Darken Wood | Haunted enchanted forest south of Solace |
+| Wayreth Forest | Magical forest that moves; contains Tower of High Sorcery at Wayreth |
 
 ### The Gods of Krynn
 
 **Gods of Good (Holy Order of the Stars):**
-| God | Domain | Symbol |
-|-----|--------|--------|
-| Paladine | Majesty, redemption, good dragons | Platinum triangle |
-| Mishakal | Healing, mercy, life | Blue infinity symbol |
-| Kiri-Jolith | War, courage, honor | Bison's horns |
-| Majere | Discipline, meditation | Copper spider |
-| Branchala | Music, joy, inspiration | Bard's harp |
-| Solinari | Good magic (White Robes) | White moon/circle |
-| Habbakuk | Nature, persistence, animals | Blue bird |
+| God | Domain | Symbol | Role in Creation |
+|-----|--------|--------|------------------|
+| Paladine | Majesty, redemption, good dragons | Platinum triangle | Father of creation; King of Good gods; guides good dragons |
+| Mishakal | Healing, mercy, life | Blue infinity symbol | Granted beauty and fertility to all things; Paladine's consort |
+| Kiri-Jolith | War, courage, honor | Bison's horns | Born of Paladine and Mishakal; champion of justice |
+| Majere | Discipline, meditation | Copper spider | Gave order and purpose to the world; devised the plan that led to good dragons' creation |
+| Branchala | Music, joy, inspiration | Bard's harp | Born of Habbakuk's laughter; fills the world with song |
+| Solinari | Good magic (White Robes) | White moon/circle | Son of Paladine and Mishakal; domain over constructive magic |
+| Habbakuk | Nature, persistence, animals | Blue bird | Born of Paladine and Mishakal; twin of Kiri-Jolith; crafted Krynn's creatures |
 
-**Gods of Neutrality:**
-| God | Domain | Symbol |
-|-----|--------|--------|
-| Gilean | Knowledge, balance | Open book |
-| Lunitari | Neutral magic (Red Robes) | Red moon/circle |
-| Reorx | Craft, creation, dwarves | Forging hammer |
-| Chislev | Nature, wilds, instinct | Feather |
-| Zivilyn | Wisdom, foresight | Great green tree |
-| Shinare | Commerce, industry | Griffon's wing |
-| Sirrion | Passion, flame, creativity | Multi-color fire |
+**Gods of Neutrality (Balance):**
+| God | Domain | Symbol | Role in Creation |
+|-----|--------|--------|------------------|
+| Gilean | Knowledge, balance | Open book | Received the Tobril (plans of creation) from the High God; IS the plan |
+| Lunitari | Neutral magic (Red Robes) | Red moon/circle | Daughter of Gilean; domain over illusion and reshaping magic |
+| Reorx | Craft, creation, dwarves | Forging hammer | Greatest companion god; forged Krynn itself; father of the Smith folk |
+| Chislev | Nature, wilds, instinct | Feather | Robed the world in plants and forests; Zivilyn's consort |
+| Zivilyn | Wisdom, foresight | Great green tree | Formed from Gilean's shadow; the living tree of life |
+| Shinare | Commerce, industry | Griffon's wing | Sculpted by Sirrion and brought to life; pragmatic and industrious |
+| Sirrion | Passion, flame, creativity | Multi-color fire | Granted flora infinite diversity and change; the transforming flame |
 
-**Gods of Evil:**
-| God | Domain | Symbol |
-|-----|--------|--------|
-| Takhisis | Conquest, tyranny, evil dragons | Five-headed dragon |
-| Sargonnas | Vengeance, rage, war | Condor/stylized red fist |
-| Morgion | Disease, pestilence, decay | Hood with two red eyes |
-| Chemosh | Undeath, false immortality | Yellow skull |
-| Zeboim | Sea, storms, jealousy | Turtle shell pattern |
-| Hiddukel | Lies, greed, corruption | Broken merchant's scale |
-| Nuitari | Evil magic (Black Robes) | Black moon/circle |
+**Gods of Evil (Darkness):**
+| God | Domain | Symbol | Role in Creation |
+|-----|--------|--------|------------------|
+| Takhisis | Conquest, tyranny, evil dragons | Five-headed dragon | Queen of Darkness; corrupted the first dragons; plots endlessly to rule Krynn |
+| Sargonnas | Vengeance, rage, war | Condor/stylized red fist | Born of Takhisis's desire for a consort of vengeance; black god of hate |
+| Morgion | Disease, pestilence, decay | Hood with two red eyes | Born of Takhisis's covetousness; helped corrupt the first dragons; gave pain and sickness to the world |
+| Chemosh | Undeath, false immortality | Yellow skull | Summoned from the Void by Hiddukel; gave death to the world; builds armies of undead |
+| Zeboim | Sea, storms, jealousy | Turtle shell pattern | Daughter of Takhisis and Sargonnas; mistress of tempests; moody and violent |
+| Hiddukel | Lies, greed, corruption | Broken merchant's scale | Two-headed serpent who brokered deals between gods; the Trickster; gave greed and pride to the world |
+| Nuitari | Evil magic (Black Robes) | Black moon/circle | Son of Takhisis and Sargonnas; hoarse-whispered child; domain over commanding and destructive magic |
+
+**The High God:** Above all others; created the plan and departed. Returns only when the Balance is threatened (intervened during the All-Saints War)
 
 ### The Three Moons of Magic
-- **Solinari (White):** Good magic — White Robes of the Mages of High Sorcery
-- **Lunitari (Red):** Neutral magic — Red Robes of the Mages of High Sorcery
-- **Nuitari (Black):** Evil magic — Black Robes of the Mages of High Sorcery (invisible to non-mages)
-- Moon phases affect spell power for aligned wizards
-- **The Towers of High Sorcery:** Five ancient towers dedicated to magical learning (most destroyed/cursed by the Cataclysm era)
+- **Solinari (White):** Visible to all. Good magic — White Robes of the Mages of High Sorcery. Waxes and wanes in 36-day cycle
+- **Lunitari (Red):** Visible to all. Neutral magic — Red Robes. 28-day cycle
+- **Nuitari (Black):** Invisible to non-mages — only seen as a void blotting out stars. Evil magic — Black Robes. 8-day cycle
+- Moon phases directly affect spell power for aligned wizards: High Sanction (full moon) = +1 spell per level; Low Sanction (new moon) = -1 spell per level
+- When all three moons align: **Night of the Eye** — prophetic visions and the most powerful magic
 
-### The Dragon Armies
-- **Five Dragonarmies:** One for each chromatic dragon color (Red, Blue, Green, Black, White)
-- Led by Dragon Highlords, ultimately serving Takhisis
-- Each army pairs humanoid soldiers with their dragon allies
-- The **Red Dragonarmy** is the largest and most powerful, originally led by Highlord Verminaard
-- Use Draconians as elite shock troops
+### The Towers of High Sorcery
+Five ancient towers dedicated to magical learning, built 2645–2550 PC:
+| Tower | Location | Status |
+|-------|----------|--------|
+| Tower of Wayreth | Wayreth Forest (moves) | Active — only remaining functional tower; home of the Conclave |
+| Tower of Palanthus | Palanthus, Solamnia | Cursed — surrounded by Shoikan Grove (deadly magical forest) |
+| Tower of Istar | Istar (destroyed) | Lost — sank beneath the Blood Sea with Istar |
+| Tower of Daltigoth | Northern Ergoth | Destroyed — mages destroyed it rather than let it fall to mobs |
+| Tower of Losarcum | Goodlund | Destroyed — mages destroyed it during the Lost Battles |
 
-### Draconians
-Created from corrupted good dragon eggs — major antagonist race in Dragonlance:
-| Type | Base Dragon | HD | Key Trait |
-|------|------------|------|-----------|
-| Baaz | Brass | d8 | Turns to stone on death (weapons stuck) |
-| Kapak | Copper | d8 | Venomous, dissolves into acid pool on death |
-| Sivak | Silver | d10 | Shapechanger (takes form of killer), glide |
-| Bozak | Bronze | d8 | Spellcasting, explodes into bone shards on death |
-| Aurak | Gold | d10 | Powerful spellcasters, dimension door, energy blast, go through multiple death stages |
+### The Dragonarmies
+- **Five Dragonarmies:** One for each chromatic dragon color, each with a Dragon Highlord
+- Ultimately serve Takhisis, who coordinates from Neraka
+- Each army pairs humanoid soldiers (humans, ogres, goblins, hobgoblins) with their dragon allies and draconian shock troops
 
-### Key NPCs of Krynn (Campaign-Relevant)
+| Army | Color | Highlord | Territory / Focus |
+|------|-------|----------|-------------------|
+| Red | Red | Verminaard (then Ariakas) | Largest and most powerful; Abanasinia, Nordmaar, Kern |
+| Blue | Blue | Kitiara Uth Matar | Most disciplined; Solamnia, eastern Ansalon |
+| Green | Green | Salah-Khan | Silvanesti, then Khur desert |
+| Black | Black | Lucien (then various) | Goodlund/Balifor peninsula |
+| White | White | Feal-Thas | Icereach, southern glaciers |
 
-- **Ispin Greenshield:** Elderly human scholar and ally to the party in Solace
-- **Tika Waylan:** Barmaid at the Inn of the Last Home (iconic Dragonlance NPC)
-- **Hederick the Theocrat:** Seeker high priest in Solace — antagonistic, fanatical
-- **Goldmoon & Riverwind:** Que-Shu Plainspeople — bearers of the Blue Crystal Staff (heralds of the gods' return)
-- **Fizban:** Eccentric old wizard (actually Paladine in disguise)
-- **Lord Soth:** Death Knight of Dargaard Keep — one of the most fearsome undead in D&D lore
+- **Dragon Highlord Ariakas:** Emperor of the Dragonarmies; high priest of Takhisis; supreme commander
+- **Kitiara Uth Matar:** Half-sister of Raistlin and Caramon Majere; Blue Dragon Highlord; fierce warrior and political schemer; rode blue dragon Skie (Khellendros)
 
-### Races of Krynn
-- **Humans:** Most populous, many cultures (Solamnic, Ergothian, Plainspeople, etc.)
-- **Qualinesti Elves:** High elves of western Ansalon, more open to other races
-- **Silvanesti Elves:** Ancient, isolationist high elves of eastern Ansalon
-- **Kagonesti Elves:** Wild elves of the forests
-- **Hill Dwarves (Neidar):** Surface-dwelling dwarves
-- **Mountain Dwarves (Hylar, Daewar):** Underground city of Thorbardin
-- **Dark Dwarves (Theiwar, Daergar):** Evil-aligned dwarven clans
-- **Kender:** Small, fearless, "accidentally" sticky-fingered halfling-like race (unique to Krynn)
-- **Gnomes (Tinker Gnomes):** Inventive, chaotic, machines that usually malfunction
-- **Minotaurs:** Organized, honor-bound bull-people with their own island nation
-- **Gully Dwarves (Aghar):** Dim-witted, downtrodden dwarves
+### Draconians — Corrupted Dragon-Born Soldiers
+Created from corrupted good dragon eggs using a dark ritual taught by Takhisis (342 AC):
 
-### Knights of Solamnia
-Krynn's premiere knightly order, following the Oath and the Measure:
-- **Order of the Crown:** Loyalty and obedience — entry order
-- **Order of the Sword:** Courage and heroism — martial focus
-- **Order of the Rose:** Wisdom and justice — highest order
-- **Motto:** "Est Sularus oth Mithas" ("My Honor Is My Life")
+| Type | Base Dragon | CR (5e) | Size | Key Traits |
+|------|------------|---------|------|------------|
+| **Baaz** | Brass | 1/2 | Medium | Most common. Glide (wings). **Death Throe:** body turns to stone, trapping weapons stuck in it (DC 11 STR to free) |
+| **Kapak** | Copper | 3 | Medium | Venomous. Can coat weapons in poison (2d6 poison + DC 13 CON). **Death Throe:** dissolves into 5ft pool of acid (3d6, 1 minute) |
+| **Sivak** | Silver | 5 | Large | Largest draconians (7ft+). Shapechanger — takes the form of the last humanoid they killed. Glide. **Death Throe:** transforms into a copy of their killer for 3 days, then decomposes |
+| **Bozak** | Bronze | 5 | Medium | Spellcasters (sorcerer-like). Can cast Shatter, Fear, Invisibility. **Death Throe:** skeleton explodes in bone shards (3d6 piercing, 10ft, DC 13 DEX) |
+| **Aurak** | Gold | 9 | Medium | Most powerful and rare. Powerful spellcasting (Dominate Person, Dimension Door). Energy blast (3d6 force). **Death Throe:** 3 stages — (1) immolate in flames (3d6 fire to all within 5ft), (2) become a writhing ball of lightning (3d6 lightning, blinds), (3) explode (5d6 force, 10ft, DC 15 DEX) |
 
-### Mages of High Sorcery
-- All arcane magic users on Krynn must take the Test of High Sorcery or be hunted
-- Three orders based on moon alignment: White (Good), Red (Neutral), Black (Evil)
-- The Test is dangerous — failure often means death
-- Renegade mages (who refuse the Test) are hunted by all three orders
+### Races of Krynn — Expanded
+
+**Humans:** Most populous race; many cultures:
+- **Solamnic:** Northern Ansalon; knightly tradition, honor-bound, strong farmers
+- **Ergothian:** Western islands; imperial heritage, declining empire
+- **Plains Barbarians (Abanasinian):** Que-Shu, Que-Kiri — spiritual people with tribal traditions
+- **Khur Nomads:** Desert warriors; fierce horsemen, excellent breeders of horses
+- **Nordmaarian:** Northern cape; barbarian jungle/moor folk, actively resist Red Dragonarmy
+- **Estwilde Barbarians:** Surly, treacherous; traffic with goblins and ogres
+- **Ice Barbarians:** Icereach; survive by hunting, ice-fishing; fight the thanoi
+
+**Elves:**
+- **Silvanesti:** Oldest civilization; extremely isolationist and proud. High magic tradition. Currently dispossessed after Lorac's nightmare corrupted their forest
+- **Qualinesti:** Western elves who split from Silvanesti in 2073 PC. More open to other races, active traders. Fled during War of the Lance
+- **Kagonesti (Wild Elves):** Forest-dwelling elves of Southern Ergoth and remote woodlands. Primitive by elven standards but deeply connected to nature
+- **Dargonesti (Sea Elves):** Deep-water elves who can shapechange into dolphins. Rare and reclusive
+- **Dimernesti (Shoal Elves):** Shallow-water elves who can shapechange into sea otters. Coastal dwellers
+- **Half-Elves:** Common in Qualinesti border regions. Often torn between two worlds. Tanis Half-Elven is the most famous
+
+**Dwarves — Clans of Thorbardin:**
+| Clan | Type | Alignment | Traits |
+|------|------|-----------|--------|
+| **Hylar** | Mountain | LG/LN | Ruling clan; noblest and most skilled; builders of Thorbardin's grandeur |
+| **Daewar** | Mountain | LN | Merchant and trader clan; skilled craftsmen; politically active |
+| **Theiwar** | Dark | NE/CE | Light-sensitive; practice dark magic; treacherous schemers |
+| **Daergar** | Dark | NE/CE | Brutal warriors; dwell in deepest levels; assassins and thugs |
+| **Klar** | Mountain | CN | Wild and unpredictable; fierce berserkers; considered unstable |
+| **Aghar (Gully Dwarves)** | Gully | N | Dim-witted; downtrodden; can only count to 2; scavengers |
+| **Neidar** | Hill | NG/N | Surface-dwelling; farmers and miners; refused entry to Thorbardin in Dwarfgate Wars |
+
+**Kender:**
+- Unique to Krynn — small (3.5–4 ft), pointed ears, topknots
+- Utterly fearless — immune to magical fear effects
+- "Handlers" not thieves — genuinely don't understand personal property; items end up in their pouches "accidentally"
+- Insatiable curiosity; wanderlust drives them to explore from age ~20
+- Taunt ability — can enrage any creature with insults (in combat, target must save or attack the kender exclusively)
+- Homeland: Hylo (Northern Ergoth) and Kendermore (Goodlund)
+- Famous kender: Tasslehoff Burrfoot
+
+**Gnomes (Tinker Gnomes of Mount Nevermind):**
+- Live in Mount Nevermind, a dormant volcano on Sancrist
+- Obsessed with invention; machines are overcomplicated and usually malfunction
+- Life Quest: Each gnome has a single invention they devote their life to perfecting (they never succeed)
+- Speak incredibly rapidly; full gnomish names are essentially their entire family history (abbreviated for other races)
+- Government: Grand Council of 200+ clans and 50+ guilds
+
+**Minotaurs:**
+- Bull-headed humanoids with their own island nation (Mithas and Kothas)
+- Organized, honor-bound society based on strength and combat prowess
+- Naval power; excellent shipbuilders; some piracy
+- Coliseum combat determines social rank
+- Currently allied with the Black Dragonarmy
+
+**Irda:**
+- The "first born" — original ogres before corruption
+- Fled Ansalon under Igraine; found refuge on a hidden island
+- Stunningly beautiful; masters of illusion and shapeshifting
+- Extremely reclusive; almost no one knows they still exist
+
+### Knights of Solamnia — Expanded
+The premiere knightly order of Krynn, following the Oath and the Measure — founded 1775 PC by Vinas Solamnus:
+
+**Motto:** "Est Sularus oth Mithas" ("My Honor Is My Life")
+
+| Order | Patron God | Virtue | Role | Rank |
+|-------|-----------|--------|------|------|
+| **Crown** | Kiri-Jolith | Loyalty, Obedience | Entry order; foundation of knightly service; follows chain of command | Lowest |
+| **Sword** | Habbakuk | Courage, Heroism | Warrior-clerics; martial focus; receive divine spells | Middle |
+| **Rose** | Paladine | Wisdom, Justice | Highest order; commanders and leaders; wisest knights | Highest |
+
+- **The Measure:** A massive codex of laws, traditions, and protocols governing every aspect of knightly conduct. So voluminous that few have read it entirely
+- Knights fell into disrepute after the Cataclysm (blamed for failing to prevent it); regained honor through the War of the Lance
+- **High Clerist's Tower:** Greatest fortress of the Knights; fell to Blue Dragonarmy but was retaken using dragonlances
+- **Sturm Brightblade:** Most famous Knight of the modern era; died defending the High Clerist's Tower; his sacrifice rallied Solamnia
+
+### Knights of Neraka (Knights of Takhisis)
+The dark mirror of the Knights of Solamnia — formed after the War of the Lance from remnants of the dragonarmies:
+
+| Order | Focus | Equivalent |
+|-------|-------|-----------|
+| **Lily** | Martial prowess, conquest | Mirror of Crown |
+| **Skull** | Dark divine magic, necromancy | Mirror of Sword |
+| **Thorn** | Arcane magic, intelligence | Mirror of Rose |
+
+- **Vision:** "One World Order" under Takhisis
+- Extremely disciplined and organized (unlike the chaotic dragonarmies)
+- Use the Code: obedience to rank, loyalty to the order, devotion to the Dark Queen
+
+### Mages of High Sorcery — Expanded
+All arcane magic users on Krynn must submit to the authority of the Conclave or be declared renegade:
+
+**The Conclave:** Governing body of all wizards; meets at the Tower of Wayreth. Led by the heads of the three orders
+
+| Order | Color | Moon | Alignment | Focus |
+|-------|-------|------|-----------|-------|
+| **White Robes** | White | Solinari | Good | Protective, healing, constructive magic |
+| **Red Robes** | Red | Lunitari | Neutral | Illusion, divination, balance-keeping |
+| **Black Robes** | Black | Nuitari | Evil | Destructive, commanding, necromantic magic |
+
+- **The Test of High Sorcery:** Required trial for all arcane casters. Takes place at the Tower of Wayreth. The Test is tailored to each individual and is genuinely dangerous — failure often means death. The Test requires a sacrifice to prove commitment to magic
+- **Renegade Mages:** Those who refuse the Test are hunted by all three orders. Renegades are considered the greatest threat to organized magic
+- **Famous Mages:** Raistlin Majere (Black Robes, most powerful mage of the age), Fistandantilus (ancient Black Robe archmage), Par-Salian (White Robe, head of Conclave during the War of the Lance), Justarius (Red Robe)
+
+### Legion of Steel
+Post-war organization founded by Sara Dunstan (adoptive mother of Steel Brightblade):
+- Formed from those who believed neither the Knights of Solamnia nor the Knights of Takhisis served the common people
+- Decentralized "cell" structure — no central authority that can be destroyed
+- Focus on protecting ordinary people, gathering intelligence, and fighting tyranny from either Good or Evil extremes
+
+### Key NPCs of Krynn — Expanded
+
+**Heroes of the Lance:**
+| Name | Race/Class | Key Details |
+|------|-----------|-------------|
+| **Tanis Half-Elven** | Half-elf Fighter/Leader | Natural leader of the companions; torn between elven and human heritage; loves both Kitiara and Laurana |
+| **Sturm Brightblade** | Human Knight (Crown then Sword) | Solamnic Knight; died defending the High Clerist's Tower; restored honor to the knighthood |
+| **Caramon Majere** | Human Fighter | Raistlin's twin brother; strong, loyal, simple; eventually becomes a respected leader |
+| **Raistlin Majere** | Human Black Robe Mage | Most powerful mage of the age; hourglass-shaped golden eyes (sees all things aging/dying); physically frail but magically supreme; entered the Abyss to challenge Takhisis; sacrificed himself to seal the gates |
+| **Flint Fireforge** | Hill Dwarf Fighter | Grumpy but loyal old dwarf; father figure to the group; dies of a heart attack during the Battle of Neraka |
+| **Tasslehoff Burrfoot** | Kender Handler | Irrepressible kender adventurer; fearless, curious, accidentally steals everything; accidentally time-travels; his fearlessness makes him immune to dragonfear |
+| **Goldmoon** | Human Cleric of Mishakal | Que-Shu princess; bearer of the Blue Crystal Staff; first true cleric after the Cataclysm; heralds the return of the gods |
+| **Riverwind** | Human Ranger/Barbarian | Que-Shu plainsman; Goldmoon's husband; discovered proof of the true gods; stoic warrior |
+| **Laurana** | Qualinesti Elf Fighter/Leader | Elven princess; becomes the "Golden General" leading the Whitestone armies; great beauty and courage |
+| **Tika Waylan** | Human Fighter | Barmaid at the Inn of the Last Home; becomes a capable warrior; marries Caramon |
+
+**Major Villains:**
+| Name | Type | Key Details |
+|------|------|-------------|
+| **Ariakas** | Human Fighter/Cleric | Emperor of the Dragonarmies; high priest of Takhisis; supreme commander of all five armies |
+| **Kitiara Uth Matar** | Human Fighter | Blue Dragon Highlord; half-sister of Raistlin and Caramon; fierce warrior and schemer; rides blue dragon Skie |
+| **Verminaard** | Human Cleric/Fighter | Red Dragon Highlord; conquered Abanasinia and Pax Tharkas; fanatical servant of Takhisis; rode red dragon Ember |
+| **Lord Soth** | Death Knight | Once a Knight of the Rose who fell to pride and lust; could have prevented the Cataclysm but refused; cursed to undeath; CR 17 in 5e; allied with Kitiara during the Blue Lady's War |
+| **Feal-Thas** | Elf Mage/Cleric | White Dragon Highlord; ruled Icereach; one of the few elf servants of Takhisis |
+| **Fistandantilus** | Human Archmage (Black Robe) | Ancient and immensely powerful archmage; attempted to storm the Abyss; created Skullcap; Raistlin eventually absorbed his identity |
+
+**Campaign-Specific NPCs:**
+| Name | Role | Details |
+|------|------|---------|
+| **Ispin Greenshield** | Scholar/Ally | Elderly human scholar and ally to the party in Solace |
+| **Tika Waylan** | Barmaid/Fighter | Inn of the Last Home; iconic NPC; can be encountered directly in the campaign |
+| **Hederick the Theocrat** | Seeker Priest | Fanatical Seeker high priest; antagonistic; based in Haven/Solace area |
+| **Fizban** | Eccentric Wizard | Befuddled old wizard who is actually Paladine in mortal guise |
+| **Otik Sandath** | Innkeeper | Proprietor of the Inn of the Last Home; famous for his spiced potatoes |
+| **Astinus of Palanthus** | Historian | Ageless, immortal historian who records everything that happens on Krynn in real-time. May be an aspect of Gilean. Runs the Great Library of Palanthus |
+| **Berem Everman** | The Gemstone Man | Has a green gem embedded in his chest; essentially immortal; key to Takhisis's gate. His reunion of the gem with the Foundation Stone ended the War of the Lance |
+
+### Dragonlance Artifacts & Magic Items
+
+**Legendary Artifacts:**
+
+| Item | Type | Properties |
+|------|------|------------|
+| **Dragonlances** | Lance (mounted) / Pike (footman) | The supreme weapons against dragons. Created by Theros Ironfeld using the Silver Arm of Ergoth and the Hammer of Kharas. Mounted version: +3 lance, deals 3d6+3 extra radiant damage to dragons, on a mounted charge deals 6d6+6. Footman version: +2 pike, deals 1d6+2 extra radiant damage to dragons. Both bypass dragon damage immunities |
+| **Blue Crystal Staff** | Staff | Artifact of Mishakal; first divine magic item after the Cataclysm. Heals as Greater Restoration. Glows blue in presence of evil. Can resurrect the dead (1/day). Channels divine spells. Granted to Goldmoon at Xak Tsaroth |
+| **Disks of Mishakal** | Holy Text | Platinum disks containing the history and teachings of the true gods. Found in Xak Tsaroth. Restored knowledge of divine magic to the world |
+| **Hammer of Kharas** | Warhammer | +3 warhammer, dwarven artifact forged in the image of Reorx's own hammer. Can forge dragonlances when used with the Silver Arm. Returns when thrown (30ft range). Deals double damage to evil dragons. The most sacred dwarven artifact |
+| **Staff of Magius** | Staff | Raistlin's signature weapon. +3 quarterstaff that functions as a spellcasting focus. Casts Light at will. Provides +2 to spell save DC. Stores up to 3 spells. Feather Fall on wielder at will. Only attunes to a mage who has passed the Test |
+| **Dagger of Magius** | Dagger | Paired with the Staff; +2 dagger. Can absorb one spell cast at the wielder per day and redirect it. Glows when magic is nearby (detect magic at will) |
+| **Dragon Orbs** | Wondrous Item | Five orbs created during the Third Dragon War; trap dragon spirits and can control dragons. Extremely dangerous — each contains an evil spirit (Viper) that can seize the wielder's mind. DC 20 WIS save or be dominated. Lorac's use of one corrupted all of Silvanesti |
+| **Nightjewel** | Necklace | Flint Fireforge's magical gem. Grants darkvision 60ft. Glows softly in darkness. Can cast Daylight 1/day. Gift from the Forestmaster |
+| **Frostreaver** | Battleaxe | +2 frost battleaxe wielded by Feal-Thas. Deals +2d6 cold damage. Freezing critical: on a crit, target must DC 15 CON save or be restrained (frozen) for 1 round |
+| **Rabbitslayer** | Short Sword (kender) | Tasslehoff's "short sword" — actually a steak knife he "found." Unremarkable weapon but iconic. In some versions: +1 short sword that grows to a +3 longsword when wielded by a Hero of the Lance |
+| **Wyrmslayer** | Longsword | +3 dragon-slaying longsword. Deals +3d6 radiant damage to dragons. On a hit against a dragon, wielder gains resistance to that dragon's breath weapon until end of next turn |
+| **Brightblade** | Two-handed Sword | Sturm's ancestral Solamnic sword. +2 greatsword. Sheds bright light (30ft) in the presence of evil. Deals +2d6 radiant damage to evil creatures. Cannot be wielded by anyone of evil alignment |
+| **Silver Arm of Ergoth** | Prosthetic Arm | Magical silver prosthetic that replaces a lost arm. Grants STR 19 in that arm. Required (with Hammer of Kharas) to forge dragonlances. Given to Theros Ironfeld by the Silver Dragon D'Argent |
+| **Globe of Present Time Passing** | Wondrous Item | Astinus's artifact — allows the wielder to project their spirit across the world to witness events in real-time. Astinus may also use it to walk the River of Time, though the further from the present, the more dangerous |
+| **Tobril** | Holy Book | The plans of creation, written by the High God. Given to Gilean. Essentially the "source code" of the universe. Makes gods of mortal folk who can comprehend it |
+
+**Other Notable Magic Items:**
+| Item | Type | Effect |
+|------|------|--------|
+| **Glasses of Arcanist** | Wondrous | Grants ability to read any written language; identify magical writing |
+| **Khas Set** | Game Set | Magical chess-like game; some sets have prophetic properties |
+| **Medallion of Faith** | Holy Symbol | Grants clerical spells to true believers; first medallions appeared after the gods returned |
+| **Crystal Staff of Healing** | Staff | Lesser version of the Blue Crystal Staff; heals 2d8+3 per charge (7 charges, recharges at dawn) |
+
+### Monsters & Creatures of Krynn
+
+**Draconians (see detailed table above)**
+
+**Krynn-Specific Monsters — 5e Stat Blocks:**
+
+| Monster | CR | Type | Size | HP | AC | Key Abilities |
+|---------|-----|------|------|----|----|---------------|
+| **Dream Eater** | 7 | Fiend | Medium | 85 | 15 | Feeds on dreams; sleep aura (DC 15 WIS or fall unconscious); can enter dreamscape; dream invasion deals psychic damage |
+| **Ember** | 22 | Dragon | Gargantuan | 350 | 21 | Verminaard's red dragon mount; ancient red dragon with enhanced fire abilities; Legendary Resistance x3; Frightful Presence DC 21 |
+| **Forest Master** | 8 | Celestial | Large | 105 | 16 | Powerful unicorn of Darken Wood; grants boons to the worthy; telepathy 120ft; innate spellcasting (healing, teleportation, protection); can speak with all beasts |
+| **Foresworn** | 6 | Undead | Medium | 78 | 17 | Cursed Solamnic knights trapped in Darken Wood; spectral warriors; resistance to nonmagical weapons; multi-attack with spectral longswords |
+| **Irda Seeker** | 1 | Humanoid | Medium | 22 | 13 | Young Irda with basic shapeshifting; disguise self at will; minor illusion magic |
+| **Irda Veil Keeper** | 4 | Humanoid | Medium | 55 | 15 | Elder Irda with powerful shapeshifting and illusion magic; can become invisible; greater illusion |
+| **Nevermind Gnome Inventor** | 2 | Humanoid | Small | 27 | 14 | Tinker gnome with unstable gadgets; invention attack (random effect table); tools as weapons |
+| **Nevermind Gnome Mastermind** | 5 | Humanoid | Small | 52 | 15 | Senior gnome inventor; multiple gadgets; clockwork constructs; explosive devices |
+| **Thanoi Hunter** | 1 | Humanoid | Medium | 30 | 13 | Walrus-folk of Icereach; tusk gore attack; ice camouflage; cold resistance; harpoon proficiency |
+| **Traag Draconian** | 5 | Dragon | Large | 90 | 16 | Failed draconian experiment; large, mindless, incredibly strong; berserk fury; no death throe but resistant to most damage |
+| **Lord Verminaard** | 17 | Humanoid | Medium | 195 | 20 | Cleric/Fighter; Dragon Highlord; Nightbringer (mace); spellcasting (8th level cleric); Takhisis's chosen; Frightful Presence; mounted combat on Ember |
+
+**Classic Krynn Monsters (5e Conversion Estimates):**
+
+| Monster | CR | Type | Description |
+|---------|-----|------|-------------|
+| **Death Knight (Lord Soth)** | 17 | Undead | Former Knight of the Rose. Hellfire Orb (10d6 fire + 10d6 necrotic, 20ft sphere). Spellcasting (paladin + wizard). Frightful Presence. Magic resistance. Marshal Undead |
+| **Skeletal Knight** | 8 | Undead | Soth's retinue of 13 cursed knights; lesser death knights; spectral flaming swords |
+| **Fetch** | 4 | Shapechanger | Evil doppelganger-like creature; perfectly mimics a specific person; serves as a spy/assassin; created by dark magic |
+| **Fireshadow** | 6 | Undead | Spectral being of living flame; born from a mage who died by fire; fire touch ignites flammables; can only be hit by magical weapons or cold |
+| **Shadowperson** | 3 | Fey | Mysterious neutral beings from the Dragon Isles; exist between the material and ethereal planes; can phase through solid objects |
+| **Spectral Minion** | 4 | Undead | Ghostly warriors bound to guard specific locations; cannot leave their haunt; strength drain touch |
+| **Huldrefolk** | 2 | Fey | Shy, reclusive forest spirits with illusory beauty; true form is wooden/bark-like; inhabit the Dragon Isles |
+| **Kyrie** | 1 | Humanoid | Bird-folk with eagle-like features; winged; dwell on remote islands and mountains; skilled aerial combatants |
+| **Tarmak** | 5 | Humanoid | Blue-skinned human warriors from lands east of Ansalon; paint their skin; massive and militant; little contact with Ansalon |
+| **Bakali (Lizardfolk of Krynn)** | 1/2 | Humanoid | Ancient lizard-people who served dragons; disappeared after the Third Dragon War; ruins found throughout Ansalon |
+| **Phaethon** | 5 | Elemental | Fire-being from the Lords of Doom; living flame that serves Takhisis |
+| **Tylor** | 6 | Monstrosity | Giant dragonlike lizard (not a true dragon); used as mounts by draconians; no breath weapon but vicious claws and bite |
+| **Draconian, Noble** | 7–12 | Dragon | Rare draconians created from metallic dragon eggs using enhanced rituals; possess spellcasting and leadership abilities; can command lesser draconians |
+
+**Dragons of Krynn — Notable Named Dragons:**
+| Dragon | Color/Type | CR | Role |
+|--------|-----------|-----|------|
+| **Ember (Pyros)** | Ancient Red | 22 | Verminaard's mount; laired at Pax Tharkas |
+| **Skie (Khellendros)** | Ancient Blue | 23 | Kitiara's mount; one of the most powerful blue dragons |
+| **Cyan Bloodbane** | Ancient Green | 21 | Corrupted Silvanesti through Lorac's Dragon Orb |
+| **Onyx (Khisanth)** | Adult Black | 14 | Guarded the Disks of Mishakal in Xak Tsaroth |
+| **Sleet** | Adult White | 13 | Feal-Thas's mount on Icereach |
+| **D'Argent (Silvara)** | Adult Silver | 16 | Disguised as elf woman; helped heroes discover dragonlance secret; rescued Good dragon eggs |
+| **Cymbol** | Adult Copper | 14 | Allied with the heroes; helped rescue Good dragon eggs |
+| **Flamestrike** | Ancient Red (crippled) | — | Aged red dragon tricked into nursing draconian eggs in Pax Tharkas; believes them to be her own children |
+| **Huma's Heart (Gwynneth)** | Ancient Silver | — | Silver dragon who loved Huma Dragonbane; died alongside him defeating Takhisis in the Third Dragon War |
+
+### The Krynn Calendar
+
+| Month | Name | Earth Equivalent | Season |
+|-------|------|-----------------|--------|
+| 1 | Newkolt (Aelmont) | January | Winter |
+| 2 | Deepkolt (Rannmont) | February | Winter |
+| 3 | Brookgreen (Mishamont) | March | Spring |
+| 4 | Yurthgreen (Chislmont) | April | Spring |
+| 5 | Fleurgreen (Bran) | May | Late Spring |
+| 6 | Holmswelt (Corij) | June | Summer |
+| 7 | Fierswelt (Argon) | July | Summer |
+| 8 | Paleswelt (Sirrimont) | August | Summer |
+| 9 | Reapember (Reorxmont) | September | Autumn |
+| 10 | Harvest Home (Hiddumont) | October | Autumn |
+| 11 | Frostfall (H'rarmont) | November | Late Autumn |
+| 12 | Snowfell (Phoenix) | December | Winter |
+
+- 7 days per week; 4 weeks per month; 12 months per year = 336 days
+- **Yule:** 3-day midwinter festival (between months 12 and 1)
+- **Spring Dawning:** 3-day festival (between months 4 and 5)
+- **Midsummer:** 1-day festival (between months 7 and 8)
+- **Harvest Home:** 3-day festival (between months 10 and 11)
+
+### Astinus of Palanthus — The Eternal Historian
+- Ageless historian who records everything that happens on Krynn in real-time using the Globe of Present Time Passing
+- Resides in the Great Library of Palanthus — the largest and most important library on Krynn
+- His masterwork: the *Iconochronos* — the complete history of Krynn from creation to the present
+- Three theories on his nature: (1) God-touched — right hand of Gilean or Zivilyn; (2) An office held by successive dragon-blooded historians; (3) Half-elven, which explains his longevity
+- Refuses to take sides in any conflict; records history without judgment
+- Even during the War of the Lance, he simply recorded events from his library
 
 ---
 
@@ -2501,4 +2991,4 @@ Krynn's premiere knightly order, following the Oath and the Measure:
 
 ---
 
-> **Document Statistics:** ~2500+ lines covering the complete D&D 5e SRD (core rules, all races, all 13 classes with features/subclasses, backgrounds, feats, full weapon/armor/equipment tables, spellcasting rules, class spell lists, cantrip reference, combat spell quick reference, 150+ magic items, 200+ monsters organized by CR, conditions, combat rules, adventuring), Dragonlance/Krynn world lore, and campaign-specific data for Shadows Before The Flame.
+> **Document Statistics:** ~3000 lines covering the complete D&D 5e SRD (core rules, all races, all 13 classes with features/subclasses, backgrounds, feats, full weapon/armor/equipment tables, spellcasting rules, class spell lists, cantrip reference, combat spell quick reference, 150+ magic items, 200+ monsters organized by CR, conditions, combat rules, adventuring) PLUS comprehensive Dragonlance/Krynn world lore extracted from Tales of the Lance (AD&D 2e), Dragonlance Campaign Setting (3.5e), Monstrous Compendium Vol 2, and Shadow of the Dragon Queen (5e) — including complete timeline from the Age of Starbirth through 369 AC, detailed geography of all Ansalon nations, expanded pantheon with creation roles, all draconian types with 5e stats, Krynn-specific monsters, legendary artifacts with 5e properties, Heroes of the Lance, major villains, knightly orders, mages of high sorcery, the Krynn calendar, and campaign-specific data for Shadows Before The Flame.
