@@ -3936,4 +3936,272 @@ Other false religions: demon cults, snake cults, dragon cults, ancestor worship 
 
 ---
 
-> **Document Statistics:** ~3800+ lines covering the complete D&D 5e SRD (core rules, all races, all 13 classes with features/subclasses, backgrounds, feats, full weapon/armor/equipment tables, spellcasting rules, class spell lists, cantrip reference, combat spell quick reference, 150+ magic items, 200+ monsters organized by CR, conditions, combat rules, adventuring) PLUS comprehensive Dragonlance/Krynn world lore extracted from Tales of the Lance (AD&D 2e), Dragonlance Campaign Setting (3.5e), Raistlin's Guide to Krynn (5e v2.5), Monstrous Compendium Vol 2, and Shadow of the Dragon Queen (5e) — including complete timeline from the Age of Starbirth through 369 AC, detailed geography of all Ansalon nations, **full pantheon of 16 gods with 5e domains/dogma/clergy/holy days**, complete cosmology (Dome of Creation, Abyss, Hidden Vale, Gate of Souls), Orders of High Sorcery (all 5 towers, Test details, moon tracking, Curse of the Magi, renegade rules), Laws of Krynn and dying curse mechanics, noncombat/story award tables, 12 major adventure ruin sites, expanded calendar with hours/days/months/alphabets, all draconian types with 5e stats, Krynn-specific monsters, legendary artifacts with 5e properties, Heroes of the Lance, major villains, knightly orders, War of Souls/One God lore, Seeker movement, and campaign-specific data for Shadows Before The Flame.
+---
+
+## CLASSIC ADVENTURE MODULE LORE (DL6/DL7/DL10 — Converted to 5e)
+
+*Extracted from TSR modules DL6 Dragons of Ice, DL7 Dragons of Light, and DL10 Dragons of Dreams. All AD&D stats converted to D&D 5e equivalents.*
+
+### Adventure Overview — The Second & Third Books
+
+The classic DL adventure path splits the Heroes of the Lance into two groups at Tarsis:
+- **Heroes of the Lance (DL6-DL9):** Sturm, Flint, Tasslehoff, Laurana, Gilthanas, Elistan + Knights Derek & Aaron → travel south to Icewall Glacier → find Dragon Orb → sail to Southern Ergoth → discover Dragonlances at Huma's Tomb → reach Sancrist
+- **Heroes of Legend (DL10):** Tanis, Caramon, Raistlin, Tika, Goldmoon, Riverwind + Alhana Starbreeze → flee east across Plains of Dust → enter the nightmare of Silvanesti → free King Lorac from Cyan Bloodbane
+
+### Key Locations from Adventure Modules
+
+#### Tarsis the Beautiful (DL6 Chapter 1)
+- **Pre-Cataclysm:** Major seaport on the southern coast
+- **Post-Cataclysm:** Sea receded 40 miles, now a dusty landlocked plains town
+- **Features:** 20-ft walls on N/E/S sides with 50-ft towers; open western waterfront (former docks); beached ships converted to homes; governor's palace with marble columns
+- **Population:** Drastically reduced; upper city wealthy and complacent; lower waterfront district rougher, more pragmatic
+- **Fall of Tarsis:** Blue dragons attack, draconians occupy gates and walls, governor betrays city to Dragon Highlords with draconian adviser
+- **The Blue Lady:** Female Dragon Highlord on blue dragon, dark/blue armor, wave of black hair — foreshadowing of Kitiara (not named in DL6)
+- **Underground Resistance:** ~10% of population sympathetic; thieves and fighters who resent dictatorial rule; not ready for open revolt for ~1 year
+
+#### Library of Khrystann (Secret Library beneath Tarsis)
+- Hidden basement room beneath run-down houses
+- Entrance via secret door activated by stepping on flagstone
+- Contains thousands of ancient tomes, references to the **Orb of Dragon Control** at Icewall Castle
+- Contains the **Glasses of Arcanist** (see Magic Items below)
+
+#### Icewall Glacier & the Ice Reaches (DL6 Chapters 2-4)
+- Vast glacier south of Tarsis; bitter cold, snow-covered crevasses, ice blocks like small hills
+- **Hazards:** Snow-covered crevasses (DC 12 Perception to spot; fall 20-200 ft); blizzards (2d6 cold damage/day without shelter); thin ice over frozen lakes
+- **Ice Folk:** Nomadic humans led by chieftain Harald Haakan; worship the white bear as tribal symbol; travel by iceboat (sail-powered ships on ice runners); camp near crevasses and snowfences; hunt fish from ice-covered lakes
+- **Peat Mines:** On raised landmasses (former islands); eternal fires prevent fuel from freezing; Ice Folk gather peat every 3-4 months
+- **Iceboats:** Wooden sailing vessels mounted on sharpened ice runners; can move faster than a man can run; require wind to operate
+
+#### Icewall Castle (DL6 Chapter 4)
+- Ancient stone castle on rocky promontory, now buried in centuries of ice and snow
+- **Upper Reach:** Old courtyard, ruined buildings, magical fountain (heals 3d6 HP once/day in 5e), monster lairs, Dragon Highlord's chambers with library
+- **Lower Reach:** Ice tunnels, dragon egg room, icicle formations (javelin +2 equivalents), remorhaz cage, dragon's pantry (frozen victims), dragon's lair
+- **Feal-Thas's Library:** Contains journal entries mentioning Sancrist Isle, Foghaven, and the secret of the Dragonlances
+
+#### Southern Ergoth — Elven Realms in Exile (DL7)
+- **Silvamori (Hidden Realm):** Silvanesti refugee city on western shores of Harkun Bay; ornate stone buildings, rigid caste system maintained in exile; ruled by Regent Belthanos
+- **Qualimori:** Qualinesti refugee settlement on eastern shores of Harkun Bay; more primitive buildings; ruled by Speaker of Suns Solostaran with heir Porthios
+- **Kagonesti Lands:** Wild elf territory in northern forests and mountains; clan-villages of ~100 warriors each; hide and wood structures; stag-mounted hunters
+- **Dir-Plaanar (Island of Justice):** Neutral meeting ground for all three elven races at river confluence; stone bridges connecting shores
+- **Dir-Tsalarian (Island of the Dead):** Kagonesti burial ground; ruled by banshees and ghouls; Kagonesti send dead downriver — if unworthy, canoe lands here
+- **Harkun Bay:** Body of water separating Silvanesti and Qualinesti exile settlements; dangerous squalls
+- **Conflict:** Three-way tension between Silvanesti (haughty, enslaving Kagonesti), Qualinesti (indentured Kagonesti, raided by Youngbloods), and Kagonesti (oppressed by both)
+
+#### Foghaven Vale (DL7 Chapter 8)
+- Natural valley hidden between three mountain ranges
+- Warmed by volcanic hot springs — lush green grass and ancient forest while mountains around are frozen
+- **Enchanted Woods:** Darkness spell beneath boughs; illusion of glowing figures dancing; sleep enchantment (Wis save or fall asleep); guarded by 5 moon dogs
+- **Foghaven Keep:** Ruined pilgrim way-station with watchtower (inscription about Dragonlances) and bell tower (giant bats)
+- **Hot Springs Lake:** Heated by volcanic fires; 2d6 fire damage to immerse
+- **Cool Lake:** Home to nixies and giant gar; "No Fishing" sign
+
+#### The Stone Dragon / Huma's Tomb (DL7 Chapter 9)
+- **The Stone Dragon:** 700-foot-tall dragon statue carved from living mountain rock; visible from entire Foghaven Vale
+- **Huma's Tomb (exterior):** Modest shrine on octagonal steps beneath the dragon; bronze door barred from outside; empty weapon racks (once held Dragonlances); empty bier (Huma's body disappeared); the Windpipe transport system
+- **The Stone Dragon Interior — 4 levels:**
+  - **Shrine Level (M):** Temple with tapestry of Huma/Platinum Dragon/Draco Paladin constellation; false treasure rooms with dart traps; stone guardians; Juggernaut corridor trap
+  - **Lower Gallery (N):** Gallery of the Dragonwars mural (entire war depicted); Fizban encounter; balcony viewing area
+  - **Upper Gallery (O):** Dragon-sphinx statues ("The only evil here is that you bring" / "One of pure heart can do the task of many"); The Last Guardian (bronze dragon-headed humanoid, scales with attackers); **20 Dragonlances stored here** (10 mounted, 10 footman's)
+  - **Heart Level (P):** Foundries of Ergoth (volcano-fed furnaces, chimney exits through dragon's nostrils); massive anvil of meteoritic iron; stone golem guardian; **Pool of Dragonmetal** — last pure source of dragonmetal on Krynn
+- **Dragonlance Forging Requirements:** 1) Hammer of Kharas, 2) Silver Arm of Ergoth, 3) Dragonmetal from the Pool. Without the Hammer, only temporary/inferior lances can be made.
+
+#### Silvanesti — The Nightmare Kingdom (DL10)
+- **Pre-Fall:** Most ancient and beautiful elven kingdom; Tower of the Stars; rigid caste system of Houses
+- **The Fall:** Speaker of Stars Lorac Caladon attempted to use a Dragon Orb to save his kingdom from the dragonarmies. He lacked the strength to control it — the Orb captured him and now holds him enthralled
+- **Cyan Bloodbane:** An ancient green dragon who whispers nightmares into Lorac's mind; these nightmares become physical reality across all of Silvanesti
+- **The Bleeding Wood:** Trees bleed from horrible cracks in bark; dark creatures move in dense mangled brush; beautiful forests twisted into nightmare
+- **King's Road:** Ancient elevated elven highway — great stone arches supporting platforms; destroyed by Cataclysm, now only skeleton remains
+- **River Thon-Thalas:** Great river through Silvanesti; casting coins into its waters reveals visions of the future (prophetic divination)
+- **Vision Gift/Casting of Coins:** Ritual at Thon-Thalas determines how King Lorac can be freed — possible methods: Damage by Kin (Alhana strikes him), Power of the Gods (divine magic), Conscience of the King (a prisoner's voice reaches him), Love of Alhana (her tears and touch)
+
+### Key NPCs from Adventure Modules (5e Conversions)
+
+#### Harald Haakan — Chieftain of the Ice Folk
+- **5e Stats:** Human Fighter 14; STR 18, DEX 10, INT 13, CON 15, WIS 14, CHA 14; AC 17 (chain mail +2, shield +1); HP ~120; Frostreaver (+2 greataxe, cold damage)
+- **Description:** Nearly 7 ft tall, 300 lbs, flowing red hair and beard, deep icy blue eyes, dressed in pure white furs
+- **Personality:** Fierce, proud, superstitious, distrustful of magic, quick to anger but also quick to admit mistakes; everything motivated by concern for his people
+
+#### Raggart Knug — Revered Cleric of the Ice Folk
+- **5e Stats:** Human Cleric 10 (Nature Domain); STR 8, DEX 9, INT 12, CON 9, WIS 15, CHA 8; AC 14 (leather +2, shield); HP ~55
+- **Description:** Frail old man concealed by bulky furs; thin wrinkled face, eyes sparkling with wisdom and humor
+- **Special:** Only person who can craft Frostreavers; descendant of a long line of clerics awaiting return of the true gods; will provide party a Frostreaver in exchange for knowledge of the true gods
+
+#### Feal-Thas — Dragon Highlord of the White Wing
+- **5e Stats:** Elf Fighter 7 / Wizard 7; STR 18, DEX 17, INT 13, CON 10, WIS 11, CHA 8; AC 19 (chain mail +2, shield +1); HP ~65
+- **Spells:** Charm person, hold portal, detect magic, web, mirror image, ray of enfeeblement, dispel magic, slow, polymorph
+- **Equipment:** Chain mail +2, shield +1, longsword +2, potion of invisibility
+- **Description:** Slender dark-skinned elf in gleaming black armor; eyes glow with madness; traitor who sold out his race for promises of power
+- **Tactics:** Drinks invisibility potion before combat; opens with spells; goes berserk (+2 to hit) against elven PCs
+
+#### Sleet — Ancient White Dragon
+- **5e Stats:** Ancient White Dragon (adjusted); AC 18; HP 180; Cold Breath (12d8); 3 attacks (bite 2d10+6, claw 2d6+6 x2)
+- **Tactics:** Uses only 2 breath weapons in lair, saves 3rd for escape; if reduced to half HP, freezes waterfall with last breath and flees through escape tunnel
+- **Treasure:** 3,000 pp, 24,000 gp, 12,000 ep, 40,000 sp; wand of fireballs (2 charges); potions (gaseous form, invisibility, healing, speed — 2 doses each); ring of fire resistance; 10 +2 arrows; rope of entanglement; **Dragon Orb**
+
+#### Alhana Starbreeze — Princess of Silvanesti
+- **Role:** Daughter of Speaker of Stars Lorac; traveled to Tarsis seeking aid; commands griffon mounts; leads Heroes of Legend to Silvanesti to free her father
+- **Personality:** Cold, haughty exterior; deep love for her father and her people; desperate to save Silvanesti
+
+#### Dargent — Silver Dragon of Foghaven
+- **5e Stats:** Adult Silver Dragon; AC 19; HP 200+; Paralyzing Breath; Spellcasting (read magic, sleep, invisibility, arcane lock, protection from missiles, minor globe of invulnerability, magic jar)
+- **Role:** Caretaker of Foghaven Vale; charged with guarding Huma's Tomb and the Stone Dragon when good dragons took the Oath not to interfere; uses polymorph/magic jar to appear as various NPCs (Silvart, Theros, Vanderjack, etc.)
+- **The Oath:** Good dragons swore not to interfere with mortal affairs; Dargent breaks this oath to lead heroes to the Dragonlances, earning Fizban's rebuke
+
+#### Theros Ironfeld — Weaponsmith with the Silver Arm
+- **5e Stats:** Human Fighter/Artificer; lost his right arm fighting draconians (introduced in DL2); gained the Silver Arm of Ergoth from a ruined temple
+- **Silver Arm:** Magical prosthetic that bonds to the stump; functions as a natural arm but with tireless hammering ability; seems to "know" what needs to be made; pursued by the Grey Wraith (spectre guardian)
+- **Role:** Master of House Iron for Qualimori; opposes the elf-vs-elf conflict; key to forging new Dragonlances at the Stone Dragon foundry
+
+#### Fizban the Fabulous
+- **True Identity:** An avatar of Paladine, the chief god of good
+- **5e Stats:** Wizard of indeterminate (very high) level; appears as befuddled old man; spells often result in spectacular failures
+- **Role in DL7:** Encountered in the Stone Dragon's Lower Gallery; confronts Dargent about breaking the Oath; "Things are not what they seem, children"
+- **Obscure Death Rule:** If apparently killed, circumstances are always confused and body not recovered — he always returns
+
+#### Cyan Bloodbane — Ancient Green Dragon (DL10)
+- **5e Stats:** Ancient Green Dragon; CR 22; AC 21; HP 385; Poison Breath (22d6); Legendary Actions
+- **Role:** Whispers nightmares into King Lorac's mind, causing the Silvanesti nightmare; the true villain of DL10
+- **Tactics:** Does not fight directly initially; controls the nightmare realm; encountered in the Palace of Quinari
+
+### Elven Sub-Races of Krynn (Detailed from DL7)
+
+| Race | Also Called | Appearance | Society | Status |
+|------|-----------|------------|---------|--------|
+| **Silvanesti** | High Elves | Fair-skinned, blue/brown eyes, light brown to blonde-white hair, hazel eyes = line of Silvanos | Rigid caste system (Houses: Royal, Cleric, Protector/Wildrunners, craftsmen guilds, Servitor lowest); loose garments, flowing robes | Exiled to Silvamori on Southern Ergoth |
+| **Qualinesti** | Western Elves | Slightly smaller/darker than Silvanesti; honey-brown to blond hair; blue/brown eyes; woven slacks and jerkins | More friendly and open than Silvanesti; trade with other races; built Pax Tharkas with dwarves | Exiled to Qualimori on Southern Ergoth |
+| **Kagonesti** | Wild Elves | Very tan; dark hair (black to light brown, rare silver-white throwback); hazel eyes; muscular; clay/paint face designs | No stone buildings or cold iron; live in harmony with nature; send dead downriver; temporary hide/wood structures | Enslaved by Silvanesti, indentured by Qualinesti |
+| **Dimernesti** | Shoal Elves | Light bluish skin; webbed fingers; long silver hair braided with shells | Inhabit coastal shallows; breathe air and water; rare — Cataclysm destroyed many citadel | Mostly destroyed |
+| **Dargonesti** | Deep Elves | Tallest elven race; slender; outsized eyes; extended fingers; deep blue skin | Deep sea dwellers; once partnered with Silvanesti Mariners; broke off all communication | Isolated, lost guild |
+| **Half-Elven** | Untrue Elves | Varies | Silvanesti banish them; Qualinesti tolerate them | Comparatively short-lived |
+| **Dark Elven** | Untrue Elves | Throwback to pre-Age of Dreams | Regarded as lesser race by true elves | Outcasts |
+
+### Silvanesti Caste System (Houses)
+1. **House Royal** — Descendants of Silvanos; rulers
+2. **House Cleric** — Record-keepers and lore-masters (formerly religious)
+3. **House Protector (Wildrunners)** — Military/army
+4. **Craftsmen Houses** — House Mystic, House Gardener (Woodshapers/Hedge creators), House Mason, etc.
+5. **House Servitor** — Lowest; includes apprentices, foreign traders, indentured servants, slaves (including Kagonesti)
+
+### Creatures from Adventure Modules (5e Conversions)
+
+#### Thanoi (Walrus-Men)
+- **5e Stats:** Large humanoid, AC 14 (natural armor), HP 52 (7d10+14), Speed 30 ft, swim 40 ft
+- **STR** 16 (+3), **DEX** 10 (+0), **CON** 14 (+2), **INT** 7 (-2), **WIS** 10 (+0), **CHA** 7 (-2)
+- **Damage Immunities:** Cold
+- **Damage Vulnerabilities:** Fire (extra 1 point per die)
+- **Attacks:** Multiattack (2 tusks or 1 weapon). Tusks: +5 to hit, 1d8+3 piercing. Battleaxe: +5 to hit, 1d8+5 slashing (strength bonus)
+- **Weakness:** Lose 1 HD equivalent per week in above-freezing temperatures
+- **Ecology:** Vicious race; enjoy tormenting other creatures; eat fish primarily but also carrion; cooperate with ice bears
+
+#### Ice Bears
+- **5e Stats:** Large beast, AC 13, HP 68 (8d10+24), Speed 40 ft
+- **STR** 20 (+5), **DEX** 10 (+0), **CON** 16 (+3), **INT** 4 (-3), **WIS** 13 (+1), **CHA** 7 (-2)
+- **Damage Immunities:** Cold
+- **Attacks:** Multiattack (2 claws + 1 bite). Bite: +7 to hit, 2d10+5 piercing. Claw: +7 to hit, 1d8+5 slashing. If both claws hit, bear hug for 2d6+5 crushing.
+- **Tracking:** Can track prey over snow/ice with near-perfect accuracy (DC 5 for trails 1 day old; +2 DC per day; +2 DC per inch of new snow)
+- **Ecology:** 12+ ft tall; carnivores that mainly eat fish; cooperate with thanoi for mutual hunting benefit
+
+#### Sivak Draconians (introduced in DL7)
+- **5e Stats:** Medium dragon, AC 17 (natural), HP 85, Speed 30 ft, fly 60 ft
+- **Special:** True flight (unlike other draconians who only glide). When killed, polymorphs into the form of their slayer for 3 days before decomposing (perfect disguise opportunity)
+- **Role:** Elite shock troops and infiltrators; used by Dragon Highlords for espionage; 4 Sivaks posed as Vanderjack's band members in DL7
+
+#### Moon Dogs (Guardians of Foghaven)
+- **5e Stats:** Celestial, AC 15, HP 60, Speed 50 ft; detect evil at will; howl causes dread in evil creatures
+- **Role:** Charged with guarding Foghaven Pass from evil; appear as great dark hounds with luminous presence; will not attack non-evil party members
+
+#### The Last Guardian (Stone Dragon)
+- **5e Stats:** Construct; bronze skin, steel sword, dragon head; AC and HP scale with number/alignment of attackers
+- **Base:** AC 16, HP 40, +5 to hit, 2d6+3 damage
+- **Per good attacker:** +8 HP, -1 AC, +1 damage
+- **Per neutral attacker:** +12 HP, -1 AC, +1 damage
+- **Per evil attacker:** +16 HP, -1 AC, +1 damage
+- **Special:** Minor globe of invulnerability (immune to spells 3rd level and below)
+
+### Magic Items from Adventure Modules (5e Conversions)
+
+#### Wyrmslayer (Greatsword +3, Dragon Bane)
+- **Type:** Weapon (greatsword), very rare (requires attunement)
+- **Properties:** +3 bonus to attack and damage rolls; deals double damage against dragons and draconians (roll damage normally, then double); grants +3 to saving throws vs. dragon breath weapons and spells cast by dragons/draconians; immune to Baaz petrification (weapon never gets stuck)
+- **Warning:** Emits loud buzzing when within 30 ft of a dragon (always wakes sleeping dragons; does NOT detect draconians)
+
+#### Frostreaver (+2 Battleaxe, Ice-Forged)
+- **Type:** Weapon (greataxe), rare (requires attunement; STR 13+)
+- **Properties:** +2 bonus to attack and damage rolls; deals an extra 1d6 cold damage on hit
+- **Crafting:** Made from superdense glacier ice treated with thanoi blubber oil; only the Revered Cleric of an Ice Folk tribe can craft one; requires one month per blade
+- **Weakness:** Temperatures above freezing cause the blade to soften in 24 hours (3 hours in very hot environments), rendering it useless
+
+#### Glasses of Arcanist
+- **Type:** Wondrous item, rare (requires attunement)
+- **Properties:** Wearer can read all written languages, including magical scrolls and spellbooks; frames are platinum but narrow (fit only Small creatures or elves)
+- **Limitation:** Complex concepts require an Intelligence check (DC varies by content difficulty); failure garbles 1 word per point of failure
+
+#### Dragon Orb (Orb of Dragon Control) — Orb of the Silver Dragon
+- **Type:** Wondrous item, legendary (requires attunement by a spellcaster)
+- **Properties:** 10-inch crystal globe; expands to 20 inches when activated by command word "Argentum Commandares"
+- **Primary Function (hidden):** Summons evil dragons within 10-40 miles; user must succeed on DC 17 Wisdom save or be charmed by the evil dragon imprisoned within the Orb
+- **Secondary Functions:** Cure wounds (4d8+4) 3/day; continual light at will; detect magic at will — each use requires a new Wisdom save vs. charm and may attract dragons
+- **Danger:** Charmed characters act normally until a critical moment, then betray the party to serve evil; detect magic and detect evil reveal the charm effect
+
+#### Sword of Huma
+- **Type:** Weapon (longsword), legendary (requires attunement)
+- **Properties:** +2 bonus to attack and damage; functions as a dragon slayer (extra 3d6 damage vs. dragons); can cast *heal* once per day
+- **Curse:** If removed from Huma's Tomb, wielder suffers -1 to attack rolls and saving throws until they use it against an evil dragon (or receive *atonement/greater restoration*)
+
+#### Shield of Huma
+- **Type:** Armor (shield), legendary (requires attunement)
+- **Properties:** +2 bonus to AC (total +4 with shield); +3 to saving throws against dragon breath weapons; bears the emblem of the Order of the Rose
+- **Curse:** Same as Sword of Huma — removal from Tomb curses wielder until used against evil dragon
+
+#### Silver Arm of Ergoth
+- **Type:** Wondrous item, legendary
+- **Properties:** Magical prosthetic arm; bonds permanently to the stump of a lost arm; functions as a natural arm with tireless strength (advantage on Strength checks for crafting); seems to instinctively guide the wearer in metalwork
+- **Guardian:** Protected by the Grey Wraith (powerful spectre, cannot be turned); the wraith pursues anyone who takes the arm
+- **Importance:** One of three items needed to forge true Dragonlances (along with Hammer of Kharas and dragonmetal)
+
+### The Dragonlances (Full Reference)
+
+#### Forging Requirements
+1. **Dragonmetal** — from the Pool in the Heart of the Stone Dragon (last pure source on Krynn)
+2. **Silver Arm of Ergoth** — magical prosthetic with forging guidance
+3. **Hammer of Kharas** — legendary dwarven hammer, currently in Thorbardin
+- Without the Hammer, only temporary/inferior lances can be made (+1 instead of full power)
+
+#### Dragonlance Types (5e)
+| Type | Size | Damage vs. Dragons | Weight | Notes |
+|------|------|-------------------|--------|-------|
+| **Footman's Lance** | 8 ft | +2, extra 2d12 vs dragons | 10 lb | Can be wielded on foot; reach weapon |
+| **Mounted Lance** | 16 ft | +3, extra 3d12 vs dragons | 25 lb | Must be mounted on dragonback; reach |
+| **Greater (Huma's) Lance** | 16 ft | +3, extra 5d12 vs dragons | 25 lb | Legendary; only one ever made; lost |
+
+### The Oath of the Good Dragons
+- During the Third Dragon War, the good dragons (gold, silver, bronze, brass, copper) were convinced/coerced into swearing an Oath not to interfere in mortal affairs
+- **Enforced by:** Fizban/Paladine (reluctantly); the gods of neutrality
+- **Breaking the Oath:** Dargent's assistance to the heroes in finding the Dragonlances constitutes a breach; Fizban warns "You endanger more than you know by breaking the Oath!"
+- **Significance:** Explains why good dragons are absent from the War of the Lance while evil dragons run rampant; the discovery of the Dragonlances and the eventual breaking of the Oath by all good dragons turns the tide of the war
+
+### The Dragon Orbs — History
+- Created during the Age of Dreams by the highest mages of all three Orders (White/Red/Black Robes) working together in the Tower of Palanthas
+- **Original Purpose:** To help defeat dragons during the Second Dragon Wars
+- **Five Orbs made:** One for each Tower of High Sorcery (Palanthas, Istar, Wayreth, and the two destroyed Towers)
+- **True Function:** Summons evil dragons (mages would then destroy the summoned dragons with other magic)
+- **Lorac's Orb:** The Orb of Istar spoke to Lorac during his Test, warning him the Orbs would be lost; he took/stole it; later attempted to use it against the dragonarmies and was enslaved by it
+- **Known Orbs in the modules:** Orb of the Silver Dragon (Icewall Castle, recovered by Heroes of the Lance in DL6); Lorac's Orb (in Silvanesti, DL10)
+
+### Stormogre's Forces — Daltigoth, Southern Ergoth (DL7)
+- **Daltigoth:** Ruined former capital of Ergoth; now headquarters for Dragon Highlord operations on Ergoth
+- **Leadership:** Stormogre (powerful hill giant) selected as agent by Dragon Highlords to unite ogre tribes
+- **Sons:** Thunderbane (mining fief in west), Hammerfall and Strokelightning (in Daltigoth)
+- **Forces:** ~50 loyal ogres, large force of Sivak and Baaz draconians, flight of 5 white dragons, hundreds of wild ogre tribal warriors (poorly organized, feuding among themselves)
+- **Strategy:** Unite the ogre tribes against elven refugees; partially successful — ogre tribes more interested in fighting each other
+
+### Aarakocra of the Hidden Vale (DL7)
+- Bird-folk colony of ~120 in the hidden vale between the Stone Dragon's wings
+- Given their land ages ago by "The Great Dragons" (silver dragons who used the Stone Dragon interior for magic)
+- **Fear:** Deathly afraid of enclosed spaces (won't enter the Stone Dragon interior)
+- **Symbol of Authority:** Ivory wand with bird's claw holding a sphere (found in Dargent's lair; has Nystul's magic aura but no actual magical power)
+- **5e Equivalent:** Use standard aarakocra stats from MM; these are friendly if treated well; will carry party members to higher elevations in exchange for food or defeating the margoyles
+
+---
+
+> **Document Statistics:** ~4400+ lines covering the complete D&D 5e SRD (core rules, all races, all 13 classes with features/subclasses, backgrounds, feats, full weapon/armor/equipment tables, spellcasting rules, class spell lists, cantrip reference, combat spell quick reference, 150+ magic items, 200+ monsters organized by CR, conditions, combat rules, adventuring) PLUS comprehensive Dragonlance/Krynn world lore extracted from Tales of the Lance (AD&D 2e), Dragonlance Campaign Setting (3.5e), Raistlin's Guide to Krynn (5e v2.5), Monstrous Compendium Vol 2, Shadow of the Dragon Queen (5e), **DL6 Dragons of Ice, DL7 Dragons of Light, and DL10 Dragons of Dreams** — including complete timeline from the Age of Starbirth through 369 AC, detailed geography of all Ansalon nations, full pantheon of 16 gods with 5e domains, complete cosmology, Orders of High Sorcery, Laws of Krynn, dying curse mechanics, **detailed adventure module lore with 5e NPC/creature/item conversions**, Dragonlance forging requirements, the Oath of the Good Dragons, Dragon Orb history, elven sub-races and caste system, Icewall Glacier/Southern Ergoth/Silvanesti nightmare locations, and campaign-specific data for Shadows Before The Flame.
