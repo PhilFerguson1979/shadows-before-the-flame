@@ -10,6 +10,7 @@ ac: 14
 speed: 35
 profBonus: 2
 status: "active"
+xp: 0
 portrait: "/portraits/cerci-sanja.svg"
 str: 13
 dex: 17

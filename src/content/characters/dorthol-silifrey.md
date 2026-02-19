@@ -10,6 +10,7 @@ ac: 12
 speed: 30
 profBonus: 2
 status: "active"
+xp: 0
 portrait: "/portraits/dorthol-silifrey.svg"
 str: 10
 dex: 14

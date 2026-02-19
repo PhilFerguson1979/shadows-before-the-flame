@@ -1,0 +1,445 @@
+---
+interface Props {
+  characterName: string;
+  characterSlug: string;
+  currentXP: number;
+  currentLevel: number;
+  baseUrl: string;
+}
+
+const { characterName, characterSlug, currentXP, currentLevel, baseUrl } = Astro.props;
+
+// 5e XP thresholds (cumulative XP needed to reach each level)
+const XP_THRESHOLDS: Record<number, number> = {
+  1: 0, 2: 300, 3: 900, 4: 2700, 5: 6500,
+  6: 14000, 7: 23000, 8: 34000, 9: 48000, 10: 64000,
+  11: 85000, 12: 100000, 13: 120000, 14: 140000, 15: 165000,
+  16: 195000, 17: 225000, 18: 265000, 19: 305000, 20: 355000,
+};
+
+const nextLevel = Math.min(currentLevel + 1, 20);
+const currentThreshold = XP_THRESHOLDS[currentLevel] ?? 0;
+const nextThreshold = XP_THRESHOLDS[nextLevel] ?? 355000;
+const xpIntoLevel = currentXP - currentThreshold;
+const xpNeeded = nextThreshold - currentThreshold;
+const isMaxLevel = currentLevel >= 20;
+
+// Serialize for client
+const configJson = JSON.stringify({
+  characterSlug,
+  currentLevel,
+  baseXP: currentXP,
+  thresholds: XP_THRESHOLDS,
+  isMaxLevel,
+});
+---
+
+<div class="xp-tracker" id="xpTracker">
+  <div class="xp-header">
+    <div class="xp-title">
+      <span class="xp-icon">⭐</span>
+      <span>Experience Points</span>
+    </div>
+    <div class="xp-level-badge">
+      Level <span id="xpLevel">{currentLevel}</span>
+    </div>
+  </div>
+
+  <div class="xp-bar-section">
+    <div class="xp-bar-wrap">
+      <div class="xp-bar-fill" id="xpBarFill"></div>
+    </div>
+    <div class="xp-bar-labels">
+      <span class="xp-current" id="xpCurrentDisplay">{currentXP.toLocaleString()} XP</span>
+      {!isMaxLevel && (
+        <span class="xp-next" id="xpNextDisplay">Next: {nextThreshold.toLocaleString()} XP</span>
+      )}
+      {isMaxLevel && (
+        <span class="xp-next">Max Level</span>
+      )}
+    </div>
+  </div>
+
+  <div class="xp-levelup-banner" id="xpLevelUpBanner" style="display:none;">
+    🎉 Level Up Available!
+  </div>
+
+  <div class="xp-controls">
+    <button class="xp-add-btn" id="xpAddBtn" title="Add XP">+ Add XP</button>
+    <div class="xp-input-wrap" id="xpInputWrap" style="display:none;">
+      <input type="number" class="xp-input" id="xpInput" min="1" placeholder="Amount..." />
+      <button class="xp-confirm-btn" id="xpConfirmBtn">✓</button>
+      <button class="xp-cancel-btn" id="xpCancelBtn">✕</button>
+    </div>
+    <div class="xp-history-toggle">
+      <button class="xp-history-btn" id="xpHistoryBtn" title="XP History">📜</button>
+    </div>
+  </div>
+
+  <div class="xp-history-panel" id="xpHistoryPanel" style="display:none;">
+    <div class="xp-history-header">
+      <span>XP History</span>
+      <button class="xp-reset-btn" id="xpResetBtn" title="Reset to base XP">Reset</button>
+    </div>
+    <div class="xp-history-list" id="xpHistoryList">
+      <div class="xp-history-empty">No XP added this session</div>
+    </div>
+  </div>
+</div>
+
+<script define:vars={{ configJson }}>
+  const config = JSON.parse(configJson);
+  const storageKey = `sbtf-xp-${config.characterSlug}`;
+
+  // State
+  let state = {
+    addedXP: 0,
+    history: [],  // { amount, timestamp, note }
+  };
+
+  // DOM refs
+  const barFill = document.getElementById('xpBarFill');
+  const currentDisplay = document.getElementById('xpCurrentDisplay');
+  const nextDisplay = document.getElementById('xpNextDisplay');
+  const levelBadge = document.getElementById('xpLevel');
+  const levelUpBanner = document.getElementById('xpLevelUpBanner');
+  const addBtn = document.getElementById('xpAddBtn');
+  const inputWrap = document.getElementById('xpInputWrap');
+  const xpInput = document.getElementById('xpInput');
+  const confirmBtn = document.getElementById('xpConfirmBtn');
+  const cancelBtn = document.getElementById('xpCancelBtn');
+  const historyBtn = document.getElementById('xpHistoryBtn');
+  const historyPanel = document.getElementById('xpHistoryPanel');
+  const historyList = document.getElementById('xpHistoryList');
+  const resetBtn = document.getElementById('xpResetBtn');
+
+  // Load state
+  function loadState() {
+    try {
+      const saved = localStorage.getItem(storageKey);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        state.addedXP = parsed.addedXP ?? 0;
+        state.history = parsed.history ?? [];
+      }
+    } catch (e) { /* ignore */ }
+  }
+
+  function saveState() {
+    localStorage.setItem(storageKey, JSON.stringify(state));
+  }
+
+  function getTotalXP() {
+    return config.baseXP + state.addedXP;
+  }
+
+  function getLevelForXP(xp) {
+    let lvl = 1;
+    for (let l = 20; l >= 1; l--) {
+      if (xp >= config.thresholds[l]) { lvl = l; break; }
+    }
+    return lvl;
+  }
+
+  function updateAll() {
+    const totalXP = getTotalXP();
+    const effectiveLevel = getLevelForXP(totalXP);
+    const currentThreshold = config.thresholds[effectiveLevel] ?? 0;
+    const nextLevel = Math.min(effectiveLevel + 1, 20);
+    const nextThreshold = config.thresholds[nextLevel] ?? 355000;
+    const xpIntoLevel = totalXP - currentThreshold;
+    const xpNeeded = nextThreshold - currentThreshold;
+
+    // Bar
+    const pct = config.isMaxLevel && effectiveLevel >= 20
+      ? 100
+      : Math.min(100, Math.max(0, (xpIntoLevel / xpNeeded) * 100));
+    barFill.style.width = `${pct}%`;
+
+    // Level-up detection
+    const canLevelUp = effectiveLevel > config.currentLevel;
+    barFill.classList.toggle('level-up-glow', canLevelUp);
+    levelUpBanner.style.display = canLevelUp ? 'flex' : 'none';
+
+    // Text
+    currentDisplay.textContent = `${totalXP.toLocaleString()} XP`;
+    if (nextDisplay && effectiveLevel < 20) {
+      nextDisplay.textContent = `Next: ${nextThreshold.toLocaleString()} XP`;
+    }
+    levelBadge.textContent = effectiveLevel;
+
+    // History
+    renderHistory();
+  }
+
+  function renderHistory() {
+    if (state.history.length === 0) {
+      historyList.innerHTML = '<div class="xp-history-empty">No XP added this session</div>';
+      return;
+    }
+    historyList.innerHTML = state.history.map((entry, i) => {
+      const date = new Date(entry.timestamp);
+      const time = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      return `<div class="xp-history-entry">
+        <span class="xp-history-amount">+${entry.amount.toLocaleString()}</span>
+        <span class="xp-history-time">${time}</span>
+      </div>`;
+    }).join('');
+  }
+
+  // Add XP
+  function showInput() {
+    inputWrap.style.display = 'flex';
+    addBtn.style.display = 'none';
+    xpInput.value = '';
+    xpInput.focus();
+  }
+
+  function hideInput() {
+    inputWrap.style.display = 'none';
+    addBtn.style.display = '';
+  }
+
+  function confirmAdd() {
+    const val = parseInt(xpInput.value);
+    if (!isNaN(val) && val > 0) {
+      state.addedXP += val;
+      state.history.push({ amount: val, timestamp: Date.now() });
+      saveState();
+      updateAll();
+    }
+    hideInput();
+  }
+
+  // Events
+  addBtn.addEventListener('click', showInput);
+  cancelBtn.addEventListener('click', hideInput);
+  confirmBtn.addEventListener('click', confirmAdd);
+  xpInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') confirmAdd();
+    if (e.key === 'Escape') hideInput();
+  });
+
+  historyBtn.addEventListener('click', () => {
+    const showing = historyPanel.style.display !== 'none';
+    historyPanel.style.display = showing ? 'none' : 'block';
+  });
+
+  resetBtn.addEventListener('click', () => {
+    state.addedXP = 0;
+    state.history = [];
+    saveState();
+    updateAll();
+  });
+
+  // Init
+  loadState();
+  updateAll();
+</script>
+
+<style>
+.xp-tracker {
+  margin: 1.25rem 0;
+  padding: 1rem 1.25rem;
+  background: rgba(139,105,20,0.06);
+  border: 1px solid rgba(139,105,20,0.2);
+  border-radius: 8px;
+}
+
+.xp-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+.xp-title {
+  font-size: 0.85rem;
+  font-weight: bold;
+  color: var(--text-gold);
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.xp-icon { font-size: 1rem; }
+.xp-level-badge {
+  font-size: 0.78rem;
+  color: var(--text-gold-bright);
+  background: rgba(139,105,20,0.2);
+  border: 1px solid rgba(139,105,20,0.4);
+  padding: 0.2rem 0.6rem;
+  border-radius: 4px;
+  font-weight: bold;
+}
+
+/* XP Bar */
+.xp-bar-section { margin-bottom: 0.6rem; }
+.xp-bar-wrap {
+  height: 10px;
+  background: rgba(100,100,100,0.2);
+  border-radius: 5px;
+  overflow: hidden;
+  margin-bottom: 0.3rem;
+}
+.xp-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, rgba(139,105,20,0.6), rgba(218,165,32,0.8));
+  border-radius: 5px;
+  transition: width 0.5s ease;
+}
+.xp-bar-fill.level-up-glow {
+  background: linear-gradient(90deg, #d4a017, #ffd700, #d4a017);
+  box-shadow: 0 0 10px rgba(255,215,0,0.5);
+  animation: xpGlow 1.5s ease-in-out infinite alternate;
+}
+@keyframes xpGlow {
+  from { box-shadow: 0 0 5px rgba(255,215,0,0.3); }
+  to { box-shadow: 0 0 15px rgba(255,215,0,0.6); }
+}
+.xp-bar-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.72rem;
+}
+.xp-current { color: var(--text-parchment); font-weight: bold; }
+.xp-next { color: var(--text-muted); }
+
+/* Level up banner */
+.xp-levelup-banner {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0.5rem;
+  margin-bottom: 0.6rem;
+  background: rgba(255,215,0,0.12);
+  border: 1px solid rgba(255,215,0,0.4);
+  border-radius: 6px;
+  color: #ffd700;
+  font-size: 0.85rem;
+  font-weight: bold;
+  animation: levelPulse 2s ease-in-out infinite;
+}
+@keyframes levelPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+/* Controls */
+.xp-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.xp-add-btn {
+  padding: 0.35rem 0.8rem;
+  font-size: 0.78rem;
+  font-weight: bold;
+  background: rgba(139,105,20,0.15);
+  border: 1px solid rgba(139,105,20,0.4);
+  color: var(--text-gold-bright);
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.xp-add-btn:hover { background: rgba(139,105,20,0.3); }
+
+.xp-input-wrap {
+  display: none;
+  align-items: center;
+  gap: 0.3rem;
+}
+.xp-input {
+  width: 80px;
+  padding: 0.3rem 0.5rem;
+  background: rgba(100,100,100,0.2);
+  border: 1px solid rgba(139,105,20,0.4);
+  color: var(--text-parchment);
+  border-radius: 4px;
+  font-size: 0.8rem;
+  text-align: center;
+  -moz-appearance: textfield;
+}
+.xp-input::-webkit-outer-spin-button,
+.xp-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.xp-input:focus { outline: none; border-color: var(--text-gold-bright); }
+
+.xp-confirm-btn, .xp-cancel-btn {
+  width: 26px; height: 26px;
+  border-radius: 4px;
+  border: 1px solid;
+  font-size: 0.75rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.xp-confirm-btn {
+  background: rgba(39,174,96,0.15);
+  border-color: rgba(39,174,96,0.4);
+  color: #27ae60;
+}
+.xp-confirm-btn:hover { background: rgba(39,174,96,0.3); }
+.xp-cancel-btn {
+  background: rgba(192,57,43,0.15);
+  border-color: rgba(192,57,43,0.4);
+  color: #e74c3c;
+}
+.xp-cancel-btn:hover { background: rgba(192,57,43,0.3); }
+
+.xp-history-toggle { margin-left: auto; }
+.xp-history-btn {
+  background: rgba(100,100,100,0.1);
+  border: 1px solid rgba(100,100,100,0.2);
+  color: var(--text-muted);
+  border-radius: 4px;
+  padding: 0.25rem 0.5rem;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+.xp-history-btn:hover { background: rgba(100,100,100,0.2); color: var(--text-parchment); }
+
+/* History panel */
+.xp-history-panel {
+  margin-top: 0.6rem;
+  padding: 0.6rem 0.8rem;
+  background: rgba(0,0,0,0.15);
+  border: 1px solid rgba(100,100,100,0.2);
+  border-radius: 6px;
+}
+.xp-history-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.4rem;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.xp-reset-btn {
+  font-size: 0.68rem;
+  background: rgba(192,57,43,0.1);
+  border: 1px solid rgba(192,57,43,0.3);
+  color: #e88;
+  padding: 0.15rem 0.5rem;
+  border-radius: 3px;
+  cursor: pointer;
+}
+.xp-reset-btn:hover { background: rgba(192,57,43,0.25); }
+.xp-history-empty { font-size: 0.75rem; color: var(--text-muted); font-style: italic; }
+.xp-history-entry {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.2rem 0;
+  font-size: 0.78rem;
+  border-bottom: 1px solid rgba(100,100,100,0.1);
+}
+.xp-history-entry:last-child { border-bottom: none; }
+.xp-history-amount { color: #6ec97a; font-weight: bold; }
+.xp-history-time { color: var(--text-muted); font-size: 0.7rem; }
+
+@media (max-width: 640px) {
+  .xp-tracker { padding: 0.75rem; }
+  .xp-input { width: 65px; }
+}
+</style>

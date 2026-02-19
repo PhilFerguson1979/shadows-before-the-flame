@@ -10,6 +10,7 @@ ac: 16
 speed: 25
 profBonus: 2
 status: "active"
+xp: 0
 portrait: "/portraits/vomilia-fraker.svg"
 str: 11
 dex: 13

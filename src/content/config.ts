@@ -81,6 +81,8 @@ const characters = defineCollection({
     // Spellcasting type and ability (optional — inferred from class if not set)
     spellcastingAbility: z.enum(['str', 'dex', 'con', 'int', 'wis', 'cha']).optional(),
     casterType: z.enum(['prepared', 'known', 'none']).optional(),
+    // Experience points
+    xp: z.number().optional().default(0),
   }),
 });
 const sessions = defineCollection({

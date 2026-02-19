@@ -11,6 +11,7 @@ ac: 14
 speed: 30
 profBonus: 2
 status: "active"
+xp: 0
 portrait: "/portraits/darian-vayne.svg"
 str: 13
 dex: 19

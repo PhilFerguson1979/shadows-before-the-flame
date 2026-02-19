@@ -10,6 +10,7 @@ ac: 13
 speed: 30
 profBonus: 2
 status: "active"
+xp: 0
 portrait: "/portraits/dwardo-gutterson.svg"
 str: 8
 dex: 15

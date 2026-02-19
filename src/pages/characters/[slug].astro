@@ -4,6 +4,7 @@ import EquipmentPanel from '../../components/EquipmentPanel.astro';
 import CurrencyDisplay from '../../components/CurrencyDisplay.astro';
 import LevelUpTracker from '../../components/LevelUpTracker.astro';
 import SpellManager from '../../components/SpellManager.astro';
+import XPTracker from '../../components/XPTracker.astro';
 import { getCollection } from 'astro:content';
 
 export async function getStaticPaths() {
@@ -99,6 +100,15 @@ function modStr(score) {
         ))}
       </div>
     )}
+
+    <!-- XP Tracker -->
+    <XPTracker
+      characterName={char.data.name}
+      characterSlug={char.slug}
+      currentXP={char.data.xp ?? 0}
+      currentLevel={char.data.level ?? 1}
+      baseUrl={base}
+    />
 
     <!-- Currency -->
     {char.data.currency && <CurrencyDisplay currency={char.data.currency} />}
