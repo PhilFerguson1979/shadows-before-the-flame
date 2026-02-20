@@ -187,7 +187,6 @@ export const monsters: Monster[] = [
   m('Giant Spider','Large','Beast','unaligned',14,26,'4d10+4','30 ft, climb 30 ft',14,16,12,2,11,4,'1','SRD',{traits:['Web Sense','Web Walker'],actions:['Web (restrain)']}),
   m('Giant Toad','Large','Beast','unaligned',11,39,'6d8+12','20 ft, swim 40 ft',15,13,13,2,10,3,'1','SRD',{actions:['Swallow Medium or smaller']}),
   m('Giant Vulture','Large','Beast','neutral evil',10,22,'3d10+6','10 ft, fly 60 ft',15,10,15,6,12,7,'1','SRD',{traits:['Keen Sight/Smell','Pack Tactics']}),
-  m('Goblin Boss','Small','Humanoid','neutral evil',17,21,'6d6','30 ft',10,14,10,10,8,10,'1','SRD',{acType:'chain shirt, shield',traits:['Redirect Attack']}),
   m('Half-Ogre','Large','Giant','chaotic evil',12,30,'4d10+8','30 ft',17,10,14,7,9,10,'1','SRD'),
   m('Hippogriff','Large','Monstrosity','unaligned',11,19,'3d10+3','40 ft, fly 60 ft',17,13,13,2,12,8,'1','SRD',{traits:['Keen Sight']}),
   m('Imp','Tiny','Fiend','lawful evil',13,10,'3d4+3','20 ft, fly 40 ft',6,17,13,11,12,14,'1','SRD',{traits:['Shapechanger','Devil\'s Sight 120 ft','Magic Resistance','Invisibility']}),
@@ -294,7 +293,6 @@ export const monsters: Monster[] = [
   m('Troll','Large','Giant','chaotic evil',15,84,'8d10+40','30 ft',18,13,20,7,9,7,'5','SRD',{acType:'natural',traits:['Regeneration 10/turn (stopped by acid/fire)','Keen Smell']}),
   m('Unicorn','Large','Celestial','lawful good',12,67,'9d10+18','50 ft',18,14,15,11,17,16,'5','SRD',{traits:['Healing Touch 2d8+2 (3/day)','Teleport 1/day','Innate Spellcasting'],legendary:true}),
   m('Water Elemental','Large','Elemental','neutral',14,114,'12d10+48','30 ft, swim 90 ft',18,14,18,5,10,8,'5','SRD',{traits:['Water Form'],actions:['Whelm (grapple + suffocate)']}),
-  m('Wraith','Medium','Undead','neutral evil',13,67,'9d8+27','0 ft, fly 60 ft (hover)',6,16,16,12,14,15,'5','SRD',{actions:['Life Drain (max HP reduction)','Create specters']}),
   m('Xorn','Medium','Elemental','neutral',19,73,'7d8+42','20 ft, burrow 20 ft',17,10,22,11,10,11,'5','SRD',{acType:'natural',traits:['Burrow through stone','Treasure Sense 60 ft']}),
   m('Nevermind Gnome Mastermind','Small','Humanoid','chaotic neutral',15,52,'10d6+20','25 ft',10,16,14,20,12,14,'5','DL',{traits:['Multiple gadgets','Clockwork constructs'],actions:['Explosive devices']}),
   m('Traag Draconian','Large','Dragon','chaotic evil',16,90,'10d10+35','30 ft',20,10,16,3,8,6,'5','DL',{acType:'natural armor',traits:['Failed draconian experiment','Berserk fury','Resistant to most damage']}),
@@ -352,14 +350,12 @@ export const monsters: Monster[] = [
 
   // ============ CR 13-14 (10,000-11,500 XP) ============
   m('Adult White Dragon','Huge','Dragon','chaotic evil',18,200,'16d12+96','30 ft, burrow 30 ft, fly 80 ft, swim 40 ft',22,10,22,8,12,12,'13','SRD',{acType:'natural',traits:['Frightful Presence'],actions:['Cold Breath (12d8, 60 ft cone)'],legendary:true}),
-  m('Beholder','Large','Aberration','lawful evil',18,180,'19d10+76','0 ft, fly 20 ft (hover)',10,14,18,17,15,17,'13','SRD',{acType:'natural',traits:['Antimagic Cone (central eye)','10 Eye Rays'],actions:['Eye Rays'],legendary:true}),
   m('Vampire','Medium','Undead','lawful evil',16,144,'17d8+68','30 ft',18,18,18,17,15,18,'13','SRD',{acType:'natural',traits:['Shapechanger','Regeneration 20/turn','Children of the Night','Misty Escape'],actions:['Charm','Bite (necrotic + max HP drain)'],legendary:true}),
   m('Adult Black Dragon','Huge','Dragon','chaotic evil',19,195,'17d12+85','30 ft, fly 80 ft, swim 40 ft',23,14,21,14,13,17,'14','SRD',{acType:'natural',traits:['Frightful Presence','Amphibious'],actions:['Acid Breath (12d8, 60 ft line)'],legendary:true}),
   m('Onyx (Khisanth)','Huge','Dragon','chaotic evil',19,195,'17d12+85','30 ft, fly 80 ft, swim 40 ft',23,14,21,14,13,17,'14','DL',{acType:'natural',traits:['Adult Black Dragon','Guarded the Disks of Mishakal in Xak Tsaroth'],actions:['Acid Breath (12d8, 60 ft line)'],legendary:true}),
 
   // ============ CR 15-16 ============
   m('Adult Green Dragon','Huge','Dragon','lawful evil',19,207,'18d12+90','40 ft, fly 80 ft, swim 40 ft',23,12,21,18,15,17,'15','SRD',{acType:'natural',traits:['Frightful Presence','Amphibious'],actions:['Poison Breath (16d6, 60 ft cone)'],legendary:true}),
-  m('Mummy Lord','Medium','Undead','lawful evil',17,97,'13d8+39','20 ft',18,10,17,11,18,16,'15','SRD',{traits:['Rejuvenation','10th-level spellcasting'],actions:['Dreadful Glare','Rotting Fist'],legendary:true}),
   m('Purple Worm','Gargantuan','Monstrosity','unaligned',18,247,'15d20+90','50 ft, burrow 30 ft',28,7,22,1,8,4,'15','SRD',{acType:'natural',actions:['Swallow (6d6 acid)','Tail Stinger (3d6+4d6 poison)']}),
   m('Adult Blue Dragon','Huge','Dragon','lawful evil',19,225,'18d12+108','40 ft, burrow 30 ft, fly 80 ft',25,10,23,16,15,19,'16','SRD',{acType:'natural',traits:['Frightful Presence'],actions:['Lightning Breath (12d10, 90 ft line)'],legendary:true}),
   m('Adult Silver Dragon','Huge','Dragon','lawful good',19,243,'18d12+126','40 ft, fly 80 ft',27,10,25,16,13,21,'16','SRD',{acType:'natural',traits:['Frightful Presence'],actions:['Cold Breath (13d8, 60 ft cone)','Paralyzing Breath'],legendary:true}),
