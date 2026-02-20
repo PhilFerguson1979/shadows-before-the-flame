@@ -42,6 +42,20 @@ const nextLevelData = sorted.map(c => {
   const ready = canLevelUp(lvl, c.data.xp ?? 0);
   return { slug: c.slug, name: c.data.name, player: c.data.player, class: cls, level: lvl, preview, slotChanges, classData, ready, color: classColor[cls] ?? '#8b6914' };
 });
+
+// Serialize for client-side localStorage hydration
+const clientData = JSON.stringify(sorted.map(c => ({
+  slug: c.slug,
+  baseLevel: c.data.level ?? 1,
+  baseXP: c.data.xp ?? 0,
+  baseMaxHp: c.data.maxHp ?? 0,
+})));
+const clientThresholds = JSON.stringify({
+  1: 0, 2: 300, 3: 900, 4: 2700, 5: 6500,
+  6: 14000, 7: 23000, 8: 34000, 9: 48000, 10: 64000,
+  11: 85000, 12: 100000, 13: 120000, 14: 140000, 15: 165000,
+  16: 195000, 17: 225000, 18: 265000, 19: 305000, 20: 355000,
+});
 ---
 
 <BaseLayout title="Level Tracker">
@@ -59,7 +73,7 @@ const nextLevelData = sorted.map(c => {
         <span class="ps-lbl">Characters</span>
       </div>
       <div class="ps-stat">
-        <span class="ps-val">{avgLevel}</span>
+        <span class="ps-val" id="psAvgLevel">{avgLevel}</span>
         <span class="ps-lbl">Avg Level</span>
       </div>
       <div class="ps-stat">
@@ -67,7 +81,7 @@ const nextLevelData = sorted.map(c => {
         <span class="ps-lbl">Prof Bonus</span>
       </div>
       <div class="ps-stat">
-        <span class="ps-val">{sorted.reduce((s, c) => s + (c.data.maxHp ?? 0), 0)}</span>
+        <span class="ps-val" id="psTotalHp">{sorted.reduce((s, c) => s + (c.data.maxHp ?? 0), 0)}</span>
         <span class="ps-lbl">Total Party HP</span>
       </div>
     </div>
@@ -80,7 +94,7 @@ const nextLevelData = sorted.map(c => {
         const color = classColor[d.class ?? ''] ?? '#8b6914';
         const history = d.levelHistory ?? [];
         return (
-          <div class="char-card" style={`--char-color: ${color}`}>
+          <div class="char-card" style={`--char-color: ${color}`} data-slug={c.slug}>
             <div class="cc-header">
               <div class="cc-name-block">
                 <div class="cc-name">
@@ -157,7 +171,7 @@ const nextLevelData = sorted.map(c => {
           }
           if (gains.length === 0) gains.push('No major features — see Level Up Guide for full details');
           return (
-            <div class={`nl-card ${nd.ready ? 'nl-ready' : ''}`} style={`--char-color: ${nd.color}`}>
+            <div class={`nl-card ${nd.ready ? 'nl-ready' : ''}`} style={`--char-color: ${nd.color}`} data-slug={nd.slug}>
               <div class="nl-header">
                 <span class="nl-class">{nd.class} → Lvl {nd.preview.level}</span>
                 <span class="nl-player">{nd.player} ({nd.name})</span>
@@ -349,3 +363,115 @@ const nextLevelData = sorted.map(c => {
   .next-level-grid { grid-template-columns: 1fr; }
 }
 </style>
+
+<script define:vars={{ clientData, clientThresholds }}>
+  document.addEventListener('DOMContentLoaded', function() {
+    var chars = JSON.parse(clientData);
+    var thresholds = JSON.parse(clientThresholds);
+
+    function getLevelForXP(xp) {
+      var lvl = 1;
+      for (var l = 20; l >= 1; l--) {
+        if (xp >= thresholds[l]) { lvl = l; break; }
+      }
+      return lvl;
+    }
+
+    function profBonus(level) {
+      return Math.ceil(level / 4) + 1;
+    }
+
+    var totalLevels = 0;
+    var totalHp = 0;
+
+    chars.forEach(function(ch) {
+      // Read localStorage XP
+      var addedXP = 0;
+      var levelOverride = null;
+      try {
+        var saved = localStorage.getItem('sbtf-xp-' + ch.slug);
+        if (saved) {
+          var parsed = JSON.parse(saved);
+          addedXP = parsed.addedXP || 0;
+          levelOverride = parsed.levelOverride !== undefined ? parsed.levelOverride : null;
+        }
+      } catch(e) {}
+
+      // Read localStorage level-up data
+      var effectiveLevel = ch.baseLevel;
+      var extraHp = 0;
+      try {
+        var lvlSaved = localStorage.getItem('sbtf-level-' + ch.slug);
+        if (lvlSaved) {
+          var parsed2 = JSON.parse(lvlSaved);
+          if (parsed2.effectiveLevel) effectiveLevel = parsed2.effectiveLevel;
+          if (parsed2.appliedLevelUps) {
+            parsed2.appliedLevelUps.forEach(function(lu) {
+              extraHp += (lu.hpGained || 0);
+            });
+          }
+        }
+      } catch(e) {}
+
+      // If level override from XP tracker, use that
+      if (levelOverride !== null) effectiveLevel = levelOverride;
+
+      var totalXP = ch.baseXP + addedXP;
+      var xpLevel = getLevelForXP(totalXP);
+      if (xpLevel > effectiveLevel && levelOverride === null) effectiveLevel = xpLevel;
+
+      var charMaxHp = ch.baseMaxHp + extraHp;
+      totalLevels += effectiveLevel;
+      totalHp += charMaxHp;
+
+      // Update character card
+      var card = document.querySelector('.char-card[data-slug="' + ch.slug + '"]');
+      if (card) {
+        var lvlNum = card.querySelector('.cc-lvl-num');
+        if (lvlNum && effectiveLevel !== ch.baseLevel) {
+          lvlNum.textContent = effectiveLevel;
+        }
+
+        if (extraHp > 0) {
+          var hpVal = card.querySelector('.cc-vital .cv-val');
+          if (hpVal) hpVal.textContent = charMaxHp;
+        }
+
+        var vitals = card.querySelectorAll('.cc-vital');
+        if (vitals.length >= 2) {
+          var profVal = vitals[1].querySelector('.cv-val');
+          if (profVal) profVal.textContent = '+' + profBonus(effectiveLevel);
+        }
+      }
+
+      // Update next-level card ready state
+      var ready = effectiveLevel < 20 && totalXP >= (thresholds[effectiveLevel + 1] || 355000);
+      var nlCard = document.querySelector('.nl-card[data-slug="' + ch.slug + '"]');
+      if (nlCard) {
+        if (ready) {
+          nlCard.classList.add('nl-ready');
+          if (!nlCard.querySelector('.nl-ready-badge')) {
+            var header = nlCard.querySelector('.nl-header');
+            if (header) {
+              var badge = document.createElement('span');
+              badge.className = 'nl-ready-badge';
+              badge.textContent = 'READY';
+              header.appendChild(badge);
+            }
+          }
+        } else {
+          nlCard.classList.remove('nl-ready');
+          var existingBadge = nlCard.querySelector('.nl-ready-badge');
+          if (existingBadge) existingBadge.remove();
+        }
+      }
+    });
+
+    // Update party stats
+    var avgEl = document.getElementById('psAvgLevel');
+    if (avgEl) avgEl.textContent = (totalLevels / chars.length).toFixed(1);
+
+    var hpEl = document.getElementById('psTotalHp');
+    if (hpEl) hpEl.textContent = totalHp;
+  });
+</script>

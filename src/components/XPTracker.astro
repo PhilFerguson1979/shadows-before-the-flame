@@ -193,11 +193,23 @@ const configJson = JSON.stringify({
     return lvl;
   }
 
+  function getAppliedLevel() {
+    try {
+      const lvlSaved = localStorage.getItem('sbtf-level-' + config.characterSlug);
+      if (lvlSaved) {
+        const parsed = JSON.parse(lvlSaved);
+        if (parsed.effectiveLevel) return parsed.effectiveLevel;
+      }
+    } catch(e) {}
+    return null;
+  }
+
   function updateAll() {
     const totalXP = getTotalXP();
     const xpBasedLevel = getLevelForXP(totalXP);
-    // Use level override if set, otherwise use XP-based level
-    const effectiveLevel = state.levelOverride !== null ? state.levelOverride : xpBasedLevel;
+    // Priority: applied level-up > level override > XP-based level
+    const appliedLevel = getAppliedLevel();
+    const effectiveLevel = appliedLevel || (state.levelOverride !== null ? state.levelOverride : xpBasedLevel);
     const currentThreshold = config.thresholds[effectiveLevel] ?? 0;
     const nextLevel = Math.min(effectiveLevel + 1, 20);
     const nextThreshold = config.thresholds[nextLevel] ?? 355000;
@@ -210,10 +222,11 @@ const configJson = JSON.stringify({
       : Math.min(100, Math.max(0, (xpIntoLevel / xpNeeded) * 100));
     barFill.style.width = `${pct}%`;
 
-    // Level-up detection — compare effective level to base character level
-    const canLevelUp = effectiveLevel > config.currentLevel && state.levelOverride === null;
-    barFill.classList.toggle('level-up-glow', canLevelUp);
-    levelUpBanner.style.display = canLevelUp ? 'flex' : 'none';
+    // Level-up detection — show banner if XP would support a higher level than what's been applied
+    const nextLevelXP = effectiveLevel < 20 ? (config.thresholds[effectiveLevel + 1] || 355000) : Infinity;
+    const canLevelUpMore = totalXP >= nextLevelXP && effectiveLevel < 20;
+    barFill.classList.toggle('level-up-glow', canLevelUpMore);
+    levelUpBanner.style.display = canLevelUpMore ? 'flex' : 'none';
 
     // Text
     currentDisplay.textContent = `${totalXP.toLocaleString()} XP`;
@@ -432,6 +445,12 @@ const configJson = JSON.stringify({
     updateAll();
     tempLevel = getLevelForXP(getTotalXP());
     updateTempLevelDisplay();
+  });
+
+  // Listen for level-up events from LevelUpWizard
+  document.addEventListener('sbtf-level-changed', (e) => {
+    // Refresh our display when a level-up is applied or undone
+    updateAll();
   });
 
   // Init

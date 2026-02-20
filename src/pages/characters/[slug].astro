@@ -3,11 +3,13 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import EquipmentPanel from '../../components/EquipmentPanel.astro';
 import CurrencyDisplay from '../../components/CurrencyDisplay.astro';
 import LevelUpTracker from '../../components/LevelUpTracker.astro';
+import LevelUpWizard from '../../components/LevelUpWizard.astro';
 import SpellManager from '../../components/SpellManager.astro';
 import XPTracker from '../../components/XPTracker.astro';
 import SkillsPanel from '../../components/SkillsPanel.astro';
 import FeatManager from '../../components/FeatManager.astro';
 import { getCollection } from 'astro:content';
+import { getNextLevelPreview, getClassData } from '../../data/leveling';
 
 export async function getStaticPaths() {
   const characters = await getCollection('characters');
@@ -34,6 +36,22 @@ function modStr(score) {
   const m = mod(score);
   return m >= 0 ? `+${m}` : `${m}`;
 }
+
+// Pre-compute level-up preview data for wizard
+const charClass = char.data.class ?? 'Fighter';
+const charLevel = char.data.level ?? 1;
+const allPreviews: Record<number, any> = {};
+for (let lvl = 1; lvl < 20; lvl++) {
+  const preview = getNextLevelPreview(charClass, lvl);
+  if (preview) allPreviews[lvl] = preview;
+}
+const classData = getClassData(charClass);
+const classDataForWizard = classData ? {
+  hitDie: classData.hitDie,
+  subclassName: classData.subclassName,
+  subclassLevel: classData.subclassLevel,
+  casterType: classData.casterType,
+} : { hitDie: 8, subclassName: 'Subclass', subclassLevel: 3, casterType: 'none' };
 ---
 
 <BaseLayout title={char.data.name}>
@@ -53,7 +71,7 @@ function modStr(score) {
           {char.data.player && <span class="meta-item player">🎲 {char.data.player}</span>}
           {char.data.race && <span class="meta-item">{char.data.race}</span>}
           {char.data.class && <span class="meta-item">{char.data.class}</span>}
-          {char.data.level && <span class="meta-item">Level {char.data.level}</span>}
+          {char.data.level && <span class="meta-item" id="charLevelMeta">Level {char.data.level}</span>}
         </div>
       </div>
 
@@ -111,6 +129,22 @@ function modStr(score) {
       currentLevel={char.data.level ?? 1}
       baseUrl={base}
     />
+
+    <!-- Level-Up Wizard -->
+    <div id="level-up">
+      <LevelUpWizard
+        characterName={char.data.name}
+        characterSlug={char.slug}
+        characterClass={charClass}
+        currentLevel={charLevel}
+        baseXP={char.data.xp ?? 0}
+        con={char.data.con ?? 10}
+        maxHp={char.data.maxHp ?? 10}
+        baseUrl={base}
+        allPreviews={JSON.stringify(allPreviews)}
+        classDataJson={JSON.stringify(classDataForWizard)}
+      />
+    </div>
 
     <!-- Skills & Saves -->
     {char.data.str !== undefined && (
@@ -182,6 +216,7 @@ function modStr(score) {
     <!-- Level-up Tracker -->
     <LevelUpTracker
       characterClass={char.data.class ?? 'Adventurer'}
+      characterSlug={char.slug}
       currentLevel={char.data.level ?? 1}
       levelHistory={char.data.levelHistory}
     />
@@ -311,3 +346,20 @@ function modStr(score) {
   .ability-score { font-size: 1.2rem; }
 }
 </style>
+
+<script define:vars={{ charSlugForClient: char.slug }}>
+  document.addEventListener('DOMContentLoaded', function() {
+    function updateHeaderLevel() {
+      try {
+        var saved = localStorage.getItem('sbtf-level-' + charSlugForClient);
+        if (!saved) return;
+        var data = JSON.parse(saved);
+        if (!data.effectiveLevel) return;
+        var meta = document.getElementById('charLevelMeta');
+        if (meta) meta.textContent = 'Level ' + data.effectiveLevel;
+      } catch(e) {}
+    }
+    updateHeaderLevel();
+    document.addEventListener('sbtf-level-changed', updateHeaderLevel);
+  });
+</script>

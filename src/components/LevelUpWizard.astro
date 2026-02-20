@@ -1,0 +1,1316 @@
+---
+interface Props {
+  characterName: string;
+  characterSlug: string;
+  characterClass: string;
+  currentLevel: number;
+  baseXP: number;
+  con: number;
+  maxHp: number;
+  baseUrl: string;
+  allPreviews: string;
+  classDataJson: string;
+}
+
+const {
+  characterName,
+  characterSlug,
+  characterClass,
+  currentLevel,
+  baseXP,
+  con,
+  maxHp,
+  baseUrl,
+  allPreviews,
+  classDataJson,
+} = Astro.props;
+
+const conMod = Math.floor((con - 10) / 2);
+
+const configJson = JSON.stringify({
+  characterName,
+  characterSlug,
+  characterClass,
+  currentLevel,
+  baseXP,
+  con,
+  conMod,
+  maxHp,
+  baseUrl,
+  allPreviews,
+  classDataJson,
+});
+---
+
+<div class="luw-container" id="levelUpWizard">
+  <div class="luw-header">
+    <div class="luw-title">
+      <span class="luw-icon">&#x2B06;</span>
+      <span>Level Up</span>
+    </div>
+    <div class="luw-level-display">
+      <span class="luw-class-name" id="luwClassName">{characterClass}</span>
+      <span class="luw-level-badge" id="luwLevelBadge">Lvl <span id="luwCurrentLevel">{currentLevel}</span></span>
+    </div>
+  </div>
+
+  <!-- Status area: shows eligibility or prompt -->
+  <div class="luw-status" id="luwStatus">
+    <span id="luwStatusText">Checking XP...</span>
+  </div>
+
+  <!-- Level Up button -->
+  <div class="luw-trigger" id="luwTrigger" style="display:none;">
+    <button class="luw-levelup-btn" id="luwLevelUpBtn">&#x2B50; Level Up!</button>
+  </div>
+
+  <!-- Wizard panel -->
+  <div class="luw-wizard" id="luwWizard" style="display:none;">
+    <!-- Step indicators -->
+    <div class="luw-steps" id="luwSteps"></div>
+
+    <!-- Step content area -->
+    <div class="luw-step-content" id="luwStepContent"></div>
+
+    <!-- Navigation -->
+    <div class="luw-nav" id="luwNav" style="display:none;">
+      <button class="luw-btn-secondary" id="luwPrevBtn" style="display:none;">Back</button>
+      <div class="luw-nav-spacer"></div>
+      <button class="luw-btn-primary" id="luwNextBtn">Next</button>
+    </div>
+  </div>
+
+  <!-- Success banner -->
+  <div class="luw-success" id="luwSuccess" style="display:none;">
+    <div class="luw-success-icon">&#x2714;</div>
+    <div class="luw-success-text" id="luwSuccessText">Level up complete!</div>
+  </div>
+
+  <!-- Undo button -->
+  <div class="luw-undo-wrap" id="luwUndoWrap" style="display:none;">
+    <button class="luw-undo-btn" id="luwUndoBtn">&#x21A9; Undo Last Level-Up</button>
+  </div>
+</div>
+
+<script define:vars={{ configJson }}>
+  var config = JSON.parse(configJson);
+  var allPreviews = JSON.parse(config.allPreviews);
+  var classData = JSON.parse(config.classDataJson);
+
+  var XP_THRESHOLDS = {
+    1:0, 2:300, 3:900, 4:2700, 5:6500,
+    6:14000, 7:23000, 8:34000, 9:48000, 10:64000,
+    11:85000, 12:100000, 13:120000, 14:140000, 15:165000,
+    16:195000, 17:225000, 18:265000, 19:305000, 20:355000
+  };
+
+  var xpKey = 'sbtf-xp-' + config.characterSlug;
+  var levelKey = 'sbtf-level-' + config.characterSlug;
+
+  // State
+  var effectiveLevel = config.currentLevel;
+  var appliedLevelUps = [];
+  var wizardOpen = false;
+  var currentStepIndex = 0;
+  var steps = [];
+
+  // Wizard working data
+  var wizardData = {
+    hpMethod: null,
+    hpRolled: 0,
+    hpGained: 0,
+    featuresGained: [],
+    asiChoice: null,
+    subclassChoice: null,
+    notes: ''
+  };
+
+  // DOM refs
+  var statusEl = document.getElementById('luwStatus');
+  var statusText = document.getElementById('luwStatusText');
+  var triggerEl = document.getElementById('luwTrigger');
+  var levelUpBtn = document.getElementById('luwLevelUpBtn');
+  var wizardEl = document.getElementById('luwWizard');
+  var stepsEl = document.getElementById('luwSteps');
+  var stepContent = document.getElementById('luwStepContent');
+  var navEl = document.getElementById('luwNav');
+  var prevBtn = document.getElementById('luwPrevBtn');
+  var nextBtn = document.getElementById('luwNextBtn');
+  var successEl = document.getElementById('luwSuccess');
+  var successTextEl = document.getElementById('luwSuccessText');
+  var undoWrap = document.getElementById('luwUndoWrap');
+  var undoBtn = document.getElementById('luwUndoBtn');
+  var currentLevelEl = document.getElementById('luwCurrentLevel');
+
+  // Load saved state
+  function loadLevelState() {
+    try {
+      var saved = localStorage.getItem(levelKey);
+      if (saved) {
+        var parsed = JSON.parse(saved);
+        effectiveLevel = parsed.effectiveLevel || config.currentLevel;
+        appliedLevelUps = parsed.appliedLevelUps || [];
+      }
+    } catch (e) { /* ignore */ }
+  }
+
+  function saveLevelState() {
+    localStorage.setItem(levelKey, JSON.stringify({
+      effectiveLevel: effectiveLevel,
+      appliedLevelUps: appliedLevelUps
+    }));
+  }
+
+  function getTotalXP() {
+    try {
+      var saved = localStorage.getItem(xpKey);
+      if (saved) {
+        var parsed = JSON.parse(saved);
+        return config.baseXP + (parsed.addedXP || 0);
+      }
+    } catch (e) { /* ignore */ }
+    return config.baseXP;
+  }
+
+  function getNextLevelThreshold(level) {
+    var next = level + 1;
+    if (next > 20) return Infinity;
+    return XP_THRESHOLDS[next] || Infinity;
+  }
+
+  function getTargetLevel() {
+    return effectiveLevel + 1;
+  }
+
+  function getPreviewForLevel(level) {
+    if (!allPreviews) return null;
+    for (var i = 0; i < allPreviews.length; i++) {
+      if (allPreviews[i] && allPreviews[i].level === level) return allPreviews[i];
+    }
+    return null;
+  }
+
+  // Update the main display
+  function updateDisplay() {
+    var totalXP = getTotalXP();
+    var threshold = getNextLevelThreshold(effectiveLevel);
+
+    currentLevelEl.textContent = effectiveLevel;
+
+    // Check eligibility
+    if (effectiveLevel >= 20) {
+      statusText.textContent = 'Maximum level reached!';
+      statusEl.className = 'luw-status luw-status-max';
+      triggerEl.style.display = 'none';
+    } else if (totalXP >= threshold) {
+      statusText.textContent = 'You have enough XP to reach Level ' + (effectiveLevel + 1) + '!';
+      statusEl.className = 'luw-status luw-status-ready';
+      triggerEl.style.display = 'block';
+    } else {
+      var needed = threshold - totalXP;
+      statusText.textContent = 'Need ' + needed.toLocaleString() + ' more XP to reach Level ' + (effectiveLevel + 1);
+      statusEl.className = 'luw-status luw-status-waiting';
+      triggerEl.style.display = 'none';
+    }
+
+    // Show undo if there are applied level-ups
+    if (appliedLevelUps.length > 0) {
+      undoWrap.style.display = 'block';
+    } else {
+      undoWrap.style.display = 'none';
+    }
+
+    // Hide wizard if not open
+    if (!wizardOpen) {
+      wizardEl.style.display = 'none';
+    }
+  }
+
+  // Build step list for the wizard
+  function buildSteps() {
+    var targetLevel = getTargetLevel();
+    var preview = getPreviewForLevel(targetLevel);
+
+    steps = [];
+    steps.push({ id: 'hp', label: 'HP' });
+    steps.push({ id: 'features', label: 'Features' });
+
+    if (preview && preview.asiOrFeat) {
+      steps.push({ id: 'asi', label: 'ASI / Feat' });
+    }
+
+    if (targetLevel === classData.subclassLevel) {
+      steps.push({ id: 'subclass', label: classData.subclassName || 'Subclass' });
+    }
+
+    steps.push({ id: 'confirm', label: 'Confirm' });
+  }
+
+  // Render step indicators
+  function renderStepIndicators() {
+    var html = '';
+    for (var i = 0; i < steps.length; i++) {
+      var cls = 'luw-step-dot';
+      if (i < currentStepIndex) cls += ' luw-step-done';
+      if (i === currentStepIndex) cls += ' luw-step-active';
+      html += '<div class="' + cls + '">';
+      html += '<span class="luw-step-num">' + (i + 1) + '</span>';
+      html += '<span class="luw-step-label">' + steps[i].label + '</span>';
+      html += '</div>';
+      if (i < steps.length - 1) {
+        var barCls = i < currentStepIndex ? 'luw-step-bar luw-step-bar-done' : 'luw-step-bar';
+        html += '<div class="' + barCls + '"></div>';
+      }
+    }
+    stepsEl.innerHTML = html;
+  }
+
+  // Render current step content
+  function renderStep() {
+    var step = steps[currentStepIndex];
+    var targetLevel = getTargetLevel();
+    var preview = getPreviewForLevel(targetLevel);
+
+    renderStepIndicators();
+
+    if (step.id === 'hp') {
+      renderHPStep(targetLevel);
+    } else if (step.id === 'features') {
+      renderFeaturesStep(targetLevel, preview);
+    } else if (step.id === 'asi') {
+      renderASIStep();
+    } else if (step.id === 'subclass') {
+      renderSubclassStep();
+    } else if (step.id === 'confirm') {
+      renderConfirmStep(targetLevel, preview);
+    }
+
+    // Update nav
+    navEl.style.display = 'flex';
+    prevBtn.style.display = currentStepIndex > 0 ? 'inline-block' : 'none';
+
+    if (step.id === 'confirm') {
+      nextBtn.style.display = 'none';
+    } else if (step.id === 'hp' && !wizardData.hpMethod) {
+      nextBtn.style.display = 'none';
+    } else {
+      nextBtn.style.display = 'inline-block';
+      nextBtn.textContent = 'Next';
+    }
+  }
+
+  // Step 1: HP Increase
+  function renderHPStep(targetLevel) {
+    var hitDie = classData.hitDie || 8;
+    var avg = Math.floor(hitDie / 2) + 1 + config.conMod;
+    var currentMaxHp = getCurrentMaxHp();
+
+    var html = '<div class="luw-step-title">Hit Point Increase</div>';
+    html += '<div class="luw-step-desc">Level ' + targetLevel + ' &mdash; Roll 1d' + hitDie + ' + ' + config.conMod + ' (CON modifier)</div>';
+
+    if (!wizardData.hpMethod) {
+      html += '<div class="luw-hp-choices">';
+      html += '<button class="luw-hp-btn luw-hp-roll" id="luwHpRoll">&#x1F3B2; Roll 1d' + hitDie + '</button>';
+      html += '<button class="luw-hp-btn luw-hp-avg" id="luwHpAvg">&#x1F4CA; Take Average (' + avg + ')</button>';
+      html += '</div>';
+    } else {
+      var newMax = currentMaxHp + wizardData.hpGained;
+      html += '<div class="luw-hp-result">';
+      if (wizardData.hpMethod === 'roll') {
+        html += '<div class="luw-hp-roll-detail">Rolled: ' + wizardData.hpRolled + ' + ' + config.conMod + ' (CON) = <strong>' + wizardData.hpGained + '</strong></div>';
+      } else {
+        html += '<div class="luw-hp-roll-detail">Average: ' + (Math.floor(hitDie / 2) + 1) + ' + ' + config.conMod + ' (CON) = <strong>' + wizardData.hpGained + '</strong></div>';
+      }
+      html += '<div class="luw-hp-summary">You gain <span class="luw-hp-gained">+' + wizardData.hpGained + ' HP</span>! (Max HP: ' + currentMaxHp + ' &rarr; ' + newMax + ')</div>';
+      html += '</div>';
+      html += '<button class="luw-btn-secondary luw-reroll-btn" id="luwReroll">Choose Again</button>';
+    }
+
+    stepContent.innerHTML = html;
+
+    // Bind HP buttons
+    var rollBtn = document.getElementById('luwHpRoll');
+    var avgBtn = document.getElementById('luwHpAvg');
+    var rerollBtn = document.getElementById('luwReroll');
+
+    if (rollBtn) {
+      rollBtn.addEventListener('click', function() {
+        var roll = Math.floor(Math.random() * hitDie) + 1;
+        var total = Math.max(1, roll + config.conMod);
+        wizardData.hpMethod = 'roll';
+        wizardData.hpRolled = roll;
+        wizardData.hpGained = total;
+        renderStep();
+      });
+    }
+    if (avgBtn) {
+      avgBtn.addEventListener('click', function() {
+        var total = Math.max(1, avg);
+        wizardData.hpMethod = 'average';
+        wizardData.hpRolled = Math.floor(hitDie / 2) + 1;
+        wizardData.hpGained = total;
+        renderStep();
+      });
+    }
+    if (rerollBtn) {
+      rerollBtn.addEventListener('click', function() {
+        wizardData.hpMethod = null;
+        wizardData.hpRolled = 0;
+        wizardData.hpGained = 0;
+        renderStep();
+      });
+    }
+  }
+
+  function getCurrentMaxHp() {
+    // Start with base maxHp from props, then add HP from all applied level-ups
+    var total = config.maxHp;
+    for (var i = 0; i < appliedLevelUps.length; i++) {
+      total += appliedLevelUps[i].hpGained || 0;
+    }
+    return total;
+  }
+
+  // Step 2: Class Features
+  function renderFeaturesStep(targetLevel, preview) {
+    var html = '<div class="luw-step-title">Class Features &mdash; Level ' + targetLevel + '</div>';
+
+    if (preview && preview.features && preview.features.length > 0) {
+      wizardData.featuresGained = [];
+      html += '<div class="luw-features-list">';
+      for (var i = 0; i < preview.features.length; i++) {
+        var feat = preview.features[i];
+        var name = typeof feat === 'string' ? feat : (feat.name || 'Feature');
+        var desc = typeof feat === 'string' ? '' : (feat.description || '');
+        wizardData.featuresGained.push(name);
+        html += '<div class="luw-feature-card">';
+        html += '<div class="luw-feature-name">' + name + '</div>';
+        if (desc) {
+          html += '<div class="luw-feature-desc">' + desc + '</div>';
+        }
+        html += '</div>';
+      }
+      html += '</div>';
+    } else {
+      html += '<div class="luw-no-features">No new class features at this level.</div>';
+      wizardData.featuresGained = [];
+    }
+
+    stepContent.innerHTML = html;
+  }
+
+  // Step 3: ASI / Feat
+  function renderASIStep() {
+    var html = '<div class="luw-step-title">Ability Score Improvement or Feat</div>';
+    html += '<div class="luw-step-desc">Choose to increase your ability scores or take a feat.</div>';
+
+    html += '<div class="luw-asi-choice">';
+    html += '<label class="luw-radio-label">';
+    html += '<input type="radio" name="luwAsiType" value="asi" id="luwAsiRadio" ' + (wizardData.asiChoice && wizardData.asiChoice.type === 'asi' ? 'checked' : '') + ' />';
+    html += ' Ability Score Improvement (+2 points to distribute)';
+    html += '</label>';
+    html += '<label class="luw-radio-label">';
+    html += '<input type="radio" name="luwAsiType" value="feat" id="luwFeatRadio" ' + (wizardData.asiChoice && wizardData.asiChoice.type === 'feat' ? 'checked' : '') + ' />';
+    html += ' Take a Feat';
+    html += '</label>';
+    html += '</div>';
+
+    html += '<div id="luwAsiDetail"></div>';
+
+    stepContent.innerHTML = html;
+
+    var asiRadio = document.getElementById('luwAsiRadio');
+    var featRadio = document.getElementById('luwFeatRadio');
+
+    asiRadio.addEventListener('change', function() {
+      if (this.checked) {
+        wizardData.asiChoice = { type: 'asi', scores: {} };
+        renderASIDetail();
+      }
+    });
+    featRadio.addEventListener('change', function() {
+      if (this.checked) {
+        wizardData.asiChoice = { type: 'feat', name: '' };
+        renderASIDetail();
+      }
+    });
+
+    // If already chosen, render detail
+    if (wizardData.asiChoice) {
+      renderASIDetail();
+    }
+  }
+
+  function renderASIDetail() {
+    var detailEl = document.getElementById('luwAsiDetail');
+    if (!detailEl) return;
+
+    if (wizardData.asiChoice && wizardData.asiChoice.type === 'asi') {
+      var scores = wizardData.asiChoice.scores || {};
+      var totalSpent = 0;
+      var abilities = ['STR', 'DEX', 'CON', 'INT', 'WIS', 'CHA'];
+      for (var k in scores) {
+        totalSpent += scores[k];
+      }
+
+      var html = '<div class="luw-asi-grid">';
+      html += '<div class="luw-asi-remaining">Points remaining: <strong>' + (2 - totalSpent) + '</strong> / 2</div>';
+      for (var i = 0; i < abilities.length; i++) {
+        var ab = abilities[i];
+        var val = scores[ab] || 0;
+        var canAdd = totalSpent < 2 && val < 2;
+        var canRemove = val > 0;
+        html += '<div class="luw-asi-row">';
+        html += '<span class="luw-asi-name">' + ab + '</span>';
+        html += '<button class="luw-asi-minus' + (!canRemove ? ' luw-asi-disabled' : '') + '" data-ab="' + ab + '" data-dir="minus">&minus;</button>';
+        html += '<span class="luw-asi-val' + (val > 0 ? ' luw-asi-val-active' : '') + '">+' + val + '</span>';
+        html += '<button class="luw-asi-plus' + (!canAdd ? ' luw-asi-disabled' : '') + '" data-ab="' + ab + '" data-dir="plus">+</button>';
+        html += '</div>';
+      }
+      html += '</div>';
+      detailEl.innerHTML = html;
+
+      // Bind buttons
+      var btns = detailEl.querySelectorAll('.luw-asi-plus, .luw-asi-minus');
+      for (var j = 0; j < btns.length; j++) {
+        btns[j].addEventListener('click', function() {
+          var ab = this.getAttribute('data-ab');
+          var dir = this.getAttribute('data-dir');
+          if (!wizardData.asiChoice.scores) wizardData.asiChoice.scores = {};
+          var cur = wizardData.asiChoice.scores[ab] || 0;
+          var total = 0;
+          for (var k in wizardData.asiChoice.scores) total += wizardData.asiChoice.scores[k];
+
+          if (dir === 'plus' && total < 2 && cur < 2) {
+            wizardData.asiChoice.scores[ab] = cur + 1;
+          } else if (dir === 'minus' && cur > 0) {
+            wizardData.asiChoice.scores[ab] = cur - 1;
+          }
+          renderASIDetail();
+        });
+      }
+    } else if (wizardData.asiChoice && wizardData.asiChoice.type === 'feat') {
+      var featName = wizardData.asiChoice.name || '';
+      var html2 = '<div class="luw-feat-input-wrap">';
+      html2 += '<label class="luw-feat-label">Feat Name:</label>';
+      html2 += '<input type="text" class="luw-feat-input" id="luwFeatName" value="' + featName.replace(/"/g, '&quot;') + '" placeholder="e.g. Sharpshooter, Lucky, Sentinel..." />';
+      html2 += '</div>';
+      detailEl.innerHTML = html2;
+
+      var featInput = document.getElementById('luwFeatName');
+      featInput.addEventListener('input', function() {
+        wizardData.asiChoice.name = this.value;
+      });
+    } else {
+      detailEl.innerHTML = '';
+    }
+  }
+
+  // Step 4: Subclass
+  function renderSubclassStep() {
+    var subName = classData.subclassName || 'Subclass';
+    var html = '<div class="luw-step-title">Choose your ' + subName + '</div>';
+    html += '<div class="luw-step-desc">At level ' + classData.subclassLevel + ', you choose your ' + subName + ' specialization.</div>';
+    html += '<div class="luw-subclass-input-wrap">';
+    html += '<label class="luw-subclass-label">' + subName + ':</label>';
+    var curVal = wizardData.subclassChoice || '';
+    html += '<input type="text" class="luw-subclass-input" id="luwSubclassName" value="' + curVal.replace(/"/g, '&quot;') + '" placeholder="Enter ' + subName + ' name..." />';
+    html += '</div>';
+
+    stepContent.innerHTML = html;
+
+    var subInput = document.getElementById('luwSubclassName');
+    subInput.addEventListener('input', function() {
+      wizardData.subclassChoice = this.value;
+    });
+  }
+
+  // Step 5: Confirmation
+  function renderConfirmStep(targetLevel, preview) {
+    var currentMaxHp = getCurrentMaxHp();
+    var newMax = currentMaxHp + wizardData.hpGained;
+
+    var html = '<div class="luw-step-title">Confirm Level Up to Level ' + targetLevel + '</div>';
+    html += '<div class="luw-confirm-card">';
+
+    // HP
+    html += '<div class="luw-confirm-row">';
+    html += '<span class="luw-confirm-label">HP Gained:</span>';
+    html += '<span class="luw-confirm-value">+' + wizardData.hpGained + ' (' + wizardData.hpMethod + ') &mdash; Max HP: ' + currentMaxHp + ' &rarr; ' + newMax + '</span>';
+    html += '</div>';
+
+    // Features
+    if (wizardData.featuresGained.length > 0) {
+      html += '<div class="luw-confirm-row">';
+      html += '<span class="luw-confirm-label">Features:</span>';
+      html += '<span class="luw-confirm-value">' + wizardData.featuresGained.join(', ') + '</span>';
+      html += '</div>';
+    }
+
+    // ASI
+    if (wizardData.asiChoice) {
+      html += '<div class="luw-confirm-row">';
+      html += '<span class="luw-confirm-label">ASI / Feat:</span>';
+      if (wizardData.asiChoice.type === 'asi') {
+        var parts = [];
+        for (var ab in wizardData.asiChoice.scores) {
+          if (wizardData.asiChoice.scores[ab] > 0) {
+            parts.push(ab + ' +' + wizardData.asiChoice.scores[ab]);
+          }
+        }
+        html += '<span class="luw-confirm-value">' + (parts.length > 0 ? parts.join(', ') : 'No scores selected') + '</span>';
+      } else {
+        html += '<span class="luw-confirm-value">Feat: ' + (wizardData.asiChoice.name || '(unnamed)') + '</span>';
+      }
+      html += '</div>';
+    }
+
+    // Subclass
+    if (wizardData.subclassChoice) {
+      html += '<div class="luw-confirm-row">';
+      html += '<span class="luw-confirm-label">' + (classData.subclassName || 'Subclass') + ':</span>';
+      html += '<span class="luw-confirm-value">' + wizardData.subclassChoice + '</span>';
+      html += '</div>';
+    }
+
+    html += '</div>';
+
+    // Confirm/Cancel buttons
+    html += '<div class="luw-confirm-actions">';
+    html += '<button class="luw-btn-confirm" id="luwConfirmBtn">&#x2713; Confirm Level Up</button>';
+    html += '<button class="luw-btn-cancel" id="luwCancelBtn">&#x2715; Cancel</button>';
+    html += '</div>';
+
+    stepContent.innerHTML = html;
+
+    // Bind
+    document.getElementById('luwConfirmBtn').addEventListener('click', confirmLevelUp);
+    document.getElementById('luwCancelBtn').addEventListener('click', cancelWizard);
+  }
+
+  // Confirm level up
+  function confirmLevelUp() {
+    var targetLevel = getTargetLevel();
+
+    var entry = {
+      toLevel: targetLevel,
+      timestamp: Date.now(),
+      hpMethod: wizardData.hpMethod,
+      hpRolled: wizardData.hpRolled,
+      hpGained: wizardData.hpGained,
+      featuresGained: wizardData.featuresGained.slice(),
+      asiChoice: wizardData.asiChoice ? JSON.parse(JSON.stringify(wizardData.asiChoice)) : null,
+      subclassChoice: wizardData.subclassChoice || null,
+      notes: wizardData.notes || ''
+    };
+
+    effectiveLevel = targetLevel;
+    appliedLevelUps.push(entry);
+    saveLevelState();
+
+    // Dispatch event
+    document.dispatchEvent(new CustomEvent('sbtf-level-changed', {
+      detail: { slug: config.characterSlug, newLevel: targetLevel }
+    }));
+
+    // Show success
+    wizardOpen = false;
+    wizardEl.style.display = 'none';
+    successTextEl.textContent = config.characterName + ' is now Level ' + targetLevel + '!';
+    successEl.style.display = 'flex';
+
+    // Auto-hide success after 4 seconds
+    setTimeout(function() {
+      successEl.style.display = 'none';
+      updateDisplay();
+    }, 4000);
+
+    // Reset wizard data
+    resetWizardData();
+    updateDisplay();
+  }
+
+  function cancelWizard() {
+    wizardOpen = false;
+    wizardEl.style.display = 'none';
+    navEl.style.display = 'none';
+    resetWizardData();
+    updateDisplay();
+  }
+
+  function resetWizardData() {
+    wizardData = {
+      hpMethod: null,
+      hpRolled: 0,
+      hpGained: 0,
+      featuresGained: [],
+      asiChoice: null,
+      subclassChoice: null,
+      notes: ''
+    };
+    currentStepIndex = 0;
+  }
+
+  // Undo last level-up
+  function undoLastLevelUp() {
+    if (appliedLevelUps.length === 0) return;
+
+    var removed = appliedLevelUps.pop();
+    effectiveLevel = effectiveLevel - 1;
+    if (effectiveLevel < config.currentLevel) {
+      effectiveLevel = config.currentLevel;
+    }
+    saveLevelState();
+
+    document.dispatchEvent(new CustomEvent('sbtf-level-changed', {
+      detail: { slug: config.characterSlug, newLevel: effectiveLevel }
+    }));
+
+    updateDisplay();
+  }
+
+  // Open wizard
+  function openWizard() {
+    wizardOpen = true;
+    resetWizardData();
+    buildSteps();
+    currentStepIndex = 0;
+    wizardEl.style.display = 'block';
+    triggerEl.style.display = 'none';
+    statusEl.style.display = 'none';
+    successEl.style.display = 'none';
+    renderStep();
+  }
+
+  // Events
+  levelUpBtn.addEventListener('click', openWizard);
+  undoBtn.addEventListener('click', undoLastLevelUp);
+
+  nextBtn.addEventListener('click', function() {
+    if (currentStepIndex < steps.length - 1) {
+      currentStepIndex++;
+      renderStep();
+    }
+  });
+
+  prevBtn.addEventListener('click', function() {
+    if (currentStepIndex > 0) {
+      currentStepIndex--;
+      renderStep();
+    }
+  });
+
+  // Listen for XP changes
+  document.addEventListener('sbtf-xp-changed', function() {
+    updateDisplay();
+  });
+
+  // Init
+  loadLevelState();
+  updateDisplay();
+</script>
+
+<style>
+.luw-container {
+  margin: 1.25rem 0;
+  padding: 1rem 1.25rem;
+  background: var(--card-bg, rgba(20, 30, 40, 0.9));
+  border: 1px solid var(--border-card, rgba(0,201,167,0.25));
+  border-radius: 8px;
+  position: relative;
+}
+
+.luw-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+.luw-title {
+  font-size: 0.85rem;
+  font-weight: bold;
+  color: var(--accent-primary, #00c9a7);
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.luw-icon { font-size: 1rem; }
+.luw-level-display {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.luw-class-name {
+  font-size: 0.75rem;
+  color: var(--text-muted, #8899aa);
+}
+.luw-level-badge {
+  font-size: 0.78rem;
+  color: var(--accent-primary, #00c9a7);
+  background: rgba(0,201,167,0.2);
+  border: 1px solid rgba(0,201,167,0.4);
+  padding: 0.2rem 0.6rem;
+  border-radius: 4px;
+  font-weight: bold;
+}
+
+/* Status */
+.luw-status {
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  font-size: 0.82rem;
+  margin-bottom: 0.6rem;
+}
+.luw-status-waiting {
+  background: rgba(100,100,100,0.12);
+  border: 1px solid rgba(100,100,100,0.25);
+  color: var(--text-muted, #8899aa);
+}
+.luw-status-ready {
+  background: rgba(255,215,0,0.1);
+  border: 1px solid rgba(255,215,0,0.35);
+  color: #ffd700;
+  animation: luwPulse 2s ease-in-out infinite;
+}
+.luw-status-max {
+  background: rgba(0,201,167,0.1);
+  border: 1px solid rgba(0,201,167,0.3);
+  color: var(--accent-primary, #00c9a7);
+}
+
+@keyframes luwPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+/* Trigger */
+.luw-trigger {
+  margin-bottom: 0.6rem;
+}
+.luw-levelup-btn {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  font-size: 1rem;
+  font-weight: bold;
+  border-radius: 6px;
+  cursor: pointer;
+  border: 2px solid rgba(255,215,0,0.5);
+  background: linear-gradient(135deg, rgba(255,215,0,0.15), rgba(255,180,0,0.1));
+  color: #ffd700;
+  transition: all 0.3s;
+  text-align: center;
+}
+.luw-levelup-btn:hover {
+  background: linear-gradient(135deg, rgba(255,215,0,0.25), rgba(255,180,0,0.2));
+  border-color: rgba(255,215,0,0.7);
+  box-shadow: 0 0 15px rgba(255,215,0,0.2);
+}
+
+/* Wizard */
+.luw-wizard {
+  border: 1px solid rgba(0,201,167,0.3);
+  border-radius: 8px;
+  padding: 1rem;
+  background: rgba(0,0,0,0.2);
+  margin-bottom: 0.6rem;
+}
+
+/* Steps indicator */
+.luw-steps {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  margin-bottom: 1.25rem;
+  padding: 0 0.5rem;
+  flex-wrap: wrap;
+}
+.luw-step-dot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+  position: relative;
+}
+.luw-step-num {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.72rem;
+  font-weight: bold;
+  border: 2px solid rgba(100,100,100,0.3);
+  background: rgba(100,100,100,0.1);
+  color: var(--text-muted, #8899aa);
+  transition: all 0.3s;
+}
+.luw-step-label {
+  font-size: 0.6rem;
+  color: var(--text-muted, #8899aa);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+.luw-step-active .luw-step-num {
+  border-color: var(--accent-primary, #00c9a7);
+  background: rgba(0,201,167,0.2);
+  color: var(--accent-primary, #00c9a7);
+  box-shadow: 0 0 8px rgba(0,201,167,0.3);
+}
+.luw-step-active .luw-step-label {
+  color: var(--accent-primary, #00c9a7);
+  font-weight: bold;
+}
+.luw-step-done .luw-step-num {
+  border-color: rgba(0,201,167,0.6);
+  background: rgba(0,201,167,0.35);
+  color: #fff;
+}
+.luw-step-bar {
+  width: 30px;
+  height: 2px;
+  background: rgba(100,100,100,0.25);
+  margin: 0 0.25rem;
+  margin-bottom: 1rem;
+  transition: background 0.3s;
+}
+.luw-step-bar-done {
+  background: rgba(0,201,167,0.6);
+}
+
+/* Step content */
+.luw-step-content {
+  min-height: 120px;
+}
+.luw-step-title {
+  font-size: 1rem;
+  font-weight: bold;
+  color: var(--text-bright, #e8f0f8);
+  margin-bottom: 0.5rem;
+}
+.luw-step-desc {
+  font-size: 0.82rem;
+  color: var(--text-muted, #8899aa);
+  margin-bottom: 1rem;
+}
+
+/* HP Step */
+.luw-hp-choices {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+.luw-hp-btn {
+  flex: 1;
+  min-width: 140px;
+  padding: 0.85rem 1rem;
+  font-size: 0.9rem;
+  font-weight: bold;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.25s;
+  text-align: center;
+}
+.luw-hp-roll {
+  border: 2px solid rgba(0,201,167,0.4);
+  background: rgba(0,201,167,0.08);
+  color: var(--accent-primary, #00c9a7);
+}
+.luw-hp-roll:hover {
+  background: rgba(0,201,167,0.2);
+  border-color: rgba(0,201,167,0.7);
+  box-shadow: 0 0 10px rgba(0,201,167,0.15);
+}
+.luw-hp-avg {
+  border: 2px solid rgba(41,128,185,0.4);
+  background: rgba(41,128,185,0.08);
+  color: #5dade2;
+}
+.luw-hp-avg:hover {
+  background: rgba(41,128,185,0.2);
+  border-color: rgba(41,128,185,0.7);
+  box-shadow: 0 0 10px rgba(41,128,185,0.15);
+}
+.luw-hp-result {
+  background: rgba(0,201,167,0.08);
+  border: 1px solid rgba(0,201,167,0.25);
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 0.75rem;
+}
+.luw-hp-roll-detail {
+  font-size: 0.85rem;
+  color: var(--text-normal, #c8d8e8);
+  margin-bottom: 0.5rem;
+}
+.luw-hp-summary {
+  font-size: 0.95rem;
+  color: var(--text-bright, #e8f0f8);
+}
+.luw-hp-gained {
+  color: #82e0aa;
+  font-weight: bold;
+  font-size: 1.05rem;
+}
+.luw-reroll-btn {
+  font-size: 0.72rem;
+  padding: 0.25rem 0.6rem;
+}
+
+/* Features Step */
+.luw-features-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+.luw-feature-card {
+  background: rgba(0,201,167,0.06);
+  border: 1px solid rgba(0,201,167,0.2);
+  border-radius: 6px;
+  padding: 0.75rem 1rem;
+}
+.luw-feature-name {
+  font-size: 0.9rem;
+  font-weight: bold;
+  color: var(--accent-primary, #00c9a7);
+  margin-bottom: 0.25rem;
+}
+.luw-feature-desc {
+  font-size: 0.8rem;
+  color: var(--text-normal, #c8d8e8);
+  line-height: 1.5;
+}
+.luw-no-features {
+  font-size: 0.85rem;
+  color: var(--text-muted, #8899aa);
+  font-style: italic;
+  padding: 1rem 0;
+}
+
+/* ASI Step */
+.luw-asi-choice {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin-bottom: 1rem;
+}
+.luw-radio-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  color: var(--text-normal, #c8d8e8);
+  cursor: pointer;
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  border: 1px solid rgba(100,100,100,0.2);
+  background: rgba(100,100,100,0.06);
+  transition: all 0.2s;
+}
+.luw-radio-label:hover {
+  background: rgba(100,100,100,0.12);
+}
+.luw-radio-label input[type="radio"] {
+  accent-color: var(--accent-primary, #00c9a7);
+}
+.luw-asi-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin-top: 0.5rem;
+}
+.luw-asi-remaining {
+  font-size: 0.78rem;
+  color: var(--text-muted, #8899aa);
+  margin-bottom: 0.4rem;
+  padding: 0.3rem 0.5rem;
+  background: rgba(0,201,167,0.06);
+  border-radius: 4px;
+}
+.luw-asi-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.3rem 0;
+}
+.luw-asi-name {
+  font-size: 0.82rem;
+  font-weight: bold;
+  color: var(--text-normal, #c8d8e8);
+  width: 40px;
+  text-align: center;
+}
+.luw-asi-minus, .luw-asi-plus {
+  width: 28px;
+  height: 28px;
+  border-radius: 4px;
+  border: 1px solid rgba(0,201,167,0.4);
+  background: rgba(0,201,167,0.1);
+  color: var(--accent-primary, #00c9a7);
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+.luw-asi-minus:hover, .luw-asi-plus:hover {
+  background: rgba(0,201,167,0.25);
+}
+.luw-asi-disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+.luw-asi-val {
+  font-size: 0.85rem;
+  font-weight: bold;
+  color: var(--text-muted, #8899aa);
+  width: 30px;
+  text-align: center;
+}
+.luw-asi-val-active {
+  color: var(--accent-primary, #00c9a7);
+}
+
+/* Feat input */
+.luw-feat-input-wrap {
+  margin-top: 0.5rem;
+}
+.luw-feat-label {
+  display: block;
+  font-size: 0.78rem;
+  color: var(--text-muted, #8899aa);
+  margin-bottom: 0.3rem;
+}
+.luw-feat-input {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  background: rgba(100,100,100,0.15);
+  border: 1px solid rgba(0,201,167,0.35);
+  color: var(--text-normal, #c8d8e8);
+  border-radius: 6px;
+  font-size: 0.85rem;
+  box-sizing: border-box;
+}
+.luw-feat-input:focus {
+  outline: none;
+  border-color: var(--accent-primary, #00c9a7);
+  box-shadow: 0 0 5px rgba(0,201,167,0.2);
+}
+.luw-feat-input::placeholder {
+  color: var(--text-muted, #8899aa);
+  opacity: 0.6;
+}
+
+/* Subclass */
+.luw-subclass-input-wrap {
+  margin-top: 0.5rem;
+}
+.luw-subclass-label {
+  display: block;
+  font-size: 0.82rem;
+  color: var(--text-muted, #8899aa);
+  margin-bottom: 0.3rem;
+  font-weight: bold;
+}
+.luw-subclass-input {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  background: rgba(100,100,100,0.15);
+  border: 1px solid rgba(0,201,167,0.35);
+  color: var(--text-normal, #c8d8e8);
+  border-radius: 6px;
+  font-size: 0.85rem;
+  box-sizing: border-box;
+}
+.luw-subclass-input:focus {
+  outline: none;
+  border-color: var(--accent-primary, #00c9a7);
+  box-shadow: 0 0 5px rgba(0,201,167,0.2);
+}
+.luw-subclass-input::placeholder {
+  color: var(--text-muted, #8899aa);
+  opacity: 0.6;
+}
+
+/* Confirm Step */
+.luw-confirm-card {
+  background: rgba(0,201,167,0.05);
+  border: 1px solid rgba(0,201,167,0.2);
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+.luw-confirm-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 0.45rem 0;
+  border-bottom: 1px solid rgba(100,100,100,0.12);
+  gap: 1rem;
+}
+.luw-confirm-row:last-child {
+  border-bottom: none;
+}
+.luw-confirm-label {
+  font-size: 0.78rem;
+  font-weight: bold;
+  color: var(--text-muted, #8899aa);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.luw-confirm-value {
+  font-size: 0.85rem;
+  color: var(--text-normal, #c8d8e8);
+  text-align: right;
+}
+.luw-confirm-actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+.luw-btn-confirm {
+  flex: 1;
+  min-width: 140px;
+  padding: 0.7rem 1.25rem;
+  font-size: 0.9rem;
+  font-weight: bold;
+  border-radius: 6px;
+  cursor: pointer;
+  border: 2px solid rgba(0,201,167,0.5);
+  background: rgba(0,201,167,0.12);
+  color: var(--accent-primary, #00c9a7);
+  transition: all 0.25s;
+}
+.luw-btn-confirm:hover {
+  background: rgba(0,201,167,0.25);
+  border-color: rgba(0,201,167,0.8);
+  box-shadow: 0 0 12px rgba(0,201,167,0.2);
+}
+.luw-btn-cancel {
+  padding: 0.7rem 1.25rem;
+  font-size: 0.9rem;
+  font-weight: bold;
+  border-radius: 6px;
+  cursor: pointer;
+  border: 2px solid rgba(192,57,43,0.4);
+  background: rgba(192,57,43,0.08);
+  color: #e74c3c;
+  transition: all 0.25s;
+}
+.luw-btn-cancel:hover {
+  background: rgba(192,57,43,0.2);
+  border-color: rgba(192,57,43,0.7);
+}
+
+/* Nav buttons */
+.luw-nav {
+  display: flex;
+  align-items: center;
+  margin-top: 1rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid rgba(100,100,100,0.15);
+}
+.luw-nav-spacer { flex: 1; }
+.luw-btn-primary {
+  padding: 0.5rem 1.25rem;
+  font-size: 0.82rem;
+  font-weight: bold;
+  border-radius: 6px;
+  cursor: pointer;
+  border: 1px solid rgba(0,201,167,0.5);
+  background: rgba(0,201,167,0.12);
+  color: var(--accent-primary, #00c9a7);
+  transition: all 0.2s;
+}
+.luw-btn-primary:hover {
+  background: rgba(0,201,167,0.25);
+  border-color: var(--accent-primary, #00c9a7);
+}
+.luw-btn-secondary {
+  padding: 0.5rem 1.25rem;
+  font-size: 0.82rem;
+  font-weight: bold;
+  border-radius: 6px;
+  cursor: pointer;
+  border: 1px solid rgba(100,100,100,0.3);
+  background: rgba(100,100,100,0.08);
+  color: var(--text-muted, #8899aa);
+  transition: all 0.2s;
+}
+.luw-btn-secondary:hover {
+  background: rgba(100,100,100,0.18);
+  color: var(--text-normal, #c8d8e8);
+}
+
+/* Success banner */
+.luw-success {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  padding: 1rem;
+  border-radius: 8px;
+  background: rgba(0,201,167,0.1);
+  border: 2px solid rgba(0,201,167,0.5);
+  margin-bottom: 0.6rem;
+  animation: luwSuccessGlow 2s ease-in-out infinite alternate;
+}
+.luw-success-icon {
+  font-size: 1.5rem;
+  color: var(--accent-primary, #00c9a7);
+}
+.luw-success-text {
+  font-size: 1rem;
+  font-weight: bold;
+  color: var(--accent-primary, #00c9a7);
+}
+@keyframes luwSuccessGlow {
+  from {
+    box-shadow: 0 0 5px rgba(0,201,167,0.2);
+    border-color: rgba(0,201,167,0.4);
+  }
+  to {
+    box-shadow: 0 0 20px rgba(0,201,167,0.35);
+    border-color: rgba(0,201,167,0.7);
+  }
+}
+
+/* Undo */
+.luw-undo-wrap {
+  margin-top: 0.6rem;
+  border-top: 1px solid rgba(100,100,100,0.15);
+  padding-top: 0.6rem;
+}
+.luw-undo-btn {
+  font-size: 0.75rem;
+  padding: 0.35rem 0.75rem;
+  border-radius: 5px;
+  cursor: pointer;
+  border: 1px solid rgba(192,57,43,0.35);
+  background: rgba(192,57,43,0.08);
+  color: #e74c3c;
+  transition: all 0.2s;
+}
+.luw-undo-btn:hover {
+  background: rgba(192,57,43,0.2);
+  border-color: rgba(192,57,43,0.6);
+}
+
+@media (max-width: 640px) {
+  .luw-container { padding: 0.75rem; }
+  .luw-hp-choices { flex-direction: column; }
+  .luw-hp-btn { min-width: auto; }
+  .luw-confirm-row { flex-direction: column; gap: 0.2rem; }
+  .luw-confirm-value { text-align: left; }
+  .luw-confirm-actions { flex-direction: column; }
+  .luw-steps { gap: 0.1rem; }
+  .luw-step-bar { width: 16px; }
+}
+</style>

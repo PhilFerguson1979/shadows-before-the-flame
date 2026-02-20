@@ -10,11 +10,12 @@ interface LevelEntry {
 
 interface Props {
   characterClass: string;
+  characterSlug: string;
   currentLevel: number;
   levelHistory?: LevelEntry[];
 }
 
-const { characterClass, currentLevel, levelHistory } = Astro.props;
+const { characterClass, characterSlug, currentLevel, levelHistory } = Astro.props;
 
 // Color theme by class
 const classColors: Record<string, string> = {
@@ -36,9 +37,15 @@ const cls = characterClass?.toLowerCase() ?? '';
 const accentColor = Object.keys(classColors).find(k => cls.includes(k))
   ? classColors[Object.keys(classColors).find(k => cls.includes(k))!]
   : '#8b6914';
+
+const ltConfigJson = JSON.stringify({
+  slug: characterSlug,
+  baseLevel: currentLevel,
+  accentColor,
+});
 ---
 
-<section class="level-tracker">
+<section class="level-tracker" id="levelTracker">
   <div class="lt-header">
     <h3 class="lt-title">Level Progress</h3>
     <div class="lt-current">
@@ -253,3 +260,135 @@ const accentColor = Object.keys(classColors).find(k => cls.includes(k))
   margin: 0;
 }
 </style>
+
+<script define:vars={{ ltConfigJson }}>
+  document.addEventListener('DOMContentLoaded', () => {
+    const cfg = JSON.parse(ltConfigJson);
+    const storageKey = 'sbtf-level-' + cfg.slug;
+
+    function hydrate() {
+      try {
+        const saved = localStorage.getItem(storageKey);
+        if (!saved) return;
+        const data = JSON.parse(saved);
+        const effectiveLevel = data.effectiveLevel || cfg.baseLevel;
+        if (effectiveLevel === cfg.baseLevel && (!data.appliedLevelUps || data.appliedLevelUps.length === 0)) return;
+
+        const section = document.getElementById('levelTracker');
+        if (!section) return;
+
+        // Update level number display
+        const levelNum = section.querySelector('.lt-level-num');
+        if (levelNum) levelNum.textContent = effectiveLevel;
+
+        // Update pip bar
+        const pips = section.querySelectorAll('.lt-pip');
+        pips.forEach(function(pip, i) {
+          var lvl = i + 1;
+          if (lvl <= effectiveLevel) {
+            pip.classList.add('pip-filled');
+            pip.classList.remove('pip-empty');
+            pip.style.background = cfg.accentColor;
+            pip.style.borderColor = cfg.accentColor;
+          } else {
+            pip.classList.remove('pip-filled');
+            pip.classList.add('pip-empty');
+            pip.style.background = '';
+            pip.style.borderColor = '';
+          }
+          if (lvl === effectiveLevel) {
+            pip.classList.add('pip-current');
+            pip.textContent = lvl;
+          } else {
+            pip.classList.remove('pip-current');
+            pip.textContent = '';
+          }
+        });
+
+        // Add applied level-ups to history section
+        if (data.appliedLevelUps && data.appliedLevelUps.length > 0) {
+          var historyEl = section.querySelector('.lt-history');
+          if (!historyEl) {
+            historyEl = document.createElement('div');
+            historyEl.className = 'lt-history';
+            var pipRow = section.querySelector('.lt-pip-row');
+            if (pipRow && pipRow.nextSibling) {
+              pipRow.parentNode.insertBefore(historyEl, pipRow.nextSibling);
+            } else {
+              section.appendChild(historyEl);
+            }
+          }
+
+          // Remove the "campaign just getting started" message
+          var emptyMsg = section.querySelector('.lt-empty');
+          if (emptyMsg) emptyMsg.style.display = 'none';
+
+          // Add entries for applied level-ups (newest first)
+          var sorted = data.appliedLevelUps.slice().sort(function(a, b) { return b.toLevel - a.toLevel; });
+          sorted.forEach(function(lu) {
+            // Check if this level entry already exists in the DOM
+            var existing = false;
+            var badges = historyEl.querySelectorAll('.lt-entry-badge');
+            badges.forEach(function(badge) {
+              if (badge.textContent.trim() === 'Lvl ' + lu.toLevel) existing = true;
+            });
+            if (existing) return;
+
+            var entry = document.createElement('div');
+            entry.className = 'lt-entry';
+
+            var badge = document.createElement('div');
+            badge.className = 'lt-entry-badge';
+            badge.style.background = cfg.accentColor + '22';
+            badge.style.borderColor = cfg.accentColor + '66';
+            badge.style.color = cfg.accentColor;
+            badge.textContent = 'Lvl ' + lu.toLevel;
+
+            var body = document.createElement('div');
+            body.className = 'lt-entry-body';
+
+            var meta = document.createElement('div');
+            meta.className = 'lt-entry-meta';
+
+            if (lu.timestamp) {
+              var datePill = document.createElement('span');
+              datePill.className = 'lt-meta-pill';
+              datePill.textContent = new Date(lu.timestamp).toLocaleDateString();
+              meta.appendChild(datePill);
+            }
+            if (lu.hpGained) {
+              var hpPill = document.createElement('span');
+              hpPill.className = 'lt-meta-pill lt-hp-pill';
+              hpPill.textContent = '+' + lu.hpGained + ' HP';
+              meta.appendChild(hpPill);
+            }
+            body.appendChild(meta);
+
+            if (lu.featuresGained && lu.featuresGained.length > 0) {
+              var ul = document.createElement('ul');
+              ul.className = 'lt-features';
+              lu.featuresGained.forEach(function(f) {
+                var li = document.createElement('li');
+                li.className = 'lt-feature';
+                li.textContent = f;
+                ul.appendChild(li);
+              });
+              body.appendChild(ul);
+            }
+
+            entry.appendChild(badge);
+            entry.appendChild(body);
+            historyEl.insertBefore(entry, historyEl.firstChild);
+          });
+        }
+      } catch(e) { /* ignore */ }
+    }
+
+    hydrate();
+
+    // Listen for level-up events
+    document.addEventListener('sbtf-level-changed', function() {
+      hydrate();
+    });
+  });
+</script>

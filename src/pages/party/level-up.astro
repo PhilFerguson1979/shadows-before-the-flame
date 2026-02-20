@@ -48,6 +48,16 @@ const partyPreviews = activeParty.map(c => {
 });
 
 const readyCount = partyPreviews.filter(p => p.ready).length;
+
+// Serialize for client-side localStorage hydration
+const clientCharData = JSON.stringify(partyPreviews.map(p => ({
+  slug: p.slug,
+  baseXP: p.xp,
+  level: p.level,
+  xpNeeded: p.xpNeeded,
+  color: p.color,
+})));
+const clientThresholds = JSON.stringify(xpThresholds);
 ---
 
 <BaseLayout title="Level Up Guide">
@@ -58,7 +68,7 @@ const readyCount = partyPreviews.filter(p => p.ready).length;
     </div>
     <p class="intro-text">
       See what each character gains at their next level. Characters with enough XP will be highlighted as ready to level up.
-      {readyCount > 0 && <strong class="ready-alert"> {readyCount} character{readyCount > 1 ? 's' : ''} ready to level up!</strong>}
+      {readyCount > 0 && <strong class="ready-alert" id="readyCountAlert"> {readyCount} character{readyCount > 1 ? 's' : ''} ready to level up!</strong>}
     </p>
 
     <!-- Party XP Overview -->
@@ -68,7 +78,7 @@ const readyCount = partyPreviews.filter(p => p.ready).length;
         {partyPreviews.map(p => {
           const pct = p.level >= 20 ? 100 : p.xpNeeded > 0 ? Math.min(100, (p.xp / p.xpNeeded) * 100) : 0;
           return (
-            <div class={`xp-row ${p.ready ? 'xp-ready' : ''}`}>
+            <div class={`xp-row ${p.ready ? 'xp-ready' : ''}`} data-slug={p.slug}>
               <div class="xp-name">
                 <a href={`${base}/characters/${p.slug}`}>{p.name}</a>
                 <span class="xp-class" style={`color: ${p.color}`}>{p.class} {p.level}</span>
@@ -101,7 +111,7 @@ const readyCount = partyPreviews.filter(p => p.ready).length;
         const avgHP = Math.floor(pr.hitDie / 2) + 1 + conMod;
 
         return (
-          <div class={`preview-card ${p.ready ? 'card-ready' : ''}`} style={`--char-color: ${p.color}`}>
+          <div class={`preview-card ${p.ready ? 'card-ready' : ''}`} style={`--char-color: ${p.color}`} data-slug={p.slug}>
             <div class="pc-header">
               <div class="pc-name-block">
                 <a href={`${base}/characters/${p.slug}`} class="pc-name">{p.name}</a>
@@ -199,6 +209,9 @@ const readyCount = partyPreviews.filter(p => p.ready).length;
                   : `${p.xpToGo.toLocaleString()} XP needed (has ${p.xp.toLocaleString()} / ${p.xpNeeded.toLocaleString()})`
                 }
               </span>
+            </div>
+            <div class="pf-levelup-link" data-slug={p.slug} style={p.ready ? '' : 'display:none;'}>
+              <a href={`${base}/characters/${p.slug}#level-up`} class="levelup-link-btn">⬆ Level Up Now</a>
             </div>
           </div>
         );
@@ -492,6 +505,27 @@ const readyCount = partyPreviews.filter(p => p.ready).length;
 .ref-table tr.row-next td { color: var(--accent-primary); font-weight: 600; }
 .ref-table tr.row-party td { color: var(--accent-primary); }
 
+/* Level up link button */
+.pf-levelup-link {
+  padding: 0 1rem 0.6rem;
+}
+.levelup-link-btn {
+  display: inline-block;
+  font-size: 0.78rem;
+  font-weight: bold;
+  background: rgba(39,174,96,0.15);
+  border: 1px solid rgba(39,174,96,0.3);
+  color: #6ec97a;
+  padding: 0.35rem 0.85rem;
+  border-radius: 5px;
+  text-decoration: none;
+  transition: all 0.2s;
+}
+.levelup-link-btn:hover {
+  background: rgba(39,174,96,0.3);
+  color: #8fd9a3;
+}
+
 @media (max-width: 640px) {
   .preview-grid { grid-template-columns: 1fr; }
   .ref-grid { grid-template-columns: 1fr; }
@@ -499,3 +533,138 @@ const readyCount = partyPreviews.filter(p => p.ready).length;
   .xp-status { text-align: left; }
 }
 </style>
+
+<script define:vars={{ clientCharData, clientThresholds }}>
+  document.addEventListener('DOMContentLoaded', function() {
+    var chars = JSON.parse(clientCharData);
+    var thresholds = JSON.parse(clientThresholds);
+
+    function getLevelForXP(xp) {
+      var lvl = 1;
+      for (var l = 20; l >= 1; l--) {
+        if (xp >= thresholds[l]) { lvl = l; break; }
+      }
+      return lvl;
+    }
+
+    var readyTotal = 0;
+
+    chars.forEach(function(ch) {
+      // Read localStorage XP
+      var addedXP = 0;
+      var levelOverride = null;
+      try {
+        var saved = localStorage.getItem('sbtf-xp-' + ch.slug);
+        if (saved) {
+          var parsed = JSON.parse(saved);
+          addedXP = parsed.addedXP || 0;
+          levelOverride = parsed.levelOverride !== undefined ? parsed.levelOverride : null;
+        }
+      } catch(e) {}
+
+      // Read localStorage level-up data
+      var appliedLevel = null;
+      try {
+        var lvlSaved = localStorage.getItem('sbtf-level-' + ch.slug);
+        if (lvlSaved) {
+          var parsed2 = JSON.parse(lvlSaved);
+          appliedLevel = parsed2.effectiveLevel || null;
+        }
+      } catch(e) {}
+
+      var totalXP = ch.baseXP + addedXP;
+      var effectiveLevel = appliedLevel || (levelOverride !== null ? levelOverride : ch.level);
+      var xpNeeded = effectiveLevel < 20 ? (thresholds[effectiveLevel + 1] || 355000) : 0;
+      var ready = effectiveLevel < 20 && totalXP >= (thresholds[effectiveLevel + 1] || 355000);
+      var xpToGo = effectiveLevel < 20 ? Math.max(0, (thresholds[effectiveLevel + 1] || 355000) - totalXP) : 0;
+      var pct = effectiveLevel >= 20 ? 100 : xpNeeded > 0 ? Math.min(100, (totalXP / xpNeeded) * 100) : 0;
+
+      if (ready) readyTotal++;
+
+      // Update XP row
+      var xpRow = document.querySelector('.xp-row[data-slug="' + ch.slug + '"]');
+      if (xpRow) {
+        if (ready) {
+          xpRow.classList.add('xp-ready');
+        } else {
+          xpRow.classList.remove('xp-ready');
+        }
+
+        var barFill = xpRow.querySelector('.xp-bar-fill');
+        if (barFill) barFill.style.width = pct + '%';
+
+        var barText = xpRow.querySelector('.xp-bar-text');
+        if (barText) {
+          barText.textContent = effectiveLevel >= 20
+            ? 'MAX LEVEL'
+            : totalXP.toLocaleString() + ' / ' + xpNeeded.toLocaleString() + ' XP';
+        }
+
+        var status = xpRow.querySelector('.xp-status');
+        if (status) {
+          status.innerHTML = ready
+            ? '<span class="status-ready">\u2713 READY</span>'
+            : '<span class="status-pending">' + xpToGo.toLocaleString() + ' to go</span>';
+        }
+      }
+
+      // Update preview card
+      var card = document.querySelector('.preview-card[data-slug="' + ch.slug + '"]');
+      if (card) {
+        if (ready) {
+          card.classList.add('card-ready');
+        } else {
+          card.classList.remove('card-ready');
+        }
+
+        // Update ready badge
+        var readyBadge = card.querySelector('.pc-ready-badge');
+        if (ready && !readyBadge) {
+          var header = card.querySelector('.pc-header');
+          if (header) {
+            var badge = document.createElement('span');
+            badge.className = 'pc-ready-badge';
+            badge.textContent = 'READY';
+            header.appendChild(badge);
+          }
+        } else if (!ready && readyBadge) {
+          readyBadge.remove();
+        }
+
+        // Update XP footer
+        var pfXp = card.querySelector('.pf-xp');
+        if (pfXp) {
+          pfXp.textContent = ready
+            ? '\u2713 Has ' + totalXP.toLocaleString() + ' XP (needs ' + xpNeeded.toLocaleString() + ')'
+            : xpToGo.toLocaleString() + ' XP needed (has ' + totalXP.toLocaleString() + ' / ' + xpNeeded.toLocaleString() + ')';
+        }
+
+        // Show/hide level up link
+        var lvlUpLink = card.querySelector('.pf-levelup-link');
+        if (lvlUpLink) {
+          lvlUpLink.style.display = ready ? 'block' : 'none';
+        }
+      }
+    });
+
+    // Update ready count alert
+    var alertEl = document.getElementById('readyCountAlert');
+    if (alertEl) {
+      if (readyTotal > 0) {
+        alertEl.textContent = ' ' + readyTotal + ' character' + (readyTotal > 1 ? 's' : '') + ' ready to level up!';
+        alertEl.style.display = '';
+      } else {
+        alertEl.style.display = 'none';
+      }
+    } else if (readyTotal > 0) {
+      var introText = document.querySelector('.intro-text');
+      if (introText) {
+        var strong = document.createElement('strong');
+        strong.className = 'ready-alert';
+        strong.id = 'readyCountAlert';
+        strong.textContent = ' ' + readyTotal + ' character' + (readyTotal > 1 ? 's' : '') + ' ready to level up!';
+        introText.appendChild(strong);
+      }
+    }
+  });
+</script>
