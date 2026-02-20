@@ -311,11 +311,13 @@ const monsterList = monsters.map(m => ({
           '<span class="er-meta">CR ' + mon.cr + ' · AC ' + mon.ac + ' · HP ' + mon.hp + ' · ' + mon.xp.toLocaleString() + ' XP</span>' +
         '</div>' +
         '<div class="er-controls">' +
-          '<button class="er-btn er-minus" data-i="' + i + '">-</button>' +
-          '<span class="er-count">' + mon.count + '</span>' +
-          '<button class="er-btn er-plus" data-i="' + i + '">+</button>' +
+          '<div class="er-count-group">' +
+            '<button class="er-btn er-minus" data-i="' + i + '" title="Remove one">−</button>' +
+            '<span class="er-count">' + mon.count + '</span>' +
+            '<button class="er-btn er-plus" data-i="' + i + '" title="Add one">+</button>' +
+          '</div>' +
           '<span class="er-total-xp">' + (mon.xp * mon.count).toLocaleString() + ' XP</span>' +
-          '<button class="er-btn er-remove" data-i="' + i + '">x</button>' +
+          '<button class="er-btn-remove" data-i="' + i + '" title="Remove from encounter">✕ Remove</button>' +
         '</div>';
       encounterList.appendChild(row);
     });
@@ -326,7 +328,7 @@ const monsterList = monsters.map(m => ({
     encounterList.querySelectorAll('.er-plus').forEach(btn => {
       btn.addEventListener('click', () => changeCount(parseInt(btn.dataset.i), 1));
     });
-    encounterList.querySelectorAll('.er-remove').forEach(btn => {
+    encounterList.querySelectorAll('.er-btn-remove').forEach(btn => {
       btn.addEventListener('click', () => removeMonster(parseInt(btn.dataset.i)));
     });
 
@@ -431,9 +433,9 @@ const monsterList = monsters.map(m => ({
           (enc.notes ? '<span class="se-notes">' + enc.notes + '</span>' : '') +
         '</div>' +
         '<div class="se-actions">' +
-          '<button class="se-btn se-load" data-i="' + i + '" title="Load into builder">Load</button>' +
-          '<button class="se-btn se-launch" data-i="' + i + '" title="Launch directly into combat">Combat</button>' +
-          '<button class="se-btn se-delete" data-i="' + i + '" title="Delete">x</button>' +
+          '<button class="se-btn se-load" data-i="' + i + '" title="Load into builder">📋 Load</button>' +
+          '<button class="se-btn se-launch" data-i="' + i + '" title="Launch directly into combat">⚔️ Combat</button>' +
+          '<button class="se-btn se-delete" data-i="' + i + '" title="Delete this encounter">🗑️ Delete</button>' +
         '</div>';
       savedList.appendChild(entry);
     });
@@ -661,37 +663,38 @@ h1 { margin-bottom: 0.25rem; }
 
 .se-actions {
   display: flex;
-  gap: 0.3rem;
+  gap: 0.5rem;
   flex-shrink: 0;
 }
 .se-btn {
-  padding: 0.3rem 0.6rem;
-  font-size: 0.72rem;
-  font-weight: bold;
-  border-radius: 4px;
+  padding: 0.45rem 0.85rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  border-radius: 6px;
   border: 1px solid;
   cursor: pointer;
-  transition: background 0.15s;
+  transition: all 0.15s;
+  white-space: nowrap;
 }
+.se-btn:active { transform: scale(0.95); }
 .se-load {
-  background: rgba(139,105,20,0.1);
-  border-color: rgba(139,105,20,0.3);
-  color: var(--text-gold);
+  background: rgba(139,105,20,0.12);
+  border-color: rgba(139,105,20,0.4);
+  color: var(--text-gold-bright);
 }
-.se-load:hover { background: rgba(139,105,20,0.25); }
+.se-load:hover { background: rgba(139,105,20,0.3); border-color: var(--text-gold); }
 .se-launch {
-  background: rgba(39,174,96,0.1);
-  border-color: rgba(39,174,96,0.3);
+  background: rgba(39,174,96,0.12);
+  border-color: rgba(39,174,96,0.4);
   color: #6ec97a;
 }
-.se-launch:hover { background: rgba(39,174,96,0.25); }
+.se-launch:hover { background: rgba(39,174,96,0.3); border-color: #6ec97a; }
 .se-delete {
   background: rgba(192,57,43,0.1);
-  border-color: rgba(192,57,43,0.3);
+  border-color: rgba(192,57,43,0.35);
   color: #e74c3c;
-  padding: 0.3rem 0.5rem;
 }
-.se-delete:hover { background: rgba(192,57,43,0.25); }
+.se-delete:hover { background: rgba(192,57,43,0.3); border-color: #e74c3c; }
 
 /* Builder header */
 .builder-header {
@@ -805,44 +808,64 @@ a.er-name:hover { color: var(--text-gold); text-decoration: underline; }
 .er-controls {
   display: flex;
   align-items: center;
-  gap: 0.4rem;
+  gap: 0.75rem;
   flex-shrink: 0;
 }
+.er-count-group {
+  display: flex;
+  align-items: center;
+  gap: 0.15rem;
+  background: rgba(0,0,0,0.2);
+  border: 1px solid rgba(139,105,20,0.2);
+  border-radius: 6px;
+  padding: 0.15rem;
+}
 .er-btn {
-  width: 26px;
-  height: 26px;
-  border-radius: 4px;
-  border: 1px solid rgba(139,105,20,0.3);
-  background: rgba(139,105,20,0.1);
-  color: var(--text-gold);
-  font-size: 0.9rem;
+  width: 34px;
+  height: 34px;
+  border-radius: 5px;
+  border: 1px solid rgba(139,105,20,0.4);
+  background: rgba(139,105,20,0.15);
+  color: var(--text-gold-bright);
+  font-size: 1.2rem;
   font-weight: bold;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background 0.15s;
+  transition: all 0.15s;
+  line-height: 1;
 }
-.er-btn:hover { background: rgba(139,105,20,0.25); }
-.er-remove {
-  border-color: rgba(192,57,43,0.3);
-  background: rgba(192,57,43,0.1);
-  color: #e74c3c;
-}
-.er-remove:hover { background: rgba(192,57,43,0.25); }
+.er-btn:hover { background: rgba(139,105,20,0.35); border-color: var(--text-gold); }
+.er-btn:active { transform: scale(0.92); }
 .er-count {
-  font-size: 0.88rem;
+  font-size: 1rem;
   font-weight: bold;
   color: var(--text-gold-bright);
-  min-width: 1.5rem;
+  min-width: 2rem;
   text-align: center;
 }
 .er-total-xp {
-  font-size: 0.7rem;
+  font-size: 0.75rem;
   color: var(--text-muted);
-  min-width: 4rem;
+  min-width: 4.5rem;
   text-align: right;
+  padding: 0 0.25rem;
 }
+.er-btn-remove {
+  padding: 0.35rem 0.7rem;
+  border-radius: 5px;
+  border: 1px solid rgba(192,57,43,0.4);
+  background: rgba(192,57,43,0.12);
+  color: #e74c3c;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+.er-btn-remove:hover { background: rgba(192,57,43,0.3); border-color: #e74c3c; }
+.er-btn-remove:active { transform: scale(0.95); }
 
 /* Difficulty section */
 .difficulty-section {
@@ -994,8 +1017,9 @@ a.er-name:hover { color: var(--text-gold); text-decoration: underline; }
   .search-wrap { max-width: none; }
   .threshold-bar { margin-left: 0; width: 100%; }
   .encounter-row { flex-direction: column; align-items: stretch; gap: 0.5rem; }
-  .er-controls { justify-content: flex-end; }
+  .er-controls { justify-content: flex-end; flex-wrap: wrap; }
   .saved-entry { flex-direction: column; align-items: stretch; gap: 0.5rem; }
-  .se-actions { justify-content: flex-end; }
+  .se-actions { justify-content: flex-end; flex-wrap: wrap; }
+  .se-btn { flex: 1; text-align: center; }
 }
 </style>
