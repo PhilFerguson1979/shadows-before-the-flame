@@ -78,16 +78,16 @@ const active = characters.filter(c => c.data.status === 'active')
 }
 .char-portrait img {
   width: 80px; height: 80px; border-radius: 50%;
-  border: 2px solid rgba(139,105,20,0.4);
+  border: 2px solid rgba(0,201,167,0.4);
   object-fit: cover;
 }
 .char-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.25rem; }
-.char-name { font-size: 1.05rem; font-weight: bold; color: var(--text-gold); }
+.char-name { font-size: 1.05rem; font-weight: bold; color: var(--accent-primary); }
 .char-player { font-size: 0.72rem; color: var(--text-muted); margin-top: 0.1rem; }
 .char-class-badge {
   font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.08em;
-  background: rgba(139,105,20,0.2); border: 1px solid var(--border-gold);
-  color: var(--text-gold); padding: 0.2rem 0.5rem; border-radius: 3px; white-space: nowrap;
+  background: rgba(0,201,167,0.2); border: 1px solid var(--border-accent);
+  color: var(--accent-primary); padding: 0.2rem 0.5rem; border-radius: 3px; white-space: nowrap;
 }
 .char-race { font-size: 0.78rem; color: var(--text-muted); margin-bottom: 0.75rem; }
 .char-hp { margin-bottom: 0.75rem; }

@@ -169,8 +169,8 @@ const saveRows = savingThrows.map(st => {
 <style>
 .skills-panel {
   margin: 1.25rem 0;
-  background: rgba(139,105,20,0.06);
-  border: 1px solid rgba(139,105,20,0.2);
+  background: rgba(0,201,167,0.06);
+  border: 1px solid rgba(0,201,167,0.2);
   border-radius: 8px;
   overflow: hidden;
 }
@@ -185,7 +185,7 @@ const saveRows = savingThrows.map(st => {
 .skills-title {
   font-size: 0.85rem;
   font-weight: bold;
-  color: var(--text-gold);
+  color: var(--accent-primary);
   display: flex;
   align-items: center;
   gap: 0.4rem;
@@ -200,7 +200,7 @@ const saveRows = savingThrows.map(st => {
   padding: 0.2rem 0.4rem;
   transition: color 0.2s;
 }
-.skills-toggle-btn:hover { color: var(--text-gold); }
+.skills-toggle-btn:hover { color: var(--accent-primary); }
 
 .skills-body {
   padding: 0 1.25rem 1rem;
@@ -222,8 +222,8 @@ const saveRows = savingThrows.map(st => {
   align-items: center;
   gap: 0.4rem;
   padding: 0.35rem 0.7rem;
-  background: rgba(139,105,20,0.1);
-  border: 1px solid rgba(139,105,20,0.25);
+  background: rgba(0,201,167,0.1);
+  border: 1px solid rgba(0,201,167,0.25);
   border-radius: 5px;
   flex: 1;
   min-width: 160px;
@@ -237,7 +237,7 @@ const saveRows = savingThrows.map(st => {
 .passive-value {
   font-size: 1rem;
   font-weight: bold;
-  color: var(--text-gold-bright);
+  color: var(--accent-primary);
   margin-left: auto;
 }
 
@@ -249,7 +249,7 @@ const saveRows = savingThrows.map(st => {
   color: var(--text-muted);
   margin-bottom: 0.4rem;
   padding-bottom: 0.2rem;
-  border-bottom: 1px solid rgba(139,105,20,0.15);
+  border-bottom: 1px solid rgba(0,201,167,0.15);
 }
 
 /* Saving throws row */
@@ -271,18 +271,18 @@ const saveRows = savingThrows.map(st => {
   flex: 1;
 }
 .save-block.proficient {
-  background: rgba(139,105,20,0.1);
-  border-color: rgba(139,105,20,0.3);
+  background: rgba(0,201,167,0.1);
+  border-color: rgba(0,201,167,0.3);
 }
 .save-prof-dot {
   font-size: 0.6rem;
-  color: var(--text-gold);
+  color: var(--accent-primary);
   line-height: 1;
 }
 .save-mod {
   font-size: 1rem;
   font-weight: bold;
-  color: var(--text-parchment);
+  color: var(--text-normal);
   line-height: 1.2;
 }
 .save-name {
@@ -302,13 +302,13 @@ const saveRows = savingThrows.map(st => {
   align-items: center;
   padding: 0.3rem 0;
   margin-top: 0.4rem;
-  border-bottom: 1px solid rgba(139,105,20,0.15);
+  border-bottom: 1px solid rgba(0,201,167,0.15);
 }
 .skill-group-label {
   font-size: 0.68rem;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  color: var(--text-gold);
+  color: var(--accent-primary);
   font-weight: bold;
 }
 .skill-group-mod {
@@ -327,18 +327,18 @@ const saveRows = savingThrows.map(st => {
   transition: background 0.15s;
 }
 .skill-row:hover {
-  background: rgba(139,105,20,0.1);
+  background: rgba(0,201,167,0.1);
 }
 .skill-prof-indicator {
   font-size: 0.65rem;
-  color: var(--text-gold);
+  color: var(--accent-primary);
   width: 14px;
   text-align: center;
   flex-shrink: 0;
 }
 .skill-name {
   font-size: 0.82rem;
-  color: var(--text-parchment);
+  color: var(--text-normal);
   flex: 1;
 }
 .skill-mod {
@@ -347,7 +347,7 @@ const saveRows = savingThrows.map(st => {
   min-width: 28px;
   text-align: right;
 }
-.skill-mod.positive { color: var(--text-gold-bright); }
+.skill-mod.positive { color: var(--accent-primary); }
 .skill-mod.negative { color: #e88; }
 
 /* Legend */

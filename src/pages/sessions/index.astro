@@ -112,8 +112,8 @@ const sorted = sessions.sort((a, b) => b.data.sessionNumber - a.data.sessionNumb
 .cs-stat {
   flex: 1;
   min-width: 80px;
-  background: rgba(139,105,20,0.08);
-  border: 1px solid rgba(139,105,20,0.25);
+  background: rgba(0,201,167,0.08);
+  border: 1px solid rgba(0,201,167,0.25);
   border-radius: 8px;
   padding: 0.75rem 1rem;
   text-align: center;
@@ -122,7 +122,7 @@ const sorted = sessions.sort((a, b) => b.data.sessionNumber - a.data.sessionNumb
   display: block;
   font-size: 1.6rem;
   font-weight: bold;
-  color: var(--text-gold-bright);
+  color: var(--text-bright);
   line-height: 1;
 }
 .cs-lbl {
@@ -149,7 +149,7 @@ const sorted = sessions.sort((a, b) => b.data.sessionNumber - a.data.sessionNumb
   transition: border-color 0.2s, transform 0.15s;
 }
 .session-card:hover {
-  border-color: var(--border-gold);
+  border-color: var(--border-accent);
   transform: translateY(-1px);
 }
 
@@ -158,11 +158,11 @@ const sorted = sessions.sort((a, b) => b.data.sessionNumber - a.data.sessionNumb
   align-items: center;
   justify-content: center;
   min-width: 56px;
-  background: rgba(139,105,20,0.12);
-  border-right: 1px solid rgba(139,105,20,0.2);
+  background: rgba(0,201,167,0.12);
+  border-right: 1px solid rgba(0,201,167,0.2);
   font-size: 1rem;
   font-weight: bold;
-  color: var(--text-gold);
+  color: var(--accent-primary);
   flex-shrink: 0;
 }
 
@@ -175,7 +175,7 @@ const sorted = sessions.sort((a, b) => b.data.sessionNumber - a.data.sessionNumb
 .sc-top { margin-bottom: 0.5rem; }
 .sc-title {
   font-size: 1.05rem;
-  color: var(--text-gold-bright);
+  color: var(--text-bright);
   margin: 0 0 0.4rem 0;
 }
 .sc-pills {
@@ -186,8 +186,8 @@ const sorted = sessions.sort((a, b) => b.data.sessionNumber - a.data.sessionNumb
 .sc-pill {
   font-size: 0.72rem;
   color: var(--text-muted);
-  background: rgba(139,105,20,0.08);
-  border: 1px solid rgba(139,105,20,0.2);
+  background: rgba(0,201,167,0.08);
+  border: 1px solid rgba(0,201,167,0.2);
   border-radius: 20px;
   padding: 0.15rem 0.55rem;
 }
@@ -196,7 +196,7 @@ const sorted = sessions.sort((a, b) => b.data.sessionNumber - a.data.sessionNumb
 
 .sc-summary {
   font-size: 0.83rem;
-  color: var(--text-parchment);
+  color: var(--text-normal);
   line-height: 1.6;
   margin: 0.4rem 0 0.6rem 0;
   opacity: 0.85;
@@ -227,9 +227,9 @@ const sorted = sessions.sort((a, b) => b.data.sessionNumber - a.data.sessionNumb
 }
 .snap-val { font-weight: 600; }
 .snap-mvp {
-  background: rgba(212,168,58,0.08);
-  border-color: rgba(212,168,58,0.25);
-  color: var(--text-gold);
+  background: rgba(0,201,167,0.08);
+  border-color: rgba(0,201,167,0.25);
+  color: var(--accent-primary);
 }
 .snap-down {
   background: rgba(139,32,32,0.1);
@@ -256,7 +256,7 @@ const sorted = sessions.sort((a, b) => b.data.sessionNumber - a.data.sessionNumb
   flex-shrink: 0;
   transition: color 0.2s;
 }
-.session-card:hover .sc-arrow { color: var(--text-gold); }
+.session-card:hover .sc-arrow { color: var(--accent-primary); }
 
 @media (max-width: 640px) {
   .sc-number { min-width: 40px; font-size: 0.85rem; }

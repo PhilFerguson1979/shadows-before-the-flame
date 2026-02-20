@@ -133,7 +133,7 @@ const typeConfig = {
 <style>
 .back-link { margin-bottom: 1.5rem; }
 .back-link a { color: var(--text-muted); font-size: 0.85rem; }
-.back-link a:hover { color: var(--text-gold); }
+.back-link a:hover { color: var(--accent-primary); }
 
 /* Hero */
 .session-hero { margin-bottom: 1.5rem; }
@@ -143,28 +143,28 @@ const typeConfig = {
 }
 .session-title {
   font-size: clamp(1.8rem, 4vw, 2.6rem);
-  color: var(--text-gold-bright);
+  color: var(--text-bright);
   margin-bottom: 0.75rem;
   line-height: 1.15;
 }
 .session-meta-row { display: flex; flex-wrap: wrap; gap: 0.5rem; }
 .session-meta-pill {
   font-size: 0.78rem; color: var(--text-muted);
-  background: rgba(139,105,20,0.1);
-  border: 1px solid rgba(139,105,20,0.3);
+  background: rgba(0,201,167,0.1);
+  border: 1px solid rgba(0,201,167,0.3);
   border-radius: 20px; padding: 0.2rem 0.75rem;
 }
 
 /* Summary */
 .session-summary-block {
-  background: rgba(139,105,20,0.07);
-  border-left: 3px solid var(--border-gold);
+  background: rgba(0,201,167,0.07);
+  border-left: 3px solid var(--border-accent);
   padding: 1rem 1.25rem;
   border-radius: 0 6px 6px 0;
   margin-bottom: 1.5rem;
 }
 .session-summary-block p {
-  color: var(--text-parchment); font-size: 0.95rem;
+  color: var(--text-normal); font-size: 0.95rem;
   line-height: 1.7; margin: 0;
 }
 
@@ -175,8 +175,8 @@ const typeConfig = {
   padding: 0.75rem 1.1rem; border-radius: 8px; border: 1px solid;
 }
 .badge-mvp {
-  background: rgba(212,168,58,0.1);
-  border-color: var(--border-gold-bright);
+  background: rgba(0,201,167,0.1);
+  border-color: var(--accent-primary);
 }
 .badge-casualty {
   background: rgba(139,32,32,0.12);
@@ -187,7 +187,7 @@ const typeConfig = {
   font-size: 0.62rem; text-transform: uppercase;
   letter-spacing: 0.1em; color: var(--text-muted); display: block;
 }
-.badge-name { font-size: 0.95rem; font-weight: bold; color: var(--text-gold-bright); }
+.badge-name { font-size: 0.95rem; font-weight: bold; color: var(--accent-primary); }
 .badge-casualty .badge-name { color: #e88; }
 
 /* Section label */
@@ -195,7 +195,7 @@ const typeConfig = {
 .section-label {
   font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.12em;
   color: var(--text-muted);
-  border-bottom: 1px solid rgba(139,105,20,0.3);
+  border-bottom: 1px solid rgba(0,201,167,0.3);
   padding-bottom: 0.5rem; margin-bottom: 1rem;
 }
 
@@ -205,7 +205,7 @@ const typeConfig = {
   border-radius: 6px; padding: 0.75rem 1rem;
   border: 1px solid; border-left: 4px solid;
 }
-.highlight-epic   { background: rgba(212,168,58,0.07); border-color: rgba(212,168,58,0.2); border-left-color: var(--border-gold-bright); }
+.highlight-epic   { background: rgba(0,201,167,0.07); border-color: rgba(0,201,167,0.2); border-left-color: var(--accent-primary); }
 .highlight-kill   { background: rgba(100,20,20,0.12); border-color: rgba(139,32,32,0.3); border-left-color: #c0392b; }
 .highlight-fail   { background: rgba(100,60,0,0.1); border-color: rgba(160,90,0,0.3); border-left-color: #e67e22; }
 .highlight-social { background: rgba(20,60,100,0.12); border-color: rgba(26,80,140,0.3); border-left-color: #2980b9; }
@@ -216,13 +216,13 @@ const typeConfig = {
   display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.35rem;
 }
 .highlight-icon { font-size: 1rem; }
-.highlight-who { font-weight: bold; color: var(--text-gold); font-size: 0.9rem; }
+.highlight-who { font-weight: bold; color: var(--accent-primary); font-size: 0.9rem; }
 .highlight-tag {
   margin-left: auto; font-size: 0.65rem; text-transform: uppercase;
   letter-spacing: 0.08em; color: var(--text-muted);
   background: rgba(255,255,255,0.05); padding: 0.1rem 0.4rem; border-radius: 3px;
 }
-.highlight-what { font-size: 0.85rem; color: var(--text-parchment); margin: 0; line-height: 1.5; }
+.highlight-what { font-size: 0.85rem; color: var(--text-normal); margin: 0; line-height: 1.5; }
 
 /* Loot table */
 .loot-table { display: flex; flex-direction: column; gap: 0.4rem; }
@@ -235,11 +235,11 @@ const typeConfig = {
 }
 .loot-icon { font-size: 0.9rem; flex-shrink: 0; margin-top: 2px; }
 .loot-info { flex: 1; display: flex; flex-direction: column; gap: 0.1rem; }
-.loot-item { font-size: 0.88rem; color: var(--text-parchment); font-weight: bold; }
+.loot-item { font-size: 0.88rem; color: var(--text-normal); font-weight: bold; }
 .loot-notes { font-size: 0.75rem; color: var(--text-muted); font-style: italic; }
 .loot-who {
-  font-size: 0.78rem; color: var(--text-gold); white-space: nowrap;
-  background: rgba(139,105,20,0.1); padding: 0.15rem 0.5rem;
+  font-size: 0.78rem; color: var(--accent-primary); white-space: nowrap;
+  background: rgba(0,201,167,0.1); padding: 0.15rem 0.5rem;
   border-radius: 3px; align-self: flex-start; margin-top: 2px;
 }
 
@@ -269,7 +269,7 @@ const typeConfig = {
   color: var(--text-muted); margin-bottom: 0.5rem;
 }
 .cliffhanger-text {
-  font-size: 0.95rem; color: var(--text-parchment);
+  font-size: 0.95rem; color: var(--text-normal);
   font-style: italic; margin: 0; line-height: 1.6;
 }
 

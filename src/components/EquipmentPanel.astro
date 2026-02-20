@@ -381,22 +381,22 @@ document.addEventListener('DOMContentLoaded', () => {
   display: flex;
   flex-direction: column;
   align-items: center;
-  background: rgba(139,105,20,0.12);
-  border: 1px solid var(--border-gold);
+  background: rgba(0,201,167,0.12);
+  border: 1px solid rgba(0,201,167,0.25);
   border-radius: 8px;
   padding: 0.6rem 1rem;
   min-width: 70px;
   transition: border-color 0.2s;
 }
 .ep-stat:first-child {
-  background: rgba(139,105,20,0.25);
-  border-color: var(--border-gold-bright);
+  background: rgba(0,201,167,0.25);
+  border-color: rgba(0,201,167,0.5);
   min-width: 90px;
 }
 .ep-stat-val {
   font-size: 1.6rem;
   font-weight: bold;
-  color: var(--text-gold-bright);
+  color: var(--accent-primary);
   line-height: 1;
 }
 .ep-stat-lbl {
@@ -407,7 +407,7 @@ document.addEventListener('DOMContentLoaded', () => {
   margin-top: 0.2rem;
 }
 .mod-display {
-  color: var(--text-gold);
+  color: var(--accent-primary);
   margin-left: 2px;
 }
 
@@ -426,7 +426,7 @@ document.addEventListener('DOMContentLoaded', () => {
   text-transform: uppercase;
   letter-spacing: 0.1em;
   color: var(--text-muted);
-  border-bottom: 1px solid rgba(139,105,20,0.3);
+  border-bottom: 1px solid rgba(0,201,167,0.3);
   padding-bottom: 0.5rem;
   margin-bottom: 1rem;
 }
@@ -434,7 +434,7 @@ document.addEventListener('DOMContentLoaded', () => {
 /* Slots */
 .ep-slots, .ep-effects {
   background: var(--bg-card);
-  border: 1px solid rgba(139,105,20,0.3);
+  border: 1px solid rgba(0,201,167,0.3);
   border-radius: 8px;
   padding: 1.25rem;
 }
@@ -462,9 +462,9 @@ document.addEventListener('DOMContentLoaded', () => {
 }
 .slot-select {
   background: rgba(0,0,0,0.4);
-  border: 1px solid rgba(139,105,20,0.4);
+  border: 1px solid rgba(0,201,167,0.4);
   border-radius: 4px;
-  color: var(--text-parchment);
+  color: var(--text-normal);
   padding: 0.3rem 0.5rem;
   font-size: 0.82rem;
   font-family: Georgia, serif;
@@ -474,11 +474,11 @@ document.addEventListener('DOMContentLoaded', () => {
 }
 .slot-select:focus {
   outline: none;
-  border-color: var(--border-gold-bright);
+  border-color: rgba(0,201,167,0.6);
 }
 .slot-select option {
-  background: #1a1410;
-  color: var(--text-parchment);
+  background: #0a1a18;
+  color: var(--text-normal);
 }
 .slot-bonus {
   display: flex;
@@ -549,7 +549,7 @@ document.addEventListener('DOMContentLoaded', () => {
 }
 .effect-icon { font-size: 1rem; flex-shrink: 0; margin-top: 1px; }
 .effect-info { display: flex; flex-direction: column; gap: 0.1rem; }
-.effect-item { font-size: 0.82rem; font-weight: bold; color: var(--text-parchment); }
+.effect-item { font-size: 0.82rem; font-weight: bold; color: var(--text-normal); }
 .effect-bonus { font-size: 0.78rem; color: var(--text-muted); }
 
 /* Weapon cards */
@@ -567,7 +567,7 @@ document.addEventListener('DOMContentLoaded', () => {
 }
 .wc-name {
   font-weight: bold;
-  color: var(--text-gold);
+  color: var(--accent-primary);
   margin-bottom: 0.5rem;
   font-size: 0.9rem;
 }
@@ -585,7 +585,7 @@ document.addEventListener('DOMContentLoaded', () => {
 .wc-val {
   font-size: 1.2rem;
   font-weight: bold;
-  color: var(--text-gold-bright);
+  color: var(--accent-primary);
   line-height: 1;
 }
 .wc-lbl {
@@ -603,8 +603,8 @@ document.addEventListener('DOMContentLoaded', () => {
 .prop-tag {
   font-size: 0.67rem;
   padding: 0.1rem 0.4rem;
-  background: rgba(139,105,20,0.15);
-  border: 1px solid rgba(139,105,20,0.3);
+  background: rgba(0,201,167,0.15);
+  border: 1px solid rgba(0,201,167,0.3);
   border-radius: 3px;
   color: var(--text-muted);
   text-transform: capitalize;
@@ -618,10 +618,10 @@ document.addEventListener('DOMContentLoaded', () => {
 }
 .inv-item {
   background: var(--bg-card);
-  border: 1px solid rgba(139,105,20,0.2);
+  border: 1px solid rgba(0,201,167,0.2);
   border-radius: 6px;
   padding: 0.75rem;
-  border-left: 3px solid rgba(139,105,20,0.2);
+  border-left: 3px solid rgba(0,201,167,0.2);
 }
 .inv-type-weapon { border-left-color: rgba(139,32,32,0.6); }
 .inv-type-armor  { border-left-color: rgba(26,58,92,0.8); }
@@ -631,7 +631,7 @@ document.addEventListener('DOMContentLoaded', () => {
 .inv-name {
   font-size: 0.88rem;
   font-weight: bold;
-  color: var(--text-parchment);
+  color: var(--text-normal);
   margin-bottom: 0.3rem;
 }
 .inv-qty {

@@ -178,7 +178,7 @@ const nextLevelData = sorted.map(c => {
 <style>
 .back-link { margin-bottom: 1.5rem; }
 .back-link a { color: var(--text-muted); font-size: 0.85rem; }
-.back-link a:hover { color: var(--text-gold); }
+.back-link a:hover { color: var(--accent-primary); }
 
 .intro-text { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.5rem; }
 
@@ -188,11 +188,11 @@ const nextLevelData = sorted.map(c => {
 }
 .ps-stat {
   flex: 1; min-width: 80px;
-  background: rgba(139,105,20,0.08);
-  border: 1px solid rgba(139,105,20,0.25);
+  background: rgba(0,201,167,0.08);
+  border: 1px solid rgba(0,201,167,0.25);
   border-radius: 8px; padding: 0.75rem 1rem; text-align: center;
 }
-.ps-val { display: block; font-size: 1.6rem; font-weight: bold; color: var(--text-gold-bright); line-height: 1; }
+.ps-val { display: block; font-size: 1.6rem; font-weight: bold; color: var(--accent-primary); line-height: 1; }
 .ps-lbl { display: block; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); margin-top: 0.3rem; }
 
 /* Character grid */
@@ -206,7 +206,7 @@ const nextLevelData = sorted.map(c => {
 .char-card {
   background: var(--card-bg);
   border: 1px solid var(--border-card);
-  border-top: 3px solid var(--char-color, #8b6914);
+  border-top: 3px solid var(--char-color, var(--accent-primary-dim));
   border-radius: 8px;
   overflow: hidden;
 }
@@ -214,18 +214,18 @@ const nextLevelData = sorted.map(c => {
 .cc-header {
   display: flex; align-items: flex-start; justify-content: space-between;
   padding: 1rem 1rem 0.75rem;
-  border-bottom: 1px solid rgba(139,105,20,0.15);
+  border-bottom: 1px solid rgba(0,201,167,0.15);
 }
 .cc-name a {
   font-size: 1.05rem; font-weight: bold;
-  color: var(--text-gold-bright); text-decoration: none;
+  color: var(--text-bright); text-decoration: none;
 }
 .cc-name a:hover { text-decoration: underline; }
 .cc-sub { font-size: 0.74rem; color: var(--text-muted); margin-top: 0.2rem; }
 
 .cc-level-badge {
   display: flex; flex-direction: column; align-items: center;
-  background: var(--char-color, #8b6914);
+  background: var(--char-color, var(--accent-primary-dim));
   border-radius: 6px; padding: 0.4rem 0.7rem;
   min-width: 48px;
 }
@@ -235,14 +235,14 @@ const nextLevelData = sorted.map(c => {
 /* Vitals row */
 .cc-vitals {
   display: flex; gap: 0;
-  border-bottom: 1px solid rgba(139,105,20,0.1);
+  border-bottom: 1px solid rgba(0,201,167,0.1);
 }
 .cc-vital {
   flex: 1; text-align: center; padding: 0.6rem 0.5rem;
-  border-right: 1px solid rgba(139,105,20,0.1);
+  border-right: 1px solid rgba(0,201,167,0.1);
 }
 .cc-vital:last-child { border-right: none; }
-.cv-val { display: block; font-size: 1.1rem; font-weight: bold; color: var(--text-gold); }
+.cv-val { display: block; font-size: 1.1rem; font-weight: bold; color: var(--accent-primary); }
 .cv-lbl { display: block; font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); margin-top: 0.1rem; }
 
 /* Level history */
@@ -256,13 +256,13 @@ const nextLevelData = sorted.map(c => {
 }
 .le-badge {
   font-size: 0.72rem; font-weight: bold;
-  background: var(--char-color, #8b6914);
+  background: var(--char-color, var(--accent-primary-dim));
   color: #fff; border-radius: 4px; padding: 0.15rem 0.45rem;
 }
 .le-session {
   font-size: 0.68rem; color: var(--text-muted);
-  background: rgba(139,105,20,0.1);
-  border: 1px solid rgba(139,105,20,0.2);
+  background: rgba(0,201,167,0.1);
+  border: 1px solid rgba(0,201,167,0.2);
   border-radius: 3px; padding: 0.1rem 0.35rem;
 }
 .le-hp {
@@ -277,12 +277,12 @@ const nextLevelData = sorted.map(c => {
   display: flex; flex-direction: column; gap: 0.2rem;
 }
 .le-features li {
-  font-size: 0.78rem; color: var(--text-parchment);
+  font-size: 0.78rem; color: var(--text-normal);
   padding-left: 1rem; position: relative;
 }
 .le-features li::before {
   content: '◆'; position: absolute; left: 0;
-  color: var(--char-color, #8b6914); font-size: 0.5rem; top: 0.25rem;
+  color: var(--char-color, var(--accent-primary-dim)); font-size: 0.5rem; top: 0.25rem;
 }
 .le-notes { font-size: 0.78rem; color: var(--text-muted); font-style: italic; margin: 0.3rem 0 0; }
 
@@ -292,14 +292,14 @@ const nextLevelData = sorted.map(c => {
   display: flex; align-items: baseline; gap: 1rem; margin-bottom: 0.5rem;
 }
 .nl-header-row h2 {
-  font-size: 1.3rem; color: var(--text-gold-bright);
+  font-size: 1.3rem; color: var(--text-bright);
   margin: 0;
 }
 .nl-full-link {
-  font-size: 0.82rem; color: var(--text-gold);
+  font-size: 0.82rem; color: var(--accent-primary);
   text-decoration: none; white-space: nowrap;
 }
-.nl-full-link:hover { color: var(--text-gold-bright); text-decoration: underline; }
+.nl-full-link:hover { color: var(--accent-primary); text-decoration: underline; }
 .next-level-intro { color: var(--text-muted); font-size: 0.88rem; margin-bottom: 1.25rem; }
 .nl-ready-badge {
   font-size: 0.58rem; font-weight: bold;
@@ -321,27 +321,27 @@ const nextLevelData = sorted.map(c => {
 }
 .nl-card {
   background: var(--card-bg);
-  border: 1px solid rgba(139,105,20,0.2);
-  border-left: 4px solid var(--char-color, #8b6914);
+  border: 1px solid rgba(0,201,167,0.2);
+  border-left: 4px solid var(--char-color, var(--accent-primary-dim));
   border-radius: 0 6px 6px 0;
   padding: 0.75rem 1rem;
 }
 .nl-header {
   display: flex; align-items: baseline; gap: 0.5rem; margin-bottom: 0.5rem;
 }
-.nl-class { font-weight: bold; color: var(--text-gold); font-size: 0.95rem; }
+.nl-class { font-weight: bold; color: var(--accent-primary); font-size: 0.95rem; }
 .nl-player { font-size: 0.72rem; color: var(--text-muted); }
 .nl-gains {
   list-style: none; padding: 0; margin: 0;
   display: flex; flex-direction: column; gap: 0.3rem;
 }
 .nl-gains li {
-  font-size: 0.8rem; color: var(--text-parchment);
+  font-size: 0.8rem; color: var(--text-normal);
   padding-left: 1rem; position: relative; line-height: 1.45;
 }
 .nl-gains li::before {
   content: '→'; position: absolute; left: 0;
-  color: var(--char-color, #8b6914); font-size: 0.75rem;
+  color: var(--char-color, var(--accent-primary-dim)); font-size: 0.75rem;
 }
 
 @media (max-width: 640px) {

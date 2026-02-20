@@ -127,7 +127,7 @@ const partySkillData = characters
 <style>
 .back-link { margin-bottom: 1.5rem; }
 .back-link a { color: var(--text-muted); font-size: 0.85rem; }
-.back-link a:hover { color: var(--text-gold); }
+.back-link a:hover { color: var(--accent-primary); }
 
 .skill-detail-header {
   margin-bottom: 2rem;
@@ -135,7 +135,7 @@ const partySkillData = characters
 }
 .skill-detail-header h1 {
   margin-bottom: 0.3rem;
-  color: var(--text-gold-bright);
+  color: var(--text-bright);
 }
 .skill-subtitle {
   font-size: 0.95rem;
@@ -148,9 +148,9 @@ const partySkillData = characters
   right: 0;
   font-size: 0.78rem;
   font-weight: bold;
-  color: var(--text-gold-bright);
-  background: rgba(139,105,20,0.2);
-  border: 1px solid rgba(139,105,20,0.4);
+  color: var(--accent-primary);
+  background: rgba(0,201,167,0.2);
+  border: 1px solid rgba(0,201,167,0.4);
   padding: 0.3rem 0.7rem;
   border-radius: 5px;
   letter-spacing: 0.08em;
@@ -167,12 +167,12 @@ const partySkillData = characters
   color: var(--text-muted);
   margin-bottom: 0.75rem;
   padding-bottom: 0.3rem;
-  border-bottom: 1px solid rgba(139,105,20,0.3);
+  border-bottom: 1px solid rgba(0,201,167,0.3);
 }
 .skill-description p {
   font-size: 0.92rem;
   line-height: 1.7;
-  color: var(--text-parchment);
+  color: var(--text-normal);
 }
 
 .skill-examples { margin-bottom: 2rem; }
@@ -185,10 +185,10 @@ const partySkillData = characters
 }
 .skill-examples li {
   font-size: 0.85rem;
-  color: var(--text-parchment);
+  color: var(--text-normal);
   padding: 0.4rem 0.75rem;
-  background: rgba(139,105,20,0.06);
-  border-left: 3px solid rgba(139,105,20,0.3);
+  background: rgba(0,201,167,0.06);
+  border-left: 3px solid rgba(0,201,167,0.3);
   border-radius: 0 4px 4px 0;
 }
 
@@ -204,8 +204,8 @@ const partySkillData = characters
   flex-direction: column;
   align-items: center;
   padding: 0.5rem 0.8rem;
-  background: rgba(139,105,20,0.06);
-  border: 1px solid rgba(139,105,20,0.15);
+  background: rgba(0,201,167,0.06);
+  border: 1px solid rgba(0,201,167,0.15);
   border-radius: 6px;
   min-width: 80px;
   flex: 1;
@@ -213,7 +213,7 @@ const partySkillData = characters
 .dc-value {
   font-size: 1.3rem;
   font-weight: bold;
-  color: var(--text-parchment);
+  color: var(--text-normal);
   line-height: 1;
 }
 .dc-label {
@@ -223,8 +223,8 @@ const partySkillData = characters
   color: var(--text-muted);
   margin-top: 0.2rem;
 }
-.dc-hard { border-color: rgba(200,150,20,0.3); }
-.dc-hard .dc-value { color: var(--text-gold); }
+.dc-hard { border-color: rgba(0,201,167,0.3); }
+.dc-hard .dc-value { color: var(--accent-primary); }
 .dc-vhard { border-color: rgba(200,100,20,0.3); }
 .dc-vhard .dc-value { color: #e8a040; }
 .dc-impossible { border-color: rgba(200,50,50,0.3); }
@@ -242,22 +242,22 @@ const partySkillData = characters
   align-items: center;
   gap: 0.75rem;
   padding: 0.6rem 0.8rem;
-  background: rgba(139,105,20,0.06);
-  border: 1px solid rgba(139,105,20,0.2);
+  background: rgba(0,201,167,0.06);
+  border: 1px solid rgba(0,201,167,0.2);
   border-radius: 6px;
   text-decoration: none;
   transition: all 0.15s ease;
 }
 .party-member-link:hover {
-  background: rgba(139,105,20,0.12);
-  border-color: rgba(139,105,20,0.4);
+  background: rgba(0,201,167,0.12);
+  border-color: rgba(0,201,167,0.4);
   transform: translateX(4px);
 }
 .party-portrait {
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  border: 2px solid rgba(139,105,20,0.4);
+  border: 2px solid rgba(0,201,167,0.4);
   object-fit: cover;
 }
 .party-info {
@@ -268,7 +268,7 @@ const partySkillData = characters
 .party-name {
   font-size: 0.88rem;
   font-weight: 600;
-  color: var(--text-parchment);
+  color: var(--text-normal);
 }
 .party-class {
   font-size: 0.72rem;
@@ -282,13 +282,13 @@ const partySkillData = characters
 }
 .party-prof-badge {
   font-size: 0.62rem;
-  color: var(--text-gold);
+  color: var(--accent-primary);
 }
 .party-mod {
   font-size: 1.1rem;
   font-weight: bold;
 }
-.party-mod.positive { color: var(--text-gold-bright); }
+.party-mod.positive { color: var(--accent-primary); }
 .party-mod.negative { color: #e88; }
 
 @media (max-width: 640px) {

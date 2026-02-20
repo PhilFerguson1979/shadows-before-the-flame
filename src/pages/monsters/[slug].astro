@@ -186,19 +186,19 @@ const abilities = [
 <style>
 .back-link { margin-bottom: 1.5rem; }
 .back-link a { color: var(--text-muted); font-size: 0.85rem; }
-.back-link a:hover { color: var(--text-gold); }
+.back-link a:hover { color: var(--accent-primary); }
 
 /* Stat Block — classic D&D style */
 .stat-block {
   max-width: 600px;
-  background: rgba(139,105,20,0.04);
-  border: 2px solid rgba(139,105,20,0.25);
+  background: rgba(0,201,167,0.04);
+  border: 2px solid rgba(0,201,167,0.25);
   border-radius: 8px;
   padding: 1.5rem;
   margin-bottom: 2rem;
 }
 .stat-block-header h1 {
-  color: var(--text-gold-bright);
+  color: var(--text-bright);
   margin-bottom: 0.15rem;
   font-size: 1.5rem;
 }
@@ -211,7 +211,7 @@ const abilities = [
 
 .stat-block-divider {
   height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(139,105,20,0.4), transparent);
+  background: linear-gradient(90deg, transparent, rgba(0,201,167,0.4), transparent);
   margin: 0.75rem 0;
 }
 
@@ -228,11 +228,11 @@ const abilities = [
 }
 .core-label {
   font-weight: bold;
-  color: var(--text-gold);
+  color: var(--accent-primary);
   min-width: 5.5rem;
 }
 .core-value {
-  color: var(--text-parchment);
+  color: var(--text-normal);
 }
 
 /* Ability scores */
@@ -251,13 +251,13 @@ const abilities = [
 .ability-label {
   font-size: 0.7rem;
   font-weight: bold;
-  color: var(--text-gold);
+  color: var(--accent-primary);
   text-transform: uppercase;
   letter-spacing: 0.06em;
 }
 .ability-score {
   font-size: 0.85rem;
-  color: var(--text-parchment);
+  color: var(--text-normal);
 }
 
 /* CR */
@@ -269,10 +269,10 @@ const abilities = [
 }
 .cr-section .cr-label {
   font-weight: bold;
-  color: var(--text-gold);
+  color: var(--accent-primary);
 }
 .cr-section .cr-value {
-  color: var(--text-parchment);
+  color: var(--text-normal);
 }
 
 .legendary-badge {
@@ -283,9 +283,9 @@ const abilities = [
   font-weight: bold;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  color: var(--text-gold-bright);
-  background: rgba(218,165,32,0.15);
-  border: 1px solid rgba(218,165,32,0.35);
+  color: var(--accent-primary);
+  background: rgba(0,201,167,0.15);
+  border: 1px solid rgba(0,201,167,0.35);
   padding: 0.2rem 0.6rem;
   border-radius: 3px;
 }
@@ -298,21 +298,21 @@ const abilities = [
   font-size: 0.8rem;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  color: var(--text-gold);
+  color: var(--accent-primary);
   margin-bottom: 0.5rem;
   padding-bottom: 0.2rem;
-  border-bottom: 1px solid rgba(139,105,20,0.2);
+  border-bottom: 1px solid rgba(0,201,167,0.2);
 }
 .trait-entry p,
 .action-entry p {
   font-size: 0.85rem;
-  color: var(--text-parchment);
+  color: var(--text-normal);
   line-height: 1.6;
   margin: 0 0 0.4rem 0;
 }
 .trait-entry strong,
 .action-entry strong {
-  color: var(--text-gold);
+  color: var(--accent-primary);
 }
 
 /* Meta */
@@ -344,8 +344,8 @@ const abilities = [
 .initiative-ref {
   max-width: 600px;
   padding: 1rem 1.25rem;
-  background: rgba(139,105,20,0.06);
-  border: 1px solid rgba(139,105,20,0.2);
+  background: rgba(0,201,167,0.06);
+  border: 1px solid rgba(0,201,167,0.2);
   border-radius: 8px;
   margin-bottom: 2rem;
 }
@@ -377,7 +377,7 @@ const abilities = [
 .ref-val {
   font-size: 1.1rem;
   font-weight: bold;
-  color: var(--text-gold-bright);
+  color: var(--accent-primary);
 }
 
 .add-to-combat-btn {
@@ -385,16 +385,16 @@ const abilities = [
   padding: 0.5rem 1rem;
   font-size: 0.85rem;
   font-weight: 600;
-  background: rgba(139,105,20,0.15);
-  border: 1px solid rgba(139,105,20,0.4);
+  background: rgba(0,201,167,0.15);
+  border: 1px solid rgba(0,201,167,0.4);
   border-radius: 5px;
-  color: var(--text-gold);
+  color: var(--accent-primary);
   cursor: pointer;
   transition: all 0.2s ease;
 }
 .add-to-combat-btn:hover {
-  background: rgba(139,105,20,0.25);
-  border-color: var(--text-gold);
+  background: rgba(0,201,167,0.25);
+  border-color: var(--accent-primary);
 }
 .add-to-combat-btn.added {
   background: rgba(39,174,96,0.2);
