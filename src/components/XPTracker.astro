@@ -65,9 +65,14 @@ const configJson = JSON.stringify({
   </div>
 
   <div class="xp-controls">
-    <button class="xp-add-btn" id="xpAddBtn" title="Add XP">+ Add XP</button>
+    <div class="xp-btn-group" id="xpBtnGroup">
+      <button class="xp-add-btn" id="xpAddBtn" title="Add XP">+ Add XP</button>
+      <button class="xp-remove-btn" id="xpRemoveBtn" title="Remove XP">− Remove XP</button>
+      <button class="xp-set-btn" id="xpSetBtn" title="Set XP to a specific value">✎ Set XP</button>
+    </div>
     <div class="xp-input-wrap" id="xpInputWrap" style="display:none;">
-      <input type="number" class="xp-input" id="xpInput" min="1" placeholder="Amount..." />
+      <span class="xp-input-label" id="xpInputLabel">Add XP</span>
+      <input type="number" class="xp-input" id="xpInput" min="0" placeholder="Amount..." />
       <button class="xp-confirm-btn" id="xpConfirmBtn">✓</button>
       <button class="xp-cancel-btn" id="xpCancelBtn">✕</button>
     </div>
@@ -85,6 +90,31 @@ const configJson = JSON.stringify({
       <div class="xp-history-empty">No XP added this session</div>
     </div>
   </div>
+
+  <!-- Level Override Section -->
+  <div class="xp-level-override" id="xpLevelOverride">
+    <div class="xp-lo-toggle">
+      <button class="xp-lo-btn" id="xpLevelOverrideBtn" title="Adjust character level">⚙ Level Override</button>
+    </div>
+    <div class="xp-lo-panel" id="xpLevelOverridePanel" style="display:none;">
+      <div class="xp-lo-header">
+        <span>Level Override</span>
+        <span class="xp-lo-info">Set effective level (overrides XP-based level)</span>
+      </div>
+      <div class="xp-lo-controls">
+        <button class="xp-lo-minus" id="xpLoMinus" title="Decrease level">−</button>
+        <span class="xp-lo-level" id="xpLoLevel">{currentLevel}</span>
+        <button class="xp-lo-plus" id="xpLoPlus" title="Increase level">+</button>
+        <button class="xp-lo-set" id="xpLoSet" title="Apply level override">Apply</button>
+        <button class="xp-lo-clear" id="xpLoClear" title="Remove override and use XP-based level">Clear Override</button>
+      </div>
+      <div class="xp-lo-status" id="xpLoStatus"></div>
+      <div class="xp-lo-note">
+        <strong>Note:</strong> This overrides the displayed level. XP is automatically adjusted to match.
+        Use this to roll a character back to a lower level or correct level mistakes.
+      </div>
+    </div>
+  </div>
 </div>
 
 <script define:vars={{ configJson }}>
@@ -94,7 +124,8 @@ const configJson = JSON.stringify({
   // State
   let state = {
     addedXP: 0,
-    history: [],  // { amount, timestamp, note }
+    history: [],  // { amount, timestamp, type, note }
+    levelOverride: null,  // null = use XP-based level, number = forced level
   };
 
   // DOM refs
@@ -103,8 +134,12 @@ const configJson = JSON.stringify({
   const nextDisplay = document.getElementById('xpNextDisplay');
   const levelBadge = document.getElementById('xpLevel');
   const levelUpBanner = document.getElementById('xpLevelUpBanner');
+  const btnGroup = document.getElementById('xpBtnGroup');
   const addBtn = document.getElementById('xpAddBtn');
+  const removeBtn = document.getElementById('xpRemoveBtn');
+  const setBtn = document.getElementById('xpSetBtn');
   const inputWrap = document.getElementById('xpInputWrap');
+  const inputLabel = document.getElementById('xpInputLabel');
   const xpInput = document.getElementById('xpInput');
   const confirmBtn = document.getElementById('xpConfirmBtn');
   const cancelBtn = document.getElementById('xpCancelBtn');
@@ -112,6 +147,22 @@ const configJson = JSON.stringify({
   const historyPanel = document.getElementById('xpHistoryPanel');
   const historyList = document.getElementById('xpHistoryList');
   const resetBtn = document.getElementById('xpResetBtn');
+
+  // Current input mode: 'add', 'remove', or 'set'
+  let inputMode = 'add';
+
+  // Level override DOM refs
+  const loBtn = document.getElementById('xpLevelOverrideBtn');
+  const loPanel = document.getElementById('xpLevelOverridePanel');
+  const loMinus = document.getElementById('xpLoMinus');
+  const loPlus = document.getElementById('xpLoPlus');
+  const loLevel = document.getElementById('xpLoLevel');
+  const loSet = document.getElementById('xpLoSet');
+  const loClear = document.getElementById('xpLoClear');
+  const loStatus = document.getElementById('xpLoStatus');
+
+  // Temp level for the picker (before "Apply")
+  let tempLevel = config.currentLevel;
 
   // Load state
   function loadState() {
@@ -121,6 +172,7 @@ const configJson = JSON.stringify({
         const parsed = JSON.parse(saved);
         state.addedXP = parsed.addedXP ?? 0;
         state.history = parsed.history ?? [];
+        state.levelOverride = parsed.levelOverride ?? null;
       }
     } catch (e) { /* ignore */ }
   }
@@ -143,7 +195,9 @@ const configJson = JSON.stringify({
 
   function updateAll() {
     const totalXP = getTotalXP();
-    const effectiveLevel = getLevelForXP(totalXP);
+    const xpBasedLevel = getLevelForXP(totalXP);
+    // Use level override if set, otherwise use XP-based level
+    const effectiveLevel = state.levelOverride !== null ? state.levelOverride : xpBasedLevel;
     const currentThreshold = config.thresholds[effectiveLevel] ?? 0;
     const nextLevel = Math.min(effectiveLevel + 1, 20);
     const nextThreshold = config.thresholds[nextLevel] ?? 355000;
@@ -151,13 +205,13 @@ const configJson = JSON.stringify({
     const xpNeeded = nextThreshold - currentThreshold;
 
     // Bar
-    const pct = config.isMaxLevel && effectiveLevel >= 20
+    const pct = effectiveLevel >= 20
       ? 100
       : Math.min(100, Math.max(0, (xpIntoLevel / xpNeeded) * 100));
     barFill.style.width = `${pct}%`;
 
-    // Level-up detection
-    const canLevelUp = effectiveLevel > config.currentLevel;
+    // Level-up detection — compare effective level to base character level
+    const canLevelUp = effectiveLevel > config.currentLevel && state.levelOverride === null;
     barFill.classList.toggle('level-up-glow', canLevelUp);
     levelUpBanner.style.display = canLevelUp ? 'flex' : 'none';
 
@@ -168,55 +222,121 @@ const configJson = JSON.stringify({
     }
     levelBadge.textContent = effectiveLevel;
 
+    // Show override indicator on level badge
+    const badgeParent = levelBadge.parentElement;
+    if (state.levelOverride !== null) {
+      badgeParent.classList.add('xp-level-overridden');
+      badgeParent.title = 'Level override active (XP-based: ' + xpBasedLevel + ')';
+    } else {
+      badgeParent.classList.remove('xp-level-overridden');
+      badgeParent.title = '';
+    }
+
+    // Update level override panel display
+    updateOverrideStatus();
+
     // History
     renderHistory();
   }
 
   function renderHistory() {
     if (state.history.length === 0) {
-      historyList.innerHTML = '<div class="xp-history-empty">No XP added this session</div>';
+      historyList.innerHTML = '<div class="xp-history-empty">No XP changes this session</div>';
       return;
     }
     historyList.innerHTML = state.history.map((entry, i) => {
       const date = new Date(entry.timestamp);
       const time = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      const isNegative = entry.amount < 0;
+      const isSet = entry.type === 'set';
+      const amountClass = isNegative ? 'xp-history-loss' : 'xp-history-amount';
+      const prefix = isSet ? '= ' : (isNegative ? '' : '+');
+      const label = isSet ? (entry.note || 'Set XP') : '';
       return `<div class="xp-history-entry">
-        <span class="xp-history-amount">+${entry.amount.toLocaleString()}</span>
+        <span class="${amountClass}">${prefix}${entry.amount.toLocaleString()}${isSet ? ' XP' : ''}</span>
+        ${label ? '<span class="xp-history-note">' + label + '</span>' : ''}
         <span class="xp-history-time">${time}</span>
       </div>`;
     }).join('');
   }
 
-  // Add XP
-  function showInput() {
+  // Input modes
+  function showInput(mode) {
+    inputMode = mode;
     inputWrap.style.display = 'flex';
-    addBtn.style.display = 'none';
-    xpInput.value = '';
+    btnGroup.style.display = 'none';
+
+    if (mode === 'add') {
+      inputLabel.textContent = 'Add XP';
+      inputLabel.className = 'xp-input-label xp-label-add';
+      xpInput.placeholder = 'Amount...';
+      xpInput.value = '';
+      xpInput.min = '1';
+    } else if (mode === 'remove') {
+      inputLabel.textContent = 'Remove XP';
+      inputLabel.className = 'xp-input-label xp-label-remove';
+      xpInput.placeholder = 'Amount...';
+      xpInput.value = '';
+      xpInput.min = '1';
+    } else if (mode === 'set') {
+      inputLabel.textContent = 'Set XP to';
+      inputLabel.className = 'xp-input-label xp-label-set';
+      xpInput.placeholder = 'Total XP...';
+      xpInput.value = String(getTotalXP());
+      xpInput.min = '0';
+      xpInput.select();
+    }
     xpInput.focus();
   }
 
   function hideInput() {
     inputWrap.style.display = 'none';
-    addBtn.style.display = '';
+    btnGroup.style.display = '';
   }
 
-  function confirmAdd() {
+  function confirmAction() {
     const val = parseInt(xpInput.value);
-    if (!isNaN(val) && val > 0) {
-      state.addedXP += val;
-      state.history.push({ amount: val, timestamp: Date.now() });
-      saveState();
-      updateAll();
+    if (isNaN(val)) { hideInput(); return; }
+
+    if (inputMode === 'add') {
+      if (val > 0) {
+        state.addedXP += val;
+        state.history.push({ amount: val, timestamp: Date.now(), type: 'add' });
+        saveState();
+        updateAll();
+      }
+    } else if (inputMode === 'remove') {
+      if (val > 0) {
+        state.addedXP -= val;
+        // Don't let total XP go below 0
+        if (config.baseXP + state.addedXP < 0) {
+          state.addedXP = -config.baseXP;
+        }
+        state.history.push({ amount: -val, timestamp: Date.now(), type: 'remove' });
+        saveState();
+        updateAll();
+      }
+    } else if (inputMode === 'set') {
+      if (val >= 0) {
+        const targetXP = val;
+        const diff = targetXP - getTotalXP();
+        state.addedXP = targetXP - config.baseXP;
+        state.history.push({ amount: targetXP, timestamp: Date.now(), type: 'set', note: (diff >= 0 ? '+' : '') + diff.toLocaleString() + ' from previous' });
+        saveState();
+        updateAll();
+      }
     }
     hideInput();
   }
 
   // Events
-  addBtn.addEventListener('click', showInput);
+  addBtn.addEventListener('click', () => showInput('add'));
+  removeBtn.addEventListener('click', () => showInput('remove'));
+  setBtn.addEventListener('click', () => showInput('set'));
   cancelBtn.addEventListener('click', hideInput);
-  confirmBtn.addEventListener('click', confirmAdd);
+  confirmBtn.addEventListener('click', confirmAction);
   xpInput.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') confirmAdd();
+    if (e.key === 'Enter') confirmAction();
     if (e.key === 'Escape') hideInput();
   });
 
@@ -230,6 +350,88 @@ const configJson = JSON.stringify({
     state.history = [];
     saveState();
     updateAll();
+  });
+
+  // Level override helpers
+  function updateOverrideStatus() {
+    if (!loStatus) return;
+    if (state.levelOverride !== null) {
+      const xpLvl = getLevelForXP(getTotalXP());
+      loStatus.innerHTML = '<span class="xp-lo-active">Override active — Level ' + state.levelOverride + '</span>' +
+        '<span class="xp-lo-xp-lvl">(XP-based level: ' + xpLvl + ')</span>';
+      loStatus.style.display = 'flex';
+    } else {
+      loStatus.innerHTML = '';
+      loStatus.style.display = 'none';
+    }
+  }
+
+  function updateTempLevelDisplay() {
+    if (loLevel) loLevel.textContent = tempLevel;
+  }
+
+  // Level override events
+  loBtn.addEventListener('click', () => {
+    const showing = loPanel.style.display !== 'none';
+    loPanel.style.display = showing ? 'none' : 'block';
+    if (!showing) {
+      // Initialize temp level to current effective level
+      tempLevel = state.levelOverride !== null ? state.levelOverride : getLevelForXP(getTotalXP());
+      updateTempLevelDisplay();
+    }
+  });
+
+  loMinus.addEventListener('click', () => {
+    if (tempLevel > 1) {
+      tempLevel--;
+      updateTempLevelDisplay();
+    }
+  });
+
+  loPlus.addEventListener('click', () => {
+    if (tempLevel < 20) {
+      tempLevel++;
+      updateTempLevelDisplay();
+    }
+  });
+
+  loSet.addEventListener('click', () => {
+    // Apply level override and auto-adjust XP to match
+    const targetLevel = tempLevel;
+    state.levelOverride = targetLevel;
+
+    // Set XP to match the target level threshold
+    const targetXP = config.thresholds[targetLevel] ?? 0;
+    const oldTotal = getTotalXP();
+    state.addedXP = targetXP - config.baseXP;
+
+    state.history.push({
+      amount: targetXP,
+      timestamp: Date.now(),
+      type: 'set',
+      note: 'Level override → Lvl ' + targetLevel + ' (was ' + oldTotal.toLocaleString() + ' XP)'
+    });
+
+    saveState();
+    updateAll();
+  });
+
+  loClear.addEventListener('click', () => {
+    if (state.levelOverride === null) return;
+    const prevOverride = state.levelOverride;
+    state.levelOverride = null;
+
+    state.history.push({
+      amount: getTotalXP(),
+      timestamp: Date.now(),
+      type: 'set',
+      note: 'Cleared level override (was Lvl ' + prevOverride + ')'
+    });
+
+    saveState();
+    updateAll();
+    tempLevel = getLevelForXP(getTotalXP());
+    updateTempLevelDisplay();
   });
 
   // Init
@@ -330,26 +532,56 @@ const configJson = JSON.stringify({
   align-items: center;
   gap: 0.5rem;
 }
-.xp-add-btn {
-  padding: 0.35rem 0.8rem;
+.xp-btn-group {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+.xp-add-btn, .xp-remove-btn, .xp-set-btn {
+  padding: 0.35rem 0.75rem;
   font-size: 0.78rem;
   font-weight: bold;
-  background: rgba(139,105,20,0.15);
-  border: 1px solid rgba(139,105,20,0.4);
-  color: var(--text-gold-bright);
   border-radius: 5px;
   cursor: pointer;
   transition: all 0.2s;
+  border: 1px solid;
 }
-.xp-add-btn:hover { background: rgba(139,105,20,0.3); }
+.xp-add-btn {
+  background: rgba(39,174,96,0.12);
+  border-color: rgba(39,174,96,0.4);
+  color: #6ec97a;
+}
+.xp-add-btn:hover { background: rgba(39,174,96,0.25); }
+.xp-remove-btn {
+  background: rgba(192,57,43,0.1);
+  border-color: rgba(192,57,43,0.35);
+  color: #e74c3c;
+}
+.xp-remove-btn:hover { background: rgba(192,57,43,0.25); }
+.xp-set-btn {
+  background: rgba(139,105,20,0.1);
+  border-color: rgba(139,105,20,0.35);
+  color: var(--text-gold);
+}
+.xp-set-btn:hover { background: rgba(139,105,20,0.25); }
 
 .xp-input-wrap {
   display: none;
   align-items: center;
   gap: 0.3rem;
 }
+.xp-input-label {
+  font-size: 0.72rem;
+  font-weight: bold;
+  white-space: nowrap;
+  padding: 0.15rem 0.4rem;
+  border-radius: 3px;
+}
+.xp-label-add { color: #6ec97a; background: rgba(39,174,96,0.1); }
+.xp-label-remove { color: #e74c3c; background: rgba(192,57,43,0.1); }
+.xp-label-set { color: var(--text-gold); background: rgba(139,105,20,0.1); }
 .xp-input {
-  width: 80px;
+  width: 90px;
   padding: 0.3rem 0.5rem;
   background: rgba(100,100,100,0.2);
   border: 1px solid rgba(139,105,20,0.4);
@@ -436,10 +668,162 @@ const configJson = JSON.stringify({
 }
 .xp-history-entry:last-child { border-bottom: none; }
 .xp-history-amount { color: #6ec97a; font-weight: bold; }
+.xp-history-loss { color: #e74c3c; font-weight: bold; }
+.xp-history-note { font-size: 0.68rem; color: var(--text-muted); font-style: italic; }
 .xp-history-time { color: var(--text-muted); font-size: 0.7rem; }
+
+/* Level Override */
+.xp-level-override {
+  margin-top: 0.6rem;
+  border-top: 1px solid rgba(100,100,100,0.15);
+  padding-top: 0.5rem;
+}
+.xp-lo-toggle { display: flex; }
+.xp-lo-btn {
+  font-size: 0.72rem;
+  background: rgba(100,100,100,0.08);
+  border: 1px solid rgba(100,100,100,0.2);
+  color: var(--text-muted);
+  border-radius: 4px;
+  padding: 0.2rem 0.6rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.xp-lo-btn:hover { background: rgba(100,100,100,0.18); color: var(--text-parchment); }
+
+.xp-lo-panel {
+  margin-top: 0.5rem;
+  padding: 0.75rem;
+  background: rgba(0,0,0,0.15);
+  border: 1px solid rgba(100,100,100,0.2);
+  border-radius: 6px;
+}
+.xp-lo-header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  margin-bottom: 0.6rem;
+}
+.xp-lo-header span:first-child {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: bold;
+}
+.xp-lo-info {
+  font-size: 0.68rem;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.xp-lo-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+.xp-lo-minus, .xp-lo-plus {
+  width: 32px; height: 32px;
+  border-radius: 6px;
+  border: 1px solid rgba(139,105,20,0.4);
+  background: rgba(139,105,20,0.1);
+  color: var(--text-gold);
+  font-size: 1.1rem;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+.xp-lo-minus:hover, .xp-lo-plus:hover {
+  background: rgba(139,105,20,0.25);
+  border-color: var(--text-gold);
+}
+.xp-lo-level {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: var(--text-gold-bright);
+  min-width: 40px;
+  text-align: center;
+}
+.xp-lo-set {
+  padding: 0.35rem 0.85rem;
+  font-size: 0.78rem;
+  font-weight: bold;
+  border-radius: 5px;
+  cursor: pointer;
+  border: 1px solid rgba(39,174,96,0.4);
+  background: rgba(39,174,96,0.12);
+  color: #6ec97a;
+  transition: all 0.2s;
+  margin-left: 0.5rem;
+}
+.xp-lo-set:hover { background: rgba(39,174,96,0.25); }
+.xp-lo-clear {
+  padding: 0.35rem 0.85rem;
+  font-size: 0.78rem;
+  font-weight: bold;
+  border-radius: 5px;
+  cursor: pointer;
+  border: 1px solid rgba(192,57,43,0.35);
+  background: rgba(192,57,43,0.1);
+  color: #e74c3c;
+  transition: all 0.2s;
+}
+.xp-lo-clear:hover { background: rgba(192,57,43,0.25); }
+
+.xp-lo-status {
+  display: none;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+  padding: 0.35rem 0.6rem;
+  background: rgba(255,165,0,0.08);
+  border: 1px solid rgba(255,165,0,0.2);
+  border-radius: 4px;
+  font-size: 0.72rem;
+}
+.xp-lo-active {
+  color: #ffa500;
+  font-weight: bold;
+}
+.xp-lo-xp-lvl {
+  color: var(--text-muted);
+  font-style: italic;
+}
+.xp-lo-note {
+  margin-top: 0.5rem;
+  font-size: 0.68rem;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+.xp-level-overridden {
+  border-color: #ffa500 !important;
+  background: rgba(255,165,0,0.25) !important;
+  position: relative;
+}
+.xp-level-overridden::after {
+  content: '⚙';
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  font-size: 0.55rem;
+  background: rgba(255,165,0,0.9);
+  border-radius: 50%;
+  width: 14px;
+  height: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 
 @media (max-width: 640px) {
   .xp-tracker { padding: 0.75rem; }
   .xp-input { width: 65px; }
+  .xp-lo-controls { gap: 0.3rem; }
+  .xp-lo-set, .xp-lo-clear { font-size: 0.72rem; padding: 0.3rem 0.6rem; }
 }
 </style>
