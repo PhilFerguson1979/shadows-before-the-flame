@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getCollection } from 'astro:content';
+import { getNextLevelPreview, getSpellSlotChanges, proficiencyBonus, getClassData, canLevelUp } from '../../data/leveling';
 
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 const characters = await getCollection('characters');
@@ -17,14 +18,30 @@ const classColor: Record<string, string> = {
   'Monk': '#2980b9',
   'Sorcerer': '#6c3483',
   'Lunar Sorcerer': '#6c3483',
+  'Fighter': '#7f8c8d',
+  'Cleric': '#f1c40f',
+  'Paladin': '#2ecc71',
+  'Warlock': '#9b59b6',
+  'Wizard': '#3498db',
 };
 
 function profBonus(level: number) {
-  return Math.ceil(level / 4) + 1;
+  return proficiencyBonus(level);
 }
 
 const totalLevels = sorted.reduce((sum, c) => sum + (c.data.level ?? 1), 0);
 const avgLevel = (totalLevels / sorted.length).toFixed(1);
+
+// Build dynamic next-level data for each character
+const nextLevelData = sorted.map(c => {
+  const cls = c.data.class ?? 'Fighter';
+  const lvl = c.data.level ?? 1;
+  const preview = getNextLevelPreview(cls, lvl);
+  const slotChanges = getSpellSlotChanges(cls, lvl);
+  const classData = getClassData(cls);
+  const ready = canLevelUp(lvl, c.data.xp ?? 0);
+  return { slug: c.slug, name: c.data.name, player: c.data.player, class: cls, level: lvl, preview, slotChanges, classData, ready, color: classColor[cls] ?? '#8b6914' };
+});
 ---
 
 <BaseLayout title="Level Tracker">
@@ -116,31 +133,42 @@ const avgLevel = (totalLevels / sorted.length).toFixed(1);
       })}
     </div>
 
-    <!-- What to expect at next level -->
+    <!-- What to expect at next level (data-driven) -->
     <div class="next-level-section">
-      <h2>What Happens at Level 2?</h2>
-      <p class="next-level-intro">All characters are currently Level 1. Here's what each class gains at Level 2:</p>
+      <div class="nl-header-row">
+        <h2>What's Coming Next</h2>
+        <a href={`${base}/party/level-up`} class="nl-full-link">Full Level Up Guide →</a>
+      </div>
+      <p class="next-level-intro">Here's what each character gains at their next level:</p>
       <div class="next-level-grid">
-        {[
-          { cls: 'Rogue', player: 'Caden (Darian)', gains: ['Cunning Action — Dash, Disengage, or Hide as bonus action', 'Sneak Attack 1d6 → still 1d6 until level 3'] },
-          { cls: 'Artificer', player: 'Tyler (Cogmaw) & Senada (Vomilia)', gains: ['Infuse Item — imbue items with magical properties (2 infusions known, 2 slots)', 'New Infusion options unlocked'] },
-          { cls: 'Druid', player: 'Keygen (Cerci)', gains: ['Wild Shape (2/rest) — transform into beasts CR 1/4 or lower', 'No flying or swimming beasts yet'] },
-          { cls: 'Lunar Sorcerer', player: 'Daniel (Dorthol)', gains: ['Font of Magic — 2 Sorcery Points', 'Can convert spell slots to sorcery points and back', 'Lunar Embodiment phase spells expand'] },
-          { cls: 'Bard', player: 'Gavin (Dwardo)', gains: ['Jack of All Trades — add half prof bonus to all non-proficient checks', 'Song of Rest — party rolls one HD during short rest + bonus HP'] },
-          { cls: 'Barbarian', player: 'Linzee (Metallyn)', gains: ['Reckless Attack — advantage on all STR attacks (but attackers have advantage vs you)', 'Danger Sense — advantage on DEX saves from visible sources'] },
-          { cls: 'Monk', player: 'Scarlett (Shoto)', gains: ['Ki Points (2) — Flurry of Blows, Patient Defense, Step of the Wind', 'Unarmored Movement +10 ft (40 ft total speed!)', 'Martial Arts die remains d4'] },
-          { cls: 'Ranger', player: 'Jacob (Legolas)', gains: ['Fighting Style — choose Archery (+2 ranged attacks), Defense (+1 AC), or Dueling', 'Spellcasting unlocked — WIS-based (DC 14, +6)', 'Spells known: 2 first-level spells + 2 ranger spell slots'] },
-        ].map(row => (
-          <div class="nl-card" style={`--char-color: ${classColor[row.cls] ?? '#8b6914'}`}>
-            <div class="nl-header">
-              <span class="nl-class">{row.cls}</span>
-              <span class="nl-player">{row.player}</span>
+        {nextLevelData.map(nd => {
+          if (!nd.preview) return null;
+          const gains: string[] = [];
+          for (const f of nd.preview.features) {
+            gains.push(`${f.name} — ${f.description.substring(0, 100)}${f.description.length > 100 ? '...' : ''}`);
+          }
+          if (nd.preview.asiOrFeat) gains.push('⭐ Ability Score Improvement or Feat');
+          if (nd.preview.extraAttack) gains.push('⚔️ Extra Attack');
+          if (nd.preview.subclassFeature && nd.classData && nd.preview.level === nd.classData.subclassLevel) {
+            gains.push(`🔮 Choose ${nd.classData.subclassName}`);
+          }
+          if (nd.slotChanges && nd.slotChanges.changes.length > 0) {
+            gains.push('🔮 ' + nd.slotChanges.changes.join(', '));
+          }
+          if (gains.length === 0) gains.push('No major features — see Level Up Guide for full details');
+          return (
+            <div class={`nl-card ${nd.ready ? 'nl-ready' : ''}`} style={`--char-color: ${nd.color}`}>
+              <div class="nl-header">
+                <span class="nl-class">{nd.class} → Lvl {nd.preview.level}</span>
+                <span class="nl-player">{nd.player} ({nd.name})</span>
+                {nd.ready && <span class="nl-ready-badge">READY</span>}
+              </div>
+              <ul class="nl-gains">
+                {gains.map(g => <li>{g}</li>)}
+              </ul>
             </div>
-            <ul class="nl-gains">
-              {row.gains.map(g => <li>{g}</li>)}
-            </ul>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
 
@@ -260,11 +288,31 @@ const avgLevel = (totalLevels / sorted.length).toFixed(1);
 
 /* Next level section */
 .next-level-section { margin-top: 1rem; }
-.next-level-section h2 {
-  font-size: 1.3rem; color: var(--text-gold-bright);
-  margin-bottom: 0.5rem;
+.nl-header-row {
+  display: flex; align-items: baseline; gap: 1rem; margin-bottom: 0.5rem;
 }
+.nl-header-row h2 {
+  font-size: 1.3rem; color: var(--text-gold-bright);
+  margin: 0;
+}
+.nl-full-link {
+  font-size: 0.82rem; color: var(--text-gold);
+  text-decoration: none; white-space: nowrap;
+}
+.nl-full-link:hover { color: var(--text-gold-bright); text-decoration: underline; }
 .next-level-intro { color: var(--text-muted); font-size: 0.88rem; margin-bottom: 1.25rem; }
+.nl-ready-badge {
+  font-size: 0.58rem; font-weight: bold;
+  background: rgba(39,174,96,0.15); color: #6ec97a;
+  border: 1px solid rgba(39,174,96,0.3);
+  border-radius: 3px; padding: 0.1rem 0.4rem;
+  text-transform: uppercase; letter-spacing: 0.04em;
+  margin-left: auto;
+}
+.nl-card.nl-ready {
+  border-color: rgba(39,174,96,0.25);
+  box-shadow: 0 0 8px rgba(39,174,96,0.1);
+}
 
 .next-level-grid {
   display: grid;

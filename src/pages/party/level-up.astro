@@ -1,0 +1,501 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+import { getClassData, getNextLevelPreview, getSpellSlotChanges, xpThresholds, proficiencyBonus, canLevelUp } from '../../data/leveling';
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const characters = await getCollection('characters');
+const activeParty = characters.filter(c => c.data.status === 'active')
+  .sort((a, b) => (a.data.name ?? '').localeCompare(b.data.name ?? ''));
+
+const classColor: Record<string, string> = {
+  'Rogue': '#c0392b', 'Artificer': '#8e44ad', 'Druid': '#27ae60',
+  'Ranger': '#16a085', 'Bard': '#d35400', 'Barbarian': '#e74c3c',
+  'Monk': '#2980b9', 'Sorcerer': '#6c3483', 'Lunar Sorcerer': '#6c3483',
+  'Fighter': '#7f8c8d', 'Cleric': '#f1c40f', 'Paladin': '#2ecc71',
+  'Warlock': '#9b59b6', 'Wizard': '#3498db',
+};
+
+// Build preview data for each character
+const partyPreviews = activeParty.map(c => {
+  const d = c.data;
+  const lvl = d.level ?? 1;
+  const cls = d.class ?? 'Fighter';
+  const xp = d.xp ?? 0;
+  const preview = getNextLevelPreview(cls, lvl);
+  const slotChanges = getSpellSlotChanges(cls, lvl);
+  const classData = getClassData(cls);
+  const ready = canLevelUp(lvl, xp);
+
+  return {
+    slug: c.slug,
+    name: d.name,
+    player: d.player,
+    race: d.race,
+    class: cls,
+    level: lvl,
+    xp,
+    maxHp: d.maxHp ?? 0,
+    con: d.con ?? 10,
+    color: classColor[cls] ?? '#8b6914',
+    ready,
+    preview,
+    slotChanges,
+    classData,
+    xpNeeded: lvl < 20 ? xpThresholds[lvl + 1] : 0,
+    xpToGo: lvl < 20 ? Math.max(0, xpThresholds[lvl + 1] - xp) : 0,
+  };
+});
+
+const readyCount = partyPreviews.filter(p => p.ready).length;
+---
+
+<BaseLayout title="Level Up Guide">
+  <div class="page-container">
+    <div class="back-link"><a href={`${base}/party/level-tracker`}>← Level Tracker</a></div>
+    <div class="section-header">
+      <h1>⬆️ Level Up Guide</h1>
+    </div>
+    <p class="intro-text">
+      See what each character gains at their next level. Characters with enough XP will be highlighted as ready to level up.
+      {readyCount > 0 && <strong class="ready-alert"> {readyCount} character{readyCount > 1 ? 's' : ''} ready to level up!</strong>}
+    </p>
+
+    <!-- Party XP Overview -->
+    <div class="xp-overview">
+      <h2>Party XP Status</h2>
+      <div class="xp-bars">
+        {partyPreviews.map(p => {
+          const pct = p.level >= 20 ? 100 : p.xpNeeded > 0 ? Math.min(100, (p.xp / p.xpNeeded) * 100) : 0;
+          return (
+            <div class={`xp-row ${p.ready ? 'xp-ready' : ''}`}>
+              <div class="xp-name">
+                <a href={`${base}/characters/${p.slug}`}>{p.name}</a>
+                <span class="xp-class" style={`color: ${p.color}`}>{p.class} {p.level}</span>
+              </div>
+              <div class="xp-bar-wrap">
+                <div class="xp-bar-fill" style={`width: ${pct}%; background: ${p.color}`}></div>
+                <span class="xp-bar-text">
+                  {p.level >= 20 ? 'MAX LEVEL' : `${p.xp.toLocaleString()} / ${p.xpNeeded.toLocaleString()} XP`}
+                </span>
+              </div>
+              <div class="xp-status">
+                {p.ready ? <span class="status-ready">✓ READY</span> : <span class="status-pending">{p.xpToGo.toLocaleString()} to go</span>}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+
+    <!-- Next Level Preview Cards -->
+    <h2 class="section-title">What's Coming at the Next Level</h2>
+
+    <div class="preview-grid">
+      {partyPreviews.map(p => {
+        if (!p.preview) return null;
+        const pr = p.preview;
+        const conMod = Math.floor((p.con - 10) / 2);
+        const minHP = 1 + conMod;
+        const maxHP = pr.hitDie + conMod;
+        const avgHP = Math.floor(pr.hitDie / 2) + 1 + conMod;
+
+        return (
+          <div class={`preview-card ${p.ready ? 'card-ready' : ''}`} style={`--char-color: ${p.color}`}>
+            <div class="pc-header">
+              <div class="pc-name-block">
+                <a href={`${base}/characters/${p.slug}`} class="pc-name">{p.name}</a>
+                <span class="pc-player">{p.player} · {p.race}</span>
+              </div>
+              <div class="pc-level-block">
+                <span class="pc-from">Lvl {p.level}</span>
+                <span class="pc-arrow">→</span>
+                <span class="pc-to">Lvl {pr.level}</span>
+              </div>
+              {p.ready && <span class="pc-ready-badge">READY</span>}
+            </div>
+
+            <!-- HP Section -->
+            <div class="pc-section">
+              <div class="pc-section-title">Hit Points</div>
+              <div class="pc-hp-info">
+                <span class="hp-die">Roll 1d{pr.hitDie} + {conMod >= 0 ? `${conMod}` : conMod} (CON)</span>
+                <span class="hp-range">Range: {minHP}–{maxHP} HP | Average: {avgHP}</span>
+                <span class="hp-current">Current Max HP: {p.maxHp} → {p.maxHp + minHP}–{p.maxHp + maxHP}</span>
+              </div>
+            </div>
+
+            <!-- Proficiency Bonus -->
+            {proficiencyBonus(pr.level) > proficiencyBonus(p.level) && (
+              <div class="pc-section pc-highlight">
+                <div class="pc-section-title">📈 Proficiency Bonus Increase</div>
+                <span class="prof-change">+{proficiencyBonus(p.level)} → +{proficiencyBonus(pr.level)}</span>
+                <span class="prof-note">This affects attack rolls, save DCs, skill checks, and saving throws!</span>
+              </div>
+            )}
+
+            <!-- ASI / Feat -->
+            {pr.asiOrFeat && (
+              <div class="pc-section pc-highlight">
+                <div class="pc-section-title">⭐ Ability Score Improvement or Feat</div>
+                <span class="asi-detail">Choose: +2 to one ability score, +1 to two scores, or take a Feat</span>
+              </div>
+            )}
+
+            <!-- Subclass Selection -->
+            {pr.subclassFeature && p.classData && pr.level === p.classData.subclassLevel && (
+              <div class="pc-section pc-highlight">
+                <div class="pc-section-title">🔮 Choose {p.classData.subclassName}</div>
+                <span class="sub-detail">This is a major decision — choose your specialization path!</span>
+              </div>
+            )}
+
+            <!-- Extra Attack -->
+            {pr.extraAttack && (
+              <div class="pc-section pc-highlight">
+                <div class="pc-section-title">⚔️ Extra Attack</div>
+                <span class="extra-detail">You can now attack twice when you take the Attack action!</span>
+              </div>
+            )}
+
+            <!-- Class Features -->
+            {pr.features.length > 0 && (
+              <div class="pc-section">
+                <div class="pc-section-title">Class Features</div>
+                <div class="feature-list">
+                  {pr.features.map(f => (
+                    <div class="feature-item">
+                      <span class="fi-name">{f.name}</span>
+                      <span class="fi-desc">{f.description}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <!-- Spell Slot Changes -->
+            {p.slotChanges && p.slotChanges.changes.length > 0 && (
+              <div class="pc-section">
+                <div class="pc-section-title">🔮 Spell Slots</div>
+                <ul class="slot-changes">
+                  {p.slotChanges.changes.map(ch => <li>{ch}</li>)}
+                </ul>
+              </div>
+            )}
+
+            <!-- Subclass Feature (not the initial selection) -->
+            {pr.subclassFeature && p.classData && pr.level !== p.classData.subclassLevel && (
+              <div class="pc-section">
+                <div class="pc-section-title">🎯 {p.classData.subclassName} Feature</div>
+                <span class="sub-note">You gain a new feature from your chosen {p.classData.subclassName}.</span>
+              </div>
+            )}
+
+            <!-- XP Footer -->
+            <div class="pc-footer">
+              <span class="pf-xp">
+                {p.ready
+                  ? `✓ Has ${p.xp.toLocaleString()} XP (needs ${p.xpNeeded.toLocaleString()})`
+                  : `${p.xpToGo.toLocaleString()} XP needed (has ${p.xp.toLocaleString()} / ${p.xpNeeded.toLocaleString()})`
+                }
+              </span>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+
+    <!-- Quick Reference Tables -->
+    <div class="ref-section">
+      <h2>Quick Reference</h2>
+
+      <div class="ref-grid">
+        <!-- XP Thresholds Table -->
+        <div class="ref-card">
+          <h3>XP Thresholds by Level</h3>
+          <table class="ref-table">
+            <thead><tr><th>Level</th><th>XP Required</th><th>Prof Bonus</th></tr></thead>
+            <tbody>
+              {Object.entries(xpThresholds).map(([lvl, xp]) => (
+                <tr class={Number(lvl) === (activeParty[0]?.data.level ?? 1) + 1 ? 'row-next' : ''}>
+                  <td>{lvl}</td>
+                  <td>{xp.toLocaleString()}</td>
+                  <td>+{proficiencyBonus(Number(lvl))}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Hit Dice Reference -->
+        <div class="ref-card">
+          <h3>Hit Dice by Class</h3>
+          <table class="ref-table">
+            <thead><tr><th>Class</th><th>Hit Die</th><th>Avg HP/Level</th></tr></thead>
+            <tbody>
+              {['Barbarian','Fighter','Paladin','Ranger','Artificer','Bard','Cleric','Druid','Monk','Rogue','Warlock','Sorcerer','Wizard'].map(cls => {
+                const cd = getClassData(cls);
+                if (!cd) return null;
+                const avgHp = Math.floor(cd.hitDie / 2) + 1;
+                const inParty = activeParty.some(c => (c.data.class ?? '').includes(cls));
+                return (
+                  <tr class={inParty ? 'row-party' : ''}>
+                    <td>{cls}</td>
+                    <td>d{cd.hitDie}</td>
+                    <td>{avgHp} + CON</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+.back-link { margin-bottom: 1.5rem; }
+.back-link a { color: var(--text-muted); font-size: 0.85rem; text-decoration: none; }
+.back-link a:hover { color: var(--text-gold); }
+
+.intro-text { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.5rem; }
+.ready-alert { color: #6ec97a; }
+
+/* XP Overview */
+.xp-overview {
+  margin-bottom: 2.5rem;
+  background: rgba(139,105,20,0.04);
+  border: 1px solid rgba(139,105,20,0.15);
+  border-radius: 10px;
+  padding: 1.25rem;
+}
+.xp-overview h2 {
+  font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.1em;
+  color: var(--text-muted); margin-bottom: 1rem;
+}
+.xp-bars { display: flex; flex-direction: column; gap: 0.6rem; }
+.xp-row {
+  display: grid; grid-template-columns: 150px 1fr 100px;
+  align-items: center; gap: 0.75rem;
+  padding: 0.4rem 0.5rem; border-radius: 6px;
+  transition: background 0.15s;
+}
+.xp-row:hover { background: rgba(139,105,20,0.06); }
+.xp-row.xp-ready { background: rgba(39,174,96,0.06); }
+
+.xp-name a {
+  font-size: 0.85rem; font-weight: 600;
+  color: var(--text-parchment); text-decoration: none;
+  display: block;
+}
+.xp-name a:hover { color: var(--text-gold); }
+.xp-class { font-size: 0.68rem; font-weight: 600; }
+
+.xp-bar-wrap {
+  position: relative; height: 22px;
+  background: rgba(100,100,100,0.15);
+  border-radius: 11px; overflow: hidden;
+}
+.xp-bar-fill {
+  height: 100%; border-radius: 11px;
+  transition: width 0.3s;
+}
+.xp-bar-text {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.68rem; font-weight: 600; color: var(--text-parchment);
+  text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+}
+
+.xp-status { text-align: right; font-size: 0.72rem; }
+.status-ready { color: #6ec97a; font-weight: bold; }
+.status-pending { color: var(--text-muted); }
+
+/* Section title */
+.section-title {
+  font-size: 1.3rem; color: var(--text-gold-bright);
+  margin-bottom: 1.25rem;
+}
+
+/* Preview Grid */
+.preview-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 1.25rem;
+  margin-bottom: 3rem;
+}
+
+.preview-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border-card);
+  border-top: 3px solid var(--char-color, #8b6914);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.preview-card.card-ready {
+  box-shadow: 0 0 12px rgba(39,174,96,0.2);
+  border-color: rgba(39,174,96,0.3);
+  border-top-color: var(--char-color, #8b6914);
+}
+
+.pc-header {
+  display: flex; align-items: flex-start; gap: 0.75rem;
+  padding: 1rem 1rem 0.75rem;
+  border-bottom: 1px solid rgba(139,105,20,0.12);
+  flex-wrap: wrap;
+}
+.pc-name-block { flex: 1; min-width: 0; }
+.pc-name {
+  font-size: 1rem; font-weight: bold;
+  color: var(--text-gold-bright); text-decoration: none;
+  display: block;
+}
+.pc-name:hover { text-decoration: underline; }
+.pc-player { font-size: 0.72rem; color: var(--text-muted); }
+
+.pc-level-block {
+  display: flex; align-items: center; gap: 0.3rem;
+  font-size: 0.85rem; font-weight: bold;
+}
+.pc-from { color: var(--text-muted); }
+.pc-arrow { color: var(--char-color, #8b6914); font-size: 1rem; }
+.pc-to { color: var(--text-gold-bright); }
+
+.pc-ready-badge {
+  font-size: 0.62rem; font-weight: bold;
+  background: rgba(39,174,96,0.15); color: #6ec97a;
+  border: 1px solid rgba(39,174,96,0.3);
+  border-radius: 4px; padding: 0.15rem 0.5rem;
+  text-transform: uppercase; letter-spacing: 0.05em;
+}
+
+/* Sections */
+.pc-section {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid rgba(139,105,20,0.08);
+}
+.pc-section:last-of-type { border-bottom: none; }
+.pc-section.pc-highlight {
+  background: rgba(139,105,20,0.05);
+}
+
+.pc-section-title {
+  font-size: 0.72rem; font-weight: bold;
+  text-transform: uppercase; letter-spacing: 0.06em;
+  color: var(--text-gold); margin-bottom: 0.4rem;
+}
+
+/* HP Info */
+.pc-hp-info {
+  display: flex; flex-direction: column; gap: 0.2rem;
+}
+.hp-die { font-size: 0.85rem; color: var(--text-parchment); font-weight: 600; }
+.hp-range { font-size: 0.75rem; color: var(--text-muted); }
+.hp-current { font-size: 0.75rem; color: #6ec97a; }
+
+/* Prof bonus */
+.prof-change {
+  font-size: 1.1rem; font-weight: bold; color: var(--text-gold-bright);
+  display: block; margin-bottom: 0.2rem;
+}
+.prof-note { font-size: 0.72rem; color: var(--text-muted); font-style: italic; }
+
+/* ASI */
+.asi-detail { font-size: 0.8rem; color: var(--text-parchment); }
+
+/* Subclass */
+.sub-detail { font-size: 0.8rem; color: var(--text-parchment); }
+.sub-note { font-size: 0.78rem; color: var(--text-muted); font-style: italic; }
+
+/* Extra Attack */
+.extra-detail { font-size: 0.8rem; color: var(--text-parchment); }
+
+/* Feature list */
+.feature-list { display: flex; flex-direction: column; gap: 0.5rem; }
+.feature-item {
+  padding-left: 0.75rem;
+  border-left: 2px solid var(--char-color, #8b6914);
+}
+.fi-name {
+  display: block; font-size: 0.82rem; font-weight: 600;
+  color: var(--text-parchment);
+}
+.fi-desc {
+  display: block; font-size: 0.72rem; color: var(--text-muted);
+  line-height: 1.45; margin-top: 0.1rem;
+}
+
+/* Spell slot changes */
+.slot-changes {
+  list-style: none; padding: 0; margin: 0;
+  display: flex; flex-direction: column; gap: 0.2rem;
+}
+.slot-changes li {
+  font-size: 0.78rem; color: var(--text-parchment);
+  padding-left: 0.85rem; position: relative;
+}
+.slot-changes li::before {
+  content: '✦'; position: absolute; left: 0;
+  color: var(--char-color, #8b6914); font-size: 0.6rem; top: 0.15rem;
+}
+
+/* Footer */
+.pc-footer {
+  padding: 0.6rem 1rem;
+  background: rgba(0,0,0,0.15);
+}
+.pf-xp { font-size: 0.72rem; color: var(--text-muted); }
+
+/* Reference section */
+.ref-section { margin-bottom: 2rem; }
+.ref-section h2 {
+  font-size: 1.3rem; color: var(--text-gold-bright);
+  margin-bottom: 1rem;
+}
+
+.ref-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.25rem;
+}
+
+.ref-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border-card);
+  border-radius: 8px;
+  padding: 1rem;
+}
+.ref-card h3 {
+  font-size: 0.82rem; text-transform: uppercase;
+  letter-spacing: 0.06em; color: var(--text-gold);
+  margin-bottom: 0.75rem;
+}
+
+.ref-table {
+  width: 100%; border-collapse: collapse;
+  font-size: 0.78rem;
+}
+.ref-table th {
+  text-align: left; padding: 0.35rem 0.5rem;
+  font-size: 0.68rem; text-transform: uppercase;
+  letter-spacing: 0.06em; color: var(--text-muted);
+  border-bottom: 1px solid rgba(139,105,20,0.2);
+}
+.ref-table td {
+  padding: 0.3rem 0.5rem; color: var(--text-parchment);
+  border-bottom: 1px solid rgba(139,105,20,0.06);
+}
+.ref-table tr.row-next {
+  background: rgba(139,105,20,0.1);
+}
+.ref-table tr.row-next td { color: var(--text-gold-bright); font-weight: 600; }
+.ref-table tr.row-party td { color: var(--text-gold); }
+
+@media (max-width: 640px) {
+  .preview-grid { grid-template-columns: 1fr; }
+  .ref-grid { grid-template-columns: 1fr; }
+  .xp-row { grid-template-columns: 1fr; gap: 0.3rem; }
+  .xp-status { text-align: left; }
+}
+</style>
