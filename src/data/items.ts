@@ -215,6 +215,21 @@ export const items: Item[] = [
   { name: 'Rope of Climbing', type: 'misc', rarity: 'uncommon', magical: true, notes: '60 ft, moves on command, holds 3,000 lbs', category: 'Magic Items' },
 ];
 
+// Slug generation
+export function itemNameToSlug(name: string): string {
+  return name.toLowerCase().replace(/['']/g, '').replace(/[\s/]+/g, '-').replace(/[^a-z0-9-]/g, '').replace(/-+/g, '-').replace(/^-|-$/g, '');
+}
+
+// Add computed slug to each item
+export interface ItemWithSlug extends Item {
+  slug: string;
+}
+
+export const itemsWithSlugs: ItemWithSlug[] = items.map(item => ({
+  ...item,
+  slug: itemNameToSlug(item.name),
+}));
+
 // Utility functions
 export function searchItems(query: string): Item[] {
   const q = query.toLowerCase();
@@ -227,6 +242,10 @@ export function getItemsByCategory(category: string): Item[] {
 
 export function getItemsByType(type: string): Item[] {
   return items.filter(i => i.type === type);
+}
+
+export function getItemBySlug(slug: string): ItemWithSlug | undefined {
+  return itemsWithSlugs.find(i => i.slug === slug);
 }
 
 export const itemCategories: string[] = [...new Set(items.map(i => i.category).filter(Boolean))].sort() as string[];

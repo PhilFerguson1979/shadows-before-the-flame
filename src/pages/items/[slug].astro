@@ -1,0 +1,272 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { itemsWithSlugs, type ItemWithSlug } from '../../data/items';
+
+export async function getStaticPaths() {
+  return itemsWithSlugs.map(item => ({
+    params: { slug: item.slug },
+    props: { item },
+  }));
+}
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const { item } = Astro.props as { item: ItemWithSlug };
+
+function rarityColor(rarity?: string): string {
+  switch (rarity) {
+    case 'common': return '#9d9d9d';
+    case 'uncommon': return '#1fc219';
+    case 'rare': return '#4fc3f7';
+    case 'very rare': return '#ab47bc';
+    case 'legendary': return '#ff8f00';
+    default: return 'var(--text-muted)';
+  }
+}
+
+function typeLabel(type: string): string {
+  return type.charAt(0).toUpperCase() + type.slice(1);
+}
+
+function typeIcon(type: string): string {
+  switch (type) {
+    case 'weapon': return '⚔️';
+    case 'armor': return '🛡️';
+    case 'shield': return '🛡️';
+    case 'gear': return '🎒';
+    case 'tool': return '🔧';
+    case 'potion': return '🧪';
+    case 'wondrous': return '✨';
+    case 'ring': return '💍';
+    case 'cloak': return '🧥';
+    case 'boots': return '👢';
+    case 'gloves': return '🧤';
+    case 'helmet': return '⛑️';
+    case 'amulet': return '📿';
+    case 'misc': return '✨';
+    default: return '📦';
+  }
+}
+
+const subtitle = [
+  item.category,
+  item.magical ? 'Magical' : null,
+  item.rarity ? item.rarity.charAt(0).toUpperCase() + item.rarity.slice(1) : null,
+].filter(Boolean).join(' · ');
+---
+
+<BaseLayout title={item.name}>
+  <div class="page-container">
+    <div class="back-link"><a href={`${base}/items`}>&larr; Item Browser</a></div>
+
+    <div class="item-header">
+      <div class="item-title-row">
+        <span class="item-icon">{typeIcon(item.type)}</span>
+        <h1>{item.name}</h1>
+        {item.magical && <span class="magic-star">★</span>}
+      </div>
+      <div class="item-subtitle">{subtitle}</div>
+      <div class="item-tags">
+        {item.rarity && (
+          <span class="item-tag" style={`color:${rarityColor(item.rarity)};border-color:${rarityColor(item.rarity)}40;background:${rarityColor(item.rarity)}15`}>
+            {item.rarity}
+          </span>
+        )}
+        {item.magical && <span class="item-tag magical">Magical</span>}
+        <span class="item-tag type-tag">{typeLabel(item.type)}</span>
+      </div>
+    </div>
+
+    <div class="item-stats">
+      {item.type === 'weapon' && item.dmg && (
+        <div class="stat-row">
+          <span class="stat-label">Damage</span>
+          <span class="stat-value dmg-value">{item.dmg} {item.dmgType}</span>
+        </div>
+      )}
+      {item.acBase && (
+        <div class="stat-row">
+          <span class="stat-label">Armor Class</span>
+          <span class="stat-value ac-value">
+            {item.acBase}
+            {item.weight === 'light' && ' + DEX modifier'}
+            {item.weight === 'medium' && ' + DEX modifier (max 2)'}
+          </span>
+        </div>
+      )}
+      {item.acBonus && !item.acBase && (
+        <div class="stat-row">
+          <span class="stat-label">AC Bonus</span>
+          <span class="stat-value ac-value">+{item.acBonus}</span>
+        </div>
+      )}
+      {item.weight && (
+        <div class="stat-row">
+          <span class="stat-label">Weight Class</span>
+          <span class="stat-value">{item.weight.charAt(0).toUpperCase() + item.weight.slice(1)}</span>
+        </div>
+      )}
+      {item.slot && (
+        <div class="stat-row">
+          <span class="stat-label">Slot</span>
+          <span class="stat-value">{item.slot.charAt(0).toUpperCase() + item.slot.slice(1)}</span>
+        </div>
+      )}
+      {item.value && (
+        <div class="stat-row">
+          <span class="stat-label">Value</span>
+          <span class="stat-value gold-value">{item.value}</span>
+        </div>
+      )}
+      <div class="stat-row">
+        <span class="stat-label">Type</span>
+        <span class="stat-value">{typeLabel(item.type)}</span>
+      </div>
+      {item.category && (
+        <div class="stat-row">
+          <span class="stat-label">Category</span>
+          <span class="stat-value">{item.category}</span>
+        </div>
+      )}
+    </div>
+
+    {item.properties && item.properties.length > 0 && (
+      <div class="item-section">
+        <h2>Properties</h2>
+        <div class="property-tags">
+          {item.properties.map(prop => (
+            <span class="property-tag">{prop}</span>
+          ))}
+        </div>
+      </div>
+    )}
+
+    {item.notes && (
+      <div class="item-section">
+        <h2>Description</h2>
+        <p class="item-description">{item.notes}</p>
+      </div>
+    )}
+  </div>
+</BaseLayout>
+
+<style>
+.back-link { margin-bottom: 1.5rem; }
+.back-link a { color: var(--text-muted); font-size: 0.85rem; }
+.back-link a:hover { color: var(--accent-primary); }
+
+.item-header {
+  margin-bottom: 2rem;
+}
+.item-title-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.item-icon { font-size: 1.5rem; }
+.item-header h1 {
+  margin-bottom: 0;
+  color: var(--text-bright);
+}
+.magic-star {
+  color: #f0c040;
+  font-size: 1.2rem;
+}
+.item-subtitle {
+  font-size: 0.95rem;
+  color: var(--text-muted);
+  font-style: italic;
+  margin-top: 0.3rem;
+  margin-bottom: 0.75rem;
+}
+.item-tags {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+.item-tag {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0.15rem 0.5rem;
+  border-radius: 3px;
+  font-weight: bold;
+  border: 1px solid;
+}
+.item-tag.magical {
+  background: rgba(240,192,64,0.15);
+  color: #f0c040;
+  border-color: rgba(240,192,64,0.3);
+}
+.item-tag.type-tag {
+  background: rgba(100,100,100,0.15);
+  color: var(--text-muted);
+  border-color: rgba(100,100,100,0.25);
+}
+
+.item-stats {
+  background: rgba(200,150,50,0.06);
+  border: 1px solid rgba(200,150,50,0.2);
+  border-radius: 8px;
+  padding: 1rem 1.25rem;
+  margin-bottom: 2rem;
+}
+.stat-row {
+  display: flex;
+  padding: 0.4rem 0;
+  border-bottom: 1px solid rgba(200,150,50,0.08);
+}
+.stat-row:last-child { border-bottom: none; }
+.stat-label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--accent-primary);
+  min-width: 120px;
+  font-weight: bold;
+}
+.stat-value {
+  font-size: 0.88rem;
+  color: var(--text-normal);
+}
+.dmg-value { color: #e57373; }
+.ac-value { color: #64b5f6; }
+.gold-value { color: #ffd54f; }
+
+.item-section {
+  margin-bottom: 2rem;
+}
+.item-section h2 {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.3rem;
+  border-bottom: 1px solid rgba(0,201,167,0.3);
+}
+.property-tags {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+.property-tag {
+  font-size: 0.78rem;
+  padding: 0.2rem 0.6rem;
+  background: rgba(0,201,167,0.1);
+  border: 1px solid rgba(0,201,167,0.3);
+  border-radius: 4px;
+  color: var(--accent-primary);
+  text-transform: capitalize;
+}
+.item-description {
+  font-size: 0.92rem;
+  line-height: 1.7;
+  color: var(--text-normal);
+}
+
+@media (max-width: 640px) {
+  .stat-row { flex-direction: column; gap: 0.15rem; }
+  .stat-label { min-width: auto; }
+  .item-title-row { flex-wrap: wrap; }
+}
+</style>
