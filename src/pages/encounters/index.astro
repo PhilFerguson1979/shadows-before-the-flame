@@ -308,16 +308,14 @@ const monsterList = monsters.map(m => ({
       row.innerHTML =
         '<div class="er-info">' +
           (mon.slug ? '<a href="' + base + '/monsters/' + mon.slug + '" class="er-name">' + mon.name + '</a>' : '<span class="er-name">' + mon.name + '</span>') +
-          '<span class="er-meta">CR ' + mon.cr + ' · AC ' + mon.ac + ' · HP ' + mon.hp + ' · ' + mon.xp.toLocaleString() + ' XP</span>' +
+          '<span class="er-meta">CR ' + mon.cr + ' · AC ' + mon.ac + ' · HP ' + mon.hp + ' · ' + mon.xp.toLocaleString() + ' XP ea</span>' +
         '</div>' +
         '<div class="er-controls">' +
-          '<div class="er-count-group">' +
-            '<button class="er-btn er-minus" data-i="' + i + '" title="Remove one">−</button>' +
-            '<span class="er-count">' + mon.count + '</span>' +
-            '<button class="er-btn er-plus" data-i="' + i + '" title="Add one">+</button>' +
-          '</div>' +
-          '<span class="er-total-xp">' + (mon.xp * mon.count).toLocaleString() + ' XP</span>' +
-          '<button class="er-btn-remove" data-i="' + i + '" title="Remove from encounter">✕ Remove</button>' +
+          '<span class="er-total-xp">' + (mon.xp * mon.count).toLocaleString() + ' XP total</span>' +
+          '<button class="er-btn er-minus" data-i="' + i + '" title="Remove one">➖</button>' +
+          '<span class="er-count">' + mon.count + '</span>' +
+          '<button class="er-btn er-plus" data-i="' + i + '" title="Add one">➕</button>' +
+          '<button class="er-btn-remove" data-i="' + i + '" title="Remove from encounter">🗑️ Remove</button>' +
         '</div>';
       encounterList.appendChild(row);
     });
@@ -808,63 +806,54 @@ a.er-name:hover { color: var(--text-gold); text-decoration: underline; }
 .er-controls {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 0.6rem;
   flex-shrink: 0;
 }
-.er-count-group {
-  display: flex;
-  align-items: center;
-  gap: 0.15rem;
-  background: rgba(0,0,0,0.2);
-  border: 1px solid rgba(139,105,20,0.2);
-  border-radius: 6px;
-  padding: 0.15rem;
-}
 .er-btn {
-  width: 34px;
-  height: 34px;
-  border-radius: 5px;
-  border: 1px solid rgba(139,105,20,0.4);
-  background: rgba(139,105,20,0.15);
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
+  border: 1px solid rgba(139,105,20,0.5);
+  background: rgba(139,105,20,0.2);
   color: var(--text-gold-bright);
-  font-size: 1.2rem;
+  font-size: 0.82rem;
   font-weight: bold;
   cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.15s;
-  line-height: 1;
+  transition: all 0.2s;
+  white-space: nowrap;
 }
-.er-btn:hover { background: rgba(139,105,20,0.35); border-color: var(--text-gold); }
-.er-btn:active { transform: scale(0.92); }
+.er-btn:hover { background: rgba(139,105,20,0.4); border-color: var(--text-gold); }
+.er-btn:active { transform: scale(0.95); }
 .er-count {
-  font-size: 1rem;
+  font-size: 1.1rem;
   font-weight: bold;
   color: var(--text-gold-bright);
-  min-width: 2rem;
+  min-width: 2.2rem;
   text-align: center;
+  background: rgba(0,0,0,0.25);
+  border: 1px solid rgba(139,105,20,0.25);
+  border-radius: 5px;
+  padding: 0.3rem 0.5rem;
 }
 .er-total-xp {
   font-size: 0.75rem;
   color: var(--text-muted);
-  min-width: 4.5rem;
+  min-width: 5rem;
   text-align: right;
-  padding: 0 0.25rem;
+  padding: 0 0.15rem;
 }
 .er-btn-remove {
-  padding: 0.35rem 0.7rem;
-  border-radius: 5px;
-  border: 1px solid rgba(192,57,43,0.4);
-  background: rgba(192,57,43,0.12);
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
+  border: 1px solid rgba(192,57,43,0.5);
+  background: rgba(192,57,43,0.15);
   color: #e74c3c;
-  font-size: 0.75rem;
-  font-weight: 600;
+  font-size: 0.82rem;
+  font-weight: bold;
   cursor: pointer;
-  transition: all 0.15s;
+  transition: all 0.2s;
   white-space: nowrap;
 }
-.er-btn-remove:hover { background: rgba(192,57,43,0.3); border-color: #e74c3c; }
+.er-btn-remove:hover { background: rgba(192,57,43,0.35); border-color: #e74c3c; }
 .er-btn-remove:active { transform: scale(0.95); }
 
 /* Difficulty section */
