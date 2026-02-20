@@ -1,0 +1,1124 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { items as itemDatabase, itemCategories } from '../../data/items';
+import { getCollection } from 'astro:content';
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+
+const characters = await getCollection('characters');
+const activeParty = characters.filter(c => c.data.status === 'active');
+
+const itemDbJson = JSON.stringify(itemDatabase.map(i => ({ name: i.name, type: i.type, slot: i.slot, acBase: i.acBase, acBonus: i.acBonus, dmg: i.dmg, dmgType: i.dmgType, weight: i.weight, properties: i.properties, notes: i.notes, magical: i.magical, value: i.value, rarity: i.rarity, category: i.category })));
+const categoriesJson = JSON.stringify(itemCategories);
+const partyMembersJson = JSON.stringify(activeParty.map(c => ({ name: c.data.name, slug: c.slug })));
+---
+
+<BaseLayout title="DM Tools">
+  <div class="page-container">
+    <h1>DM Tools</h1>
+    <p class="intro-text">Award items and currency to characters. Items appear in their inventory and affect their stats.</p>
+
+    <!-- ═══════════════════════════════════════ -->
+    <!-- AWARD ITEMS SECTION -->
+    <!-- ═══════════════════════════════════════ -->
+    <div class="dm-section">
+      <h2 class="section-title">Award Items</h2>
+      <p class="section-desc">Search for items or create custom ones to award to party members.</p>
+
+      <!-- Item Search -->
+      <div class="dm-add-controls">
+        <div class="dm-search-wrap">
+          <input type="text" id="dmItemSearch" placeholder="Search items..." autocomplete="off" />
+          <div id="dmSearchResults" class="dm-search-results" style="display:none;"></div>
+        </div>
+        <select id="dmCatFilter" class="dm-cat-filter">
+          <option value="">All Categories</option>
+        </select>
+        <button id="dmCustomBtn" class="btn btn-secondary">+ Custom Item</button>
+      </div>
+
+      <!-- Staged Items -->
+      <div id="dmStagedList" class="dm-staged-list">
+        <div class="dm-staged-empty" id="dmStagedEmpty">No items staged. Search above to add items to award.</div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════ -->
+    <!-- AWARD CURRENCY SECTION -->
+    <!-- ═══════════════════════════════════════ -->
+    <div class="dm-section">
+      <h2 class="section-title">Award Currency</h2>
+      <div class="dm-currency">
+        <div class="dm-coin-inputs">
+          <div class="dm-coin-input">
+            <input type="number" id="dmPP" value="0" min="0" />
+            <span>PP</span>
+          </div>
+          <div class="dm-coin-input">
+            <input type="number" id="dmGP" value="0" min="0" />
+            <span>GP</span>
+          </div>
+          <div class="dm-coin-input">
+            <input type="number" id="dmEP" value="0" min="0" />
+            <span>EP</span>
+          </div>
+          <div class="dm-coin-input">
+            <input type="number" id="dmSP" value="0" min="0" />
+            <span>SP</span>
+          </div>
+          <div class="dm-coin-input">
+            <input type="number" id="dmCP" value="0" min="0" />
+            <span>CP</span>
+          </div>
+        </div>
+        <div class="dm-currency-mode">
+          <label class="dm-radio-label">
+            <input type="radio" name="currencyMode" value="full" checked />
+            <span>Full amount to each</span>
+          </label>
+          <label class="dm-radio-label">
+            <input type="radio" name="currencyMode" value="split" />
+            <span>Split evenly</span>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════ -->
+    <!-- SELECT RECIPIENTS + AWARD -->
+    <!-- ═══════════════════════════════════════ -->
+    <div class="dm-section">
+      <h2 class="section-title">Recipients</h2>
+      <div class="dm-recipients">
+        <div class="dm-select-actions">
+          <button id="dmSelectAll" class="btn btn-secondary btn-sm">Select All</button>
+          <button id="dmSelectNone" class="btn btn-secondary btn-sm">Select None</button>
+        </div>
+        <div class="dm-party-grid" id="dmPartyGrid">
+          {activeParty.map(c => (
+            <label class="dm-party-member">
+              <input type="checkbox" value={c.slug} data-name={c.data.name} checked />
+              <span class="dpm-name">{c.data.name}</span>
+              <span class="dpm-class">{c.data.class}</span>
+            </label>
+          ))}
+        </div>
+        <button id="dmAwardBtn" class="btn btn-primary btn-award">Award to Selected Characters</button>
+        <div id="dmStatus" class="dm-status" style="display:none;"></div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════ -->
+    <!-- CUSTOM ITEM DIALOG -->
+    <!-- ═══════════════════════════════════════ -->
+    <div id="dmCustomDialog" class="dm-dialog-overlay" style="display:none;">
+      <div class="dm-dialog">
+        <h3>Create Custom Item</h3>
+        <div class="dm-dialog-form">
+          <div class="dm-form-row">
+            <label>Name *</label>
+            <input type="text" id="ciName" placeholder="Item name" />
+          </div>
+          <div class="dm-form-row-2col">
+            <div class="dm-form-row">
+              <label>Type</label>
+              <select id="ciType">
+                <option value="weapon">Weapon</option>
+                <option value="armor">Armor</option>
+                <option value="shield">Shield</option>
+                <option value="potion">Potion</option>
+                <option value="ring">Ring</option>
+                <option value="amulet">Amulet</option>
+                <option value="cloak">Cloak</option>
+                <option value="boots">Boots</option>
+                <option value="gloves">Gloves</option>
+                <option value="helmet">Helmet</option>
+                <option value="wondrous">Wondrous Item</option>
+                <option value="scroll">Scroll</option>
+                <option value="wand">Wand</option>
+                <option value="rod">Rod</option>
+                <option value="staff">Staff</option>
+                <option value="tool">Tool</option>
+                <option value="gear">Gear</option>
+                <option value="misc" selected>Misc</option>
+              </select>
+            </div>
+            <div class="dm-form-row">
+              <label>Slot</label>
+              <select id="ciSlot">
+                <option value="">None</option>
+                <option value="armor">Armor</option>
+                <option value="mainhand">Main Hand</option>
+                <option value="offhand">Off Hand</option>
+                <option value="helmet">Helmet</option>
+                <option value="cloak">Cloak</option>
+                <option value="gloves">Gloves</option>
+                <option value="boots">Boots</option>
+                <option value="ring1">Ring 1</option>
+                <option value="ring2">Ring 2</option>
+                <option value="amulet">Amulet</option>
+              </select>
+            </div>
+          </div>
+          <div class="dm-form-row-2col">
+            <div class="dm-form-row">
+              <label>Damage</label>
+              <input type="text" id="ciDmg" placeholder="e.g. 2d6" />
+            </div>
+            <div class="dm-form-row">
+              <label>Damage Type</label>
+              <input type="text" id="ciDmgType" placeholder="e.g. slashing" />
+            </div>
+          </div>
+          <div class="dm-form-row-2col">
+            <div class="dm-form-row">
+              <label>AC Base</label>
+              <input type="number" id="ciAcBase" min="0" />
+            </div>
+            <div class="dm-form-row">
+              <label>AC Bonus</label>
+              <input type="number" id="ciAcBonus" min="0" />
+            </div>
+          </div>
+          <div class="dm-form-row-2col">
+            <div class="dm-form-row">
+              <label>Rarity</label>
+              <select id="ciRarity">
+                <option value="">Common</option>
+                <option value="uncommon">Uncommon</option>
+                <option value="rare">Rare</option>
+                <option value="very rare">Very Rare</option>
+                <option value="legendary">Legendary</option>
+                <option value="artifact">Artifact</option>
+              </select>
+            </div>
+            <div class="dm-form-row">
+              <label>Value</label>
+              <input type="text" id="ciValue" placeholder="e.g. 500 gp" />
+            </div>
+          </div>
+          <div class="dm-form-row-2col">
+            <div class="dm-form-row">
+              <label>Weight</label>
+              <select id="ciWeight">
+                <option value="">None</option>
+                <option value="light">Light</option>
+                <option value="medium">Medium</option>
+                <option value="heavy">Heavy</option>
+              </select>
+            </div>
+            <div class="dm-form-row">
+              <label>Quantity</label>
+              <input type="number" id="ciQty" value="1" min="1" />
+            </div>
+          </div>
+          <div class="dm-form-row">
+            <label>Properties</label>
+            <input type="text" id="ciProps" placeholder="e.g. finesse, light, thrown (comma-separated)" />
+          </div>
+          <div class="dm-form-row">
+            <label>Notes / Description</label>
+            <textarea id="ciNotes" rows="3" placeholder="Special abilities, lore, attunement requirements..."></textarea>
+          </div>
+          <div class="dm-form-row">
+            <label class="dm-checkbox-label">
+              <input type="checkbox" id="ciMagical" />
+              <span>Magical Item</span>
+            </label>
+          </div>
+        </div>
+        <div class="dm-dialog-actions">
+          <button id="ciCancel" class="btn btn-secondary">Cancel</button>
+          <button id="ciAdd" class="btn btn-primary">Add Item</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════ -->
+    <!-- AWARD HISTORY -->
+    <!-- ═══════════════════════════════════════ -->
+    <div class="dm-section dm-history-section">
+      <div class="dm-history-header">
+        <h2 class="section-title">Award History</h2>
+        <button id="dmClearHistory" class="btn btn-secondary btn-sm">Clear History</button>
+      </div>
+      <div id="dmHistoryList" class="dm-history-list">
+        <div class="dm-history-empty" id="dmHistoryEmpty">No awards yet.</div>
+      </div>
+    </div>
+  </div>
+</BaseLayout>
+
+<script define:vars={{ itemDbJson, categoriesJson, partyMembersJson, base }}>
+  var itemDb = JSON.parse(itemDbJson);
+  var categories = JSON.parse(categoriesJson);
+  var party = JSON.parse(partyMembersJson);
+
+  var stagedItems = [];
+  var HISTORY_KEY = 'sbtf-dm-award-history';
+  var MAX_HISTORY = 200;
+
+  // DOM refs
+  var searchInput = document.getElementById('dmItemSearch');
+  var searchResultsEl = document.getElementById('dmSearchResults');
+  var catFilter = document.getElementById('dmCatFilter');
+  var stagedListEl = document.getElementById('dmStagedList');
+  var stagedEmptyEl = document.getElementById('dmStagedEmpty');
+  var statusEl = document.getElementById('dmStatus');
+  var historyListEl = document.getElementById('dmHistoryList');
+  var historyEmptyEl = document.getElementById('dmHistoryEmpty');
+
+  // Populate category filter
+  categories.forEach(function(cat) {
+    var opt = document.createElement('option');
+    opt.value = cat;
+    opt.textContent = cat;
+    catFilter.appendChild(opt);
+  });
+
+  // ============================================================
+  // ITEM SEARCH
+  // ============================================================
+  var currentCat = '';
+  catFilter.addEventListener('change', function() {
+    currentCat = catFilter.value;
+    if (searchInput.value.trim().length >= 1) doSearch();
+  });
+
+  function doSearch() {
+    var query = searchInput.value.toLowerCase().trim();
+    if (query.length < 1) { searchResultsEl.style.display = 'none'; return; }
+
+    var matches = itemDb.filter(function(item) {
+      var nameMatch = item.name.toLowerCase().indexOf(query) >= 0;
+      var catMatch = !currentCat || item.category === currentCat;
+      return nameMatch && catMatch;
+    }).slice(0, 15);
+
+    if (matches.length === 0) {
+      searchResultsEl.innerHTML = '<div class="search-item no-match">No items found</div>';
+      searchResultsEl.style.display = '';
+      return;
+    }
+
+    searchResultsEl.innerHTML = matches.map(function(m, i) {
+      var meta = [];
+      if (m.type) meta.push(m.type);
+      if (m.dmg) meta.push(m.dmg + ' ' + (m.dmgType || ''));
+      if (m.acBase) meta.push('AC ' + m.acBase);
+      if (m.value) meta.push(m.value);
+      if (m.rarity && m.rarity !== 'common') meta.push(m.rarity);
+      if (m.magical) meta.push('✨ magical');
+      return '<div class="search-item" data-didx="' + i + '">' +
+        '<span class="si-name">' + m.name + '</span>' +
+        '<span class="si-meta">' + meta.join(' · ') + '</span>' +
+      '</div>';
+    }).join('');
+
+    searchResultsEl.style.display = '';
+
+    searchResultsEl.querySelectorAll('.search-item[data-didx]').forEach(function(item, idx) {
+      item.addEventListener('click', function() {
+        addStagedItem(matches[idx]);
+        searchInput.value = '';
+        searchResultsEl.style.display = 'none';
+      });
+    });
+  }
+
+  searchInput.addEventListener('input', doSearch);
+  document.addEventListener('click', function(e) {
+    if (!searchInput.contains(e.target) && !searchResultsEl.contains(e.target)) {
+      searchResultsEl.style.display = 'none';
+    }
+  });
+  searchInput.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') { searchResultsEl.style.display = 'none'; searchInput.value = ''; }
+  });
+
+  // ============================================================
+  // STAGED ITEMS
+  // ============================================================
+  function addStagedItem(item) {
+    var existing = stagedItems.find(function(i) { return i.name === item.name && i.type === item.type; });
+    if (existing) {
+      existing.quantity = (existing.quantity || 1) + 1;
+    } else {
+      stagedItems.push(Object.assign({}, item, { quantity: item.quantity || 1 }));
+    }
+    renderStaged();
+  }
+
+  function removeStagedItem(idx) {
+    stagedItems.splice(idx, 1);
+    renderStaged();
+  }
+
+  function changeStagedQty(idx, delta) {
+    stagedItems[idx].quantity = Math.max(1, (stagedItems[idx].quantity || 1) + delta);
+    renderStaged();
+  }
+
+  function renderStaged() {
+    stagedListEl.querySelectorAll('.staged-row').forEach(function(r) { r.remove(); });
+
+    if (stagedItems.length === 0) {
+      stagedEmptyEl.style.display = '';
+      return;
+    }
+    stagedEmptyEl.style.display = 'none';
+
+    stagedItems.forEach(function(item, i) {
+      var meta = [];
+      if (item.type && item.type !== 'misc') meta.push(item.type);
+      if (item.dmg) meta.push(item.dmg + ' ' + (item.dmgType || ''));
+      if (item.acBase) meta.push('AC ' + item.acBase);
+      if (item.acBonus) meta.push('+' + item.acBonus + ' AC');
+      if (item.value) meta.push(item.value);
+      if (item.rarity && item.rarity !== 'common') meta.push(item.rarity);
+      if (item.magical) meta.push('✨ magical');
+
+      var row = document.createElement('div');
+      row.className = 'staged-row';
+      row.innerHTML =
+        '<div class="sr-info">' +
+          '<span class="sr-name">' + item.name + '</span>' +
+          (meta.length ? '<span class="sr-meta">' + meta.join(' · ') + '</span>' : '') +
+        '</div>' +
+        '<div class="sr-controls">' +
+          '<button class="er-btn er-minus" data-si="' + i + '">➖</button>' +
+          '<span class="er-count">' + (item.quantity || 1) + '</span>' +
+          '<button class="er-btn er-plus" data-si="' + i + '">➕</button>' +
+          '<button class="er-btn-remove" data-si="' + i + '">🗑️</button>' +
+        '</div>';
+      stagedListEl.appendChild(row);
+    });
+
+    stagedListEl.querySelectorAll('.er-minus[data-si]').forEach(function(btn) {
+      btn.addEventListener('click', function() { changeStagedQty(parseInt(btn.dataset.si), -1); });
+    });
+    stagedListEl.querySelectorAll('.er-plus[data-si]').forEach(function(btn) {
+      btn.addEventListener('click', function() { changeStagedQty(parseInt(btn.dataset.si), 1); });
+    });
+    stagedListEl.querySelectorAll('.er-btn-remove[data-si]').forEach(function(btn) {
+      btn.addEventListener('click', function() { removeStagedItem(parseInt(btn.dataset.si)); });
+    });
+  }
+
+  // ============================================================
+  // CUSTOM ITEM DIALOG
+  // ============================================================
+  var dialogEl = document.getElementById('dmCustomDialog');
+
+  document.getElementById('dmCustomBtn').addEventListener('click', function() {
+    dialogEl.style.display = 'flex';
+  });
+
+  document.getElementById('ciCancel').addEventListener('click', function() {
+    dialogEl.style.display = 'none';
+    clearCustomForm();
+  });
+
+  dialogEl.addEventListener('click', function(e) {
+    if (e.target === dialogEl) { dialogEl.style.display = 'none'; clearCustomForm(); }
+  });
+
+  document.getElementById('ciAdd').addEventListener('click', function() {
+    var name = document.getElementById('ciName').value.trim();
+    if (!name) { alert('Item name is required.'); return; }
+
+    var item = { name: name };
+    item.type = document.getElementById('ciType').value;
+    var slot = document.getElementById('ciSlot').value;
+    if (slot) item.slot = slot;
+    var dmg = document.getElementById('ciDmg').value.trim();
+    if (dmg) item.dmg = dmg;
+    var dmgType = document.getElementById('ciDmgType').value.trim();
+    if (dmgType) item.dmgType = dmgType;
+    var acBase = parseInt(document.getElementById('ciAcBase').value);
+    if (acBase > 0) item.acBase = acBase;
+    var acBonus = parseInt(document.getElementById('ciAcBonus').value);
+    if (acBonus > 0) item.acBonus = acBonus;
+    var rarity = document.getElementById('ciRarity').value;
+    if (rarity) item.rarity = rarity;
+    var value = document.getElementById('ciValue').value.trim();
+    if (value) item.value = value;
+    var weight = document.getElementById('ciWeight').value;
+    if (weight) item.weight = weight;
+    var qty = parseInt(document.getElementById('ciQty').value) || 1;
+    item.quantity = qty;
+    var props = document.getElementById('ciProps').value.trim();
+    if (props) item.properties = props.split(',').map(function(p) { return p.trim(); }).filter(Boolean);
+    var notes = document.getElementById('ciNotes').value.trim();
+    if (notes) item.notes = notes;
+    if (document.getElementById('ciMagical').checked) item.magical = true;
+
+    addStagedItem(item);
+    dialogEl.style.display = 'none';
+    clearCustomForm();
+  });
+
+  function clearCustomForm() {
+    document.getElementById('ciName').value = '';
+    document.getElementById('ciType').value = 'misc';
+    document.getElementById('ciSlot').value = '';
+    document.getElementById('ciDmg').value = '';
+    document.getElementById('ciDmgType').value = '';
+    document.getElementById('ciAcBase').value = '';
+    document.getElementById('ciAcBonus').value = '';
+    document.getElementById('ciRarity').value = '';
+    document.getElementById('ciValue').value = '';
+    document.getElementById('ciWeight').value = '';
+    document.getElementById('ciQty').value = '1';
+    document.getElementById('ciProps').value = '';
+    document.getElementById('ciNotes').value = '';
+    document.getElementById('ciMagical').checked = false;
+  }
+
+  // ============================================================
+  // SELECT ALL / NONE
+  // ============================================================
+  document.getElementById('dmSelectAll').addEventListener('click', function() {
+    document.querySelectorAll('#dmPartyGrid input[type="checkbox"]').forEach(function(cb) { cb.checked = true; });
+  });
+  document.getElementById('dmSelectNone').addEventListener('click', function() {
+    document.querySelectorAll('#dmPartyGrid input[type="checkbox"]').forEach(function(cb) { cb.checked = false; });
+  });
+
+  // ============================================================
+  // AWARD DISTRIBUTION
+  // ============================================================
+  function hasCurrency() {
+    return (parseInt(document.getElementById('dmPP').value || '0', 10) > 0) ||
+           (parseInt(document.getElementById('dmGP').value || '0', 10) > 0) ||
+           (parseInt(document.getElementById('dmEP').value || '0', 10) > 0) ||
+           (parseInt(document.getElementById('dmSP').value || '0', 10) > 0) ||
+           (parseInt(document.getElementById('dmCP').value || '0', 10) > 0);
+  }
+
+  document.getElementById('dmAwardBtn').addEventListener('click', function() {
+    var selectedSlugs = [];
+    document.querySelectorAll('#dmPartyGrid input[type="checkbox"]:checked').forEach(function(cb) {
+      selectedSlugs.push({ slug: cb.value, name: cb.dataset.name });
+    });
+
+    if (selectedSlugs.length === 0) { alert('Select at least one character.'); return; }
+    if (stagedItems.length === 0 && !hasCurrency()) { alert('No items or currency to award.'); return; }
+
+    var count = selectedSlugs.length;
+    var splitMode = document.querySelector('input[name="currencyMode"]:checked').value;
+    var distributed = [];
+
+    selectedSlugs.forEach(function(pc) {
+      var invKey = 'sbtf-inventory-' + pc.slug;
+      var curKey = 'sbtf-currency-' + pc.slug;
+
+      // Add items
+      if (stagedItems.length > 0) {
+        var existingInv = [];
+        try {
+          var raw = localStorage.getItem(invKey);
+          if (raw) existingInv = JSON.parse(raw);
+        } catch(e) {}
+
+        stagedItems.forEach(function(staged) {
+          var found = existingInv.find(function(i) { return i.name === staged.name && i.type === staged.type; });
+          if (found) {
+            found.quantity = (found.quantity || 1) + (staged.quantity || 1);
+          } else {
+            existingInv.push(Object.assign({}, staged));
+          }
+        });
+
+        localStorage.setItem(invKey, JSON.stringify(existingInv));
+      }
+
+      // Add currency
+      if (hasCurrency()) {
+        var existingCur = { pp: 0, gp: 0, ep: 0, sp: 0, cp: 0 };
+        try {
+          var rawC = localStorage.getItem(curKey);
+          if (rawC) existingCur = JSON.parse(rawC);
+        } catch(e) {}
+
+        var pp = parseInt(document.getElementById('dmPP').value || '0', 10);
+        var gp = parseInt(document.getElementById('dmGP').value || '0', 10);
+        var ep = parseInt(document.getElementById('dmEP').value || '0', 10);
+        var sp = parseInt(document.getElementById('dmSP').value || '0', 10);
+        var cp = parseInt(document.getElementById('dmCP').value || '0', 10);
+
+        if (splitMode === 'split') {
+          pp = Math.floor(pp / count);
+          gp = Math.floor(gp / count);
+          ep = Math.floor(ep / count);
+          sp = Math.floor(sp / count);
+          cp = Math.floor(cp / count);
+        }
+
+        existingCur.pp = (existingCur.pp || 0) + pp;
+        existingCur.gp = (existingCur.gp || 0) + gp;
+        existingCur.ep = (existingCur.ep || 0) + ep;
+        existingCur.sp = (existingCur.sp || 0) + sp;
+        existingCur.cp = (existingCur.cp || 0) + cp;
+
+        localStorage.setItem(curKey, JSON.stringify(existingCur));
+      }
+
+      distributed.push(pc.name);
+    });
+
+    // Log to history
+    logAward(stagedItems.slice(), hasCurrency() ? {
+      pp: parseInt(document.getElementById('dmPP').value || '0', 10),
+      gp: parseInt(document.getElementById('dmGP').value || '0', 10),
+      ep: parseInt(document.getElementById('dmEP').value || '0', 10),
+      sp: parseInt(document.getElementById('dmSP').value || '0', 10),
+      cp: parseInt(document.getElementById('dmCP').value || '0', 10),
+      mode: splitMode
+    } : null, distributed);
+
+    // Show success
+    statusEl.style.display = '';
+    statusEl.className = 'dm-status dm-success';
+    var parts = [];
+    if (stagedItems.length > 0) parts.push(stagedItems.length + ' item(s)');
+    if (hasCurrency()) parts.push('currency');
+    statusEl.textContent = '✅ Awarded ' + parts.join(' + ') + ' to ' + distributed.join(', ') + '.';
+
+    // Clear
+    stagedItems = [];
+    renderStaged();
+    document.getElementById('dmPP').value = '0';
+    document.getElementById('dmGP').value = '0';
+    document.getElementById('dmEP').value = '0';
+    document.getElementById('dmSP').value = '0';
+    document.getElementById('dmCP').value = '0';
+
+    setTimeout(function() { statusEl.style.display = 'none'; }, 5000);
+  });
+
+  // ============================================================
+  // AWARD HISTORY
+  // ============================================================
+  function getHistory() {
+    try {
+      var raw = localStorage.getItem(HISTORY_KEY);
+      if (raw) return JSON.parse(raw);
+    } catch(e) {}
+    return [];
+  }
+
+  function saveHistory(history) {
+    if (history.length > MAX_HISTORY) history = history.slice(0, MAX_HISTORY);
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+  }
+
+  function logAward(items, currency, recipients) {
+    var history = getHistory();
+    history.unshift({
+      timestamp: Date.now(),
+      items: items.map(function(i) { return { name: i.name, type: i.type, quantity: i.quantity || 1, magical: i.magical, rarity: i.rarity }; }),
+      currency: currency,
+      recipients: recipients
+    });
+    saveHistory(history);
+    renderHistory();
+  }
+
+  function renderHistory() {
+    historyListEl.querySelectorAll('.history-entry').forEach(function(e) { e.remove(); });
+    var history = getHistory();
+
+    if (history.length === 0) {
+      historyEmptyEl.style.display = '';
+      return;
+    }
+    historyEmptyEl.style.display = 'none';
+
+    history.forEach(function(entry) {
+      var div = document.createElement('div');
+      div.className = 'history-entry';
+
+      var date = new Date(entry.timestamp);
+      var dateStr = date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+      var details = [];
+      if (entry.items && entry.items.length > 0) {
+        entry.items.forEach(function(item) {
+          var label = item.name;
+          if ((item.quantity || 1) > 1) label += ' x' + item.quantity;
+          if (item.magical) label = '✨ ' + label;
+          if (item.rarity) label += ' (' + item.rarity + ')';
+          details.push(label);
+        });
+      }
+      if (entry.currency) {
+        var coins = [];
+        if (entry.currency.pp > 0) coins.push(entry.currency.pp + ' PP');
+        if (entry.currency.gp > 0) coins.push(entry.currency.gp + ' GP');
+        if (entry.currency.ep > 0) coins.push(entry.currency.ep + ' EP');
+        if (entry.currency.sp > 0) coins.push(entry.currency.sp + ' SP');
+        if (entry.currency.cp > 0) coins.push(entry.currency.cp + ' CP');
+        if (coins.length > 0) {
+          var coinStr = coins.join(', ');
+          if (entry.currency.mode === 'split') coinStr += ' (split)';
+          details.push(coinStr);
+        }
+      }
+
+      div.innerHTML =
+        '<div class="he-header">' +
+          '<span class="he-date">' + dateStr + '</span>' +
+          '<span class="he-recipients">' + (entry.recipients || []).join(', ') + '</span>' +
+        '</div>' +
+        '<div class="he-details">' + details.join(' · ') + '</div>';
+
+      historyListEl.appendChild(div);
+    });
+  }
+
+  document.getElementById('dmClearHistory').addEventListener('click', function() {
+    if (confirm('Clear all award history?')) {
+      localStorage.removeItem(HISTORY_KEY);
+      renderHistory();
+    }
+  });
+
+  // Init
+  renderHistory();
+</script>
+
+<style>
+h1 { margin-bottom: 0.25rem; }
+.intro-text { color: var(--text-muted); font-size: 0.88rem; margin-bottom: 1.5rem; }
+
+/* Sections */
+.dm-section {
+  margin-bottom: 2rem;
+  padding: 1.25rem;
+  background: rgba(0,201,167,0.03);
+  border: 1px solid rgba(0,201,167,0.15);
+  border-radius: 10px;
+}
+.section-title {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--accent-primary);
+  margin: 0 0 0.25rem 0;
+  font-weight: 700;
+}
+.section-desc {
+  color: var(--text-dim);
+  font-size: 0.82rem;
+  margin-bottom: 1rem;
+}
+
+/* Search */
+.dm-add-controls {
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+.dm-search-wrap {
+  position: relative;
+  flex: 1;
+  max-width: 400px;
+}
+.dm-search-wrap input {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.88rem;
+  background: rgba(0,0,0,0.3);
+  border: 1px solid rgba(0,201,167,0.3);
+  border-radius: 6px;
+  color: var(--text-normal);
+}
+.dm-search-wrap input:focus { outline: none; border-color: var(--accent-primary); }
+.dm-search-results {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  background: #0d1b2a;
+  border: 1px solid rgba(0,201,167,0.3);
+  border-top: none;
+  border-radius: 0 0 6px 6px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+.dm-cat-filter {
+  padding: 0.5rem 0.75rem;
+  font-size: 0.82rem;
+  background: rgba(0,0,0,0.3);
+  border: 1px solid rgba(0,201,167,0.3);
+  border-radius: 6px;
+  color: var(--text-normal);
+  font-family: inherit;
+  cursor: pointer;
+}
+.dm-cat-filter:focus { outline: none; border-color: var(--accent-primary); }
+.dm-cat-filter option { background: #0a1a18; color: var(--text-normal); }
+
+.search-item {
+  padding: 0.5rem 0.75rem;
+  cursor: pointer;
+  transition: background 0.1s;
+  border-bottom: 1px solid rgba(100,100,100,0.1);
+}
+.search-item:hover { background: rgba(0,201,167,0.12); }
+.search-item.no-match { cursor: default; color: var(--text-muted); font-style: italic; }
+.si-name { display: block; font-size: 0.85rem; font-weight: 600; color: var(--text-normal); }
+.si-meta { display: block; font-size: 0.7rem; color: var(--text-muted); }
+
+/* Staged Items */
+.dm-staged-list {
+  min-height: 40px;
+}
+.dm-staged-empty {
+  text-align: center;
+  padding: 1.25rem;
+  color: var(--text-muted);
+  font-style: italic;
+  font-size: 0.82rem;
+  background: rgba(0,0,0,0.15);
+  border: 1px dashed rgba(0,201,167,0.15);
+  border-radius: 6px;
+}
+.staged-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  background: rgba(212,168,58,0.04);
+  border: 1px solid rgba(212,168,58,0.15);
+  border-radius: 6px;
+  margin-bottom: 0.35rem;
+}
+.staged-row:hover { border-color: rgba(212,168,58,0.3); }
+.sr-info { flex: 1; min-width: 0; }
+.sr-name { font-size: 0.85rem; font-weight: 600; color: var(--text-normal); }
+.sr-meta { display: block; font-size: 0.68rem; color: var(--text-muted); }
+.sr-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-shrink: 0;
+}
+
+/* Reuse encounter button styles */
+.er-btn {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(0,201,167,0.3);
+  border-radius: 4px;
+  background: rgba(0,201,167,0.08);
+  cursor: pointer;
+  font-size: 0.7rem;
+  transition: all 0.15s;
+  padding: 0;
+}
+.er-btn:hover { background: rgba(0,201,167,0.25); border-color: var(--accent-primary); }
+.er-count {
+  font-size: 0.88rem;
+  font-weight: bold;
+  color: var(--text-normal);
+  min-width: 1.5rem;
+  text-align: center;
+}
+.er-btn-remove {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(192,57,43,0.3);
+  border-radius: 4px;
+  background: rgba(192,57,43,0.08);
+  cursor: pointer;
+  font-size: 0.7rem;
+  transition: all 0.15s;
+  padding: 0;
+  margin-left: 0.25rem;
+}
+.er-btn-remove:hover { background: rgba(192,57,43,0.25); border-color: #e74c3c; }
+
+/* Currency */
+.dm-currency {
+  padding: 0.75rem 1rem;
+  background: rgba(212,168,58,0.06);
+  border: 1px solid rgba(212,168,58,0.2);
+  border-radius: 8px;
+}
+.dm-coin-inputs {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.75rem;
+}
+.dm-coin-input {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+.dm-coin-input input {
+  width: 70px;
+  padding: 0.3rem 0.5rem;
+  font-size: 0.85rem;
+  background: rgba(0,0,0,0.3);
+  border: 1px solid rgba(212,168,58,0.3);
+  border-radius: 4px;
+  color: var(--text-normal);
+  text-align: center;
+}
+.dm-coin-input input:focus { outline: none; border-color: #d4a83a; }
+.dm-coin-input span {
+  font-size: 0.68rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  color: #d4a83a;
+  min-width: 1.5rem;
+}
+.dm-currency-mode {
+  display: flex;
+  gap: 1.25rem;
+}
+.dm-radio-label {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.82rem;
+  color: var(--text-normal);
+  cursor: pointer;
+}
+.dm-radio-label input { accent-color: var(--accent-primary); }
+
+/* Recipients */
+.dm-recipients {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+.dm-select-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+.dm-party-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.dm-party-member {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.4rem 0.7rem;
+  background: rgba(0,201,167,0.06);
+  border: 1px solid rgba(0,201,167,0.2);
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.15s;
+  font-size: 0.82rem;
+}
+.dm-party-member:hover { border-color: rgba(0,201,167,0.4); }
+.dm-party-member input[type="checkbox"] { accent-color: var(--accent-primary); }
+.dpm-name { color: var(--text-normal); font-weight: 600; }
+.dpm-class { color: var(--text-muted); font-size: 0.72rem; }
+
+/* Buttons */
+.btn {
+  padding: 0.5rem 1rem;
+  border: 1px solid;
+  border-radius: 6px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: inherit;
+}
+.btn:active { transform: scale(0.97); }
+.btn-primary {
+  background: rgba(0,201,167,0.15);
+  border-color: rgba(0,201,167,0.5);
+  color: var(--accent-primary);
+}
+.btn-primary:hover { background: rgba(0,201,167,0.3); border-color: var(--accent-primary); }
+.btn-secondary {
+  background: rgba(100,100,100,0.1);
+  border-color: rgba(100,100,100,0.3);
+  color: var(--text-muted);
+}
+.btn-secondary:hover { background: rgba(100,100,100,0.2); border-color: rgba(100,100,100,0.5); color: var(--text-normal); }
+.btn-sm {
+  padding: 0.3rem 0.65rem;
+  font-size: 0.75rem;
+}
+.btn-award {
+  width: 100%;
+  padding: 0.65rem 1rem;
+  font-size: 0.9rem;
+}
+
+/* Status */
+.dm-status {
+  padding: 0.6rem 0.85rem;
+  border-radius: 6px;
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+.dm-success {
+  background: rgba(39,174,96,0.15);
+  border: 1px solid rgba(39,174,96,0.4);
+  color: #6ec97a;
+}
+
+/* Custom Item Dialog */
+.dm-dialog-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.7);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+.dm-dialog {
+  background: var(--bg-card, #181b24);
+  border: 1px solid rgba(0,201,167,0.3);
+  border-radius: 12px;
+  padding: 1.5rem;
+  max-width: 560px;
+  width: 100%;
+  max-height: 85vh;
+  overflow-y: auto;
+}
+.dm-dialog h3 {
+  margin: 0 0 1rem 0;
+  color: var(--accent-primary);
+  font-size: 1rem;
+}
+.dm-dialog-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+.dm-form-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+.dm-form-row label {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+.dm-form-row input,
+.dm-form-row select,
+.dm-form-row textarea {
+  padding: 0.4rem 0.6rem;
+  font-size: 0.85rem;
+  background: rgba(0,0,0,0.3);
+  border: 1px solid rgba(0,201,167,0.25);
+  border-radius: 5px;
+  color: var(--text-normal);
+  font-family: inherit;
+}
+.dm-form-row input:focus,
+.dm-form-row select:focus,
+.dm-form-row textarea:focus { outline: none; border-color: var(--accent-primary); }
+.dm-form-row select option { background: #0a1a18; }
+.dm-form-row-2col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+.dm-checkbox-label {
+  flex-direction: row !important;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+}
+.dm-checkbox-label input { accent-color: var(--accent-primary); }
+.dm-checkbox-label span { font-size: 0.85rem; color: var(--text-normal); text-transform: none; letter-spacing: 0; font-weight: normal; }
+.dm-dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+}
+
+/* History */
+.dm-history-section {
+  background: rgba(100,80,200,0.03);
+  border-color: rgba(100,80,200,0.15);
+}
+.dm-history-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+}
+.dm-history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+.dm-history-empty {
+  text-align: center;
+  padding: 1.25rem;
+  color: var(--text-muted);
+  font-style: italic;
+  font-size: 0.82rem;
+}
+.history-entry {
+  padding: 0.6rem 0.8rem;
+  background: rgba(100,80,200,0.04);
+  border: 1px solid rgba(100,80,200,0.15);
+  border-radius: 6px;
+}
+.he-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 0.25rem;
+}
+.he-date {
+  font-size: 0.7rem;
+  color: var(--text-dim);
+}
+.he-recipients {
+  font-size: 0.72rem;
+  color: var(--accent-primary);
+  font-weight: 600;
+}
+.he-details {
+  font-size: 0.78rem;
+  color: var(--text-normal);
+  line-height: 1.4;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .dm-add-controls { flex-direction: column; }
+  .dm-search-wrap { max-width: none; }
+  .dm-coin-inputs { width: 100%; }
+  .dm-currency-mode { flex-direction: column; gap: 0.5rem; }
+  .dm-form-row-2col { grid-template-columns: 1fr; }
+  .staged-row { flex-direction: column; align-items: stretch; gap: 0.4rem; }
+  .sr-controls { justify-content: flex-end; }
+  .dm-party-grid { flex-direction: column; }
+}
+</style>

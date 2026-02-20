@@ -349,6 +349,7 @@ const partyMembers = JSON.stringify(activeParty.map(c => ({ name: c.data.name, s
       dex: mon.dex,
       count: 1,
       custom: mon.custom || false,
+      loot: { items: [], currency: { pp: 0, gp: 0, ep: 0, sp: 0, cp: 0 } },
     });
     renderEncounter();
   }
@@ -368,7 +369,7 @@ const partyMembers = JSON.stringify(activeParty.map(c => ({ name: c.data.name, s
       encounterEmpty.style.display = '';
       diffSection.style.display = 'none';
       encActions.style.display = 'none';
-      encounterList.querySelectorAll('.encounter-row').forEach(r => r.remove());
+      encounterList.querySelectorAll('.encounter-row, .encounter-row-wrap').forEach(r => r.remove());
       return;
     }
 
@@ -379,31 +380,160 @@ const partyMembers = JSON.stringify(activeParty.map(c => ({ name: c.data.name, s
     encounterList.querySelectorAll('.encounter-row').forEach(r => r.remove());
 
     encounter.forEach((mon, i) => {
+      // Ensure loot exists (for loaded encounters from before this feature)
+      if (!mon.loot) mon.loot = { items: [], currency: { pp: 0, gp: 0, ep: 0, sp: 0, cp: 0 } };
+
+      const lootSummary = getMonsterLootSummary(i);
+      const lootBadge = lootSummary ? '<span class="er-loot-badge" title="Monster loot">🎁 ' + lootSummary + '</span>' : '';
+      const isOpen = openLootPanels.has(i);
+
       const row = document.createElement('div');
-      row.className = 'encounter-row';
+      row.className = 'encounter-row-wrap';
       row.innerHTML =
-        '<div class="er-info">' +
-          (mon.slug ? '<a href="' + base + '/monsters/' + mon.slug + '" class="er-name">' + mon.name + '</a>' : '<span class="er-name">' + mon.name + '</span>') +
-          '<span class="er-meta">CR ' + mon.cr + ' · AC ' + mon.ac + ' · HP ' + mon.hp + ' · ' + mon.xp.toLocaleString() + ' XP ea</span>' +
+        '<div class="encounter-row">' +
+          '<div class="er-info">' +
+            (mon.slug ? '<a href="' + base + '/monsters/' + mon.slug + '" class="er-name">' + mon.name + '</a>' : '<span class="er-name">' + mon.name + '</span>') +
+            '<span class="er-meta">CR ' + mon.cr + ' · AC ' + mon.ac + ' · HP ' + mon.hp + ' · ' + mon.xp.toLocaleString() + ' XP ea</span>' +
+            lootBadge +
+          '</div>' +
+          '<div class="er-controls">' +
+            '<span class="er-total-xp">' + (mon.xp * mon.count).toLocaleString() + ' XP total</span>' +
+            '<button class="er-btn er-loot-toggle' + (isOpen ? ' er-loot-open' : '') + '" data-i="' + i + '" title="' + (isOpen ? 'Hide' : 'Add') + ' Loot">🎁</button>' +
+            '<button class="er-btn er-minus" data-i="' + i + '" title="Remove one">➖</button>' +
+            '<span class="er-count">' + mon.count + '</span>' +
+            '<button class="er-btn er-plus" data-i="' + i + '" title="Add one">➕</button>' +
+            '<button class="er-btn-remove" data-i="' + i + '" title="Remove from encounter">🗑️ Remove</button>' +
+          '</div>' +
         '</div>' +
-        '<div class="er-controls">' +
-          '<span class="er-total-xp">' + (mon.xp * mon.count).toLocaleString() + ' XP total</span>' +
-          '<button class="er-btn er-minus" data-i="' + i + '" title="Remove one">➖</button>' +
-          '<span class="er-count">' + mon.count + '</span>' +
-          '<button class="er-btn er-plus" data-i="' + i + '" title="Add one">➕</button>' +
-          '<button class="er-btn-remove" data-i="' + i + '" title="Remove from encounter">🗑️ Remove</button>' +
+        '<div class="ml-panel" data-midx="' + i + '" style="display:' + (isOpen ? '' : 'none') + ';">' +
+          '<div class="ml-header"><span class="ml-title">Loot for ' + mon.name + '</span></div>' +
+          '<div class="ml-search-row">' +
+            '<div class="ml-search-wrap">' +
+              '<input type="text" class="ml-search-input" data-midx="' + i + '" placeholder="Search items..." autocomplete="off" />' +
+              '<div class="ml-search-results" data-midx="' + i + '" style="display:none;"></div>' +
+            '</div>' +
+            '<select class="ml-cat-filter dm-cat-filter" data-midx="' + i + '">' +
+              '<option value="">All</option>' +
+              lootCats.map(function(c) { return '<option value="' + c + '">' + c + '</option>'; }).join('') +
+            '</select>' +
+            '<button class="btn btn-secondary ml-custom-btn" data-midx="' + i + '">+ Custom</button>' +
+          '</div>' +
+          '<div class="ml-currency">' +
+            '<span class="ml-currency-label">Currency:</span>' +
+            '<div class="ml-coin-inputs">' +
+              '<div class="ml-coin"><input type="number" class="ml-coin-val" data-midx="' + i + '" data-coin="pp" value="' + (mon.loot.currency.pp || 0) + '" min="0" /><span>PP</span></div>' +
+              '<div class="ml-coin"><input type="number" class="ml-coin-val" data-midx="' + i + '" data-coin="gp" value="' + (mon.loot.currency.gp || 0) + '" min="0" /><span>GP</span></div>' +
+              '<div class="ml-coin"><input type="number" class="ml-coin-val" data-midx="' + i + '" data-coin="ep" value="' + (mon.loot.currency.ep || 0) + '" min="0" /><span>EP</span></div>' +
+              '<div class="ml-coin"><input type="number" class="ml-coin-val" data-midx="' + i + '" data-coin="sp" value="' + (mon.loot.currency.sp || 0) + '" min="0" /><span>SP</span></div>' +
+              '<div class="ml-coin"><input type="number" class="ml-coin-val" data-midx="' + i + '" data-coin="cp" value="' + (mon.loot.currency.cp || 0) + '" min="0" /><span>CP</span></div>' +
+            '</div>' +
+          '</div>' +
+          '<div class="ml-items-list" data-midx="' + i + '">' +
+            (mon.loot.items.length === 0 ? '<div class="ml-items-empty">No loot items yet.</div>' :
+              mon.loot.items.map(function(item, li) {
+                var meta = [];
+                if (item.type && item.type !== 'misc') meta.push(item.type);
+                if (item.dmg) meta.push(item.dmg + ' ' + (item.dmgType || ''));
+                if (item.acBase) meta.push('AC ' + item.acBase);
+                if (item.magical) meta.push('✨');
+                return '<div class="ml-item-row">' +
+                  '<div class="lr-info"><span class="lr-name">' + item.name + '</span>' +
+                  (meta.length ? '<span class="lr-meta">' + meta.join(' · ') + '</span>' : '') +
+                  '</div>' +
+                  '<div class="lr-controls">' +
+                    '<button class="er-btn er-minus ml-qty-btn" data-midx="' + i + '" data-li="' + li + '" data-delta="-1">➖</button>' +
+                    '<span class="er-count">' + (item.quantity || 1) + '</span>' +
+                    '<button class="er-btn er-plus ml-qty-btn" data-midx="' + i + '" data-li="' + li + '" data-delta="1">➕</button>' +
+                    '<button class="er-btn-remove ml-remove-btn" data-midx="' + i + '" data-li="' + li + '">🗑️</button>' +
+                  '</div>' +
+                '</div>';
+              }).join('')) +
+          '</div>' +
         '</div>';
       encounterList.appendChild(row);
     });
 
-    encounterList.querySelectorAll('.er-minus').forEach(btn => {
+    // Encounter row controls
+    encounterList.querySelectorAll('.er-minus[data-i]').forEach(btn => {
       btn.addEventListener('click', () => changeCount(parseInt(btn.dataset.i), -1));
     });
-    encounterList.querySelectorAll('.er-plus').forEach(btn => {
+    encounterList.querySelectorAll('.er-plus[data-i]').forEach(btn => {
       btn.addEventListener('click', () => changeCount(parseInt(btn.dataset.i), 1));
     });
-    encounterList.querySelectorAll('.er-btn-remove').forEach(btn => {
+    encounterList.querySelectorAll('.er-btn-remove[data-i]').forEach(btn => {
       btn.addEventListener('click', () => removeMonster(parseInt(btn.dataset.i)));
+    });
+
+    // Monster loot toggle buttons
+    encounterList.querySelectorAll('.er-loot-toggle').forEach(btn => {
+      btn.addEventListener('click', () => toggleMonsterLoot(parseInt(btn.dataset.i)));
+    });
+
+    // Monster loot search inputs
+    encounterList.querySelectorAll('.ml-search-input').forEach(input => {
+      var midx = parseInt(input.dataset.midx);
+      input.addEventListener('input', function() { doMonsterLootSearch(midx); });
+      input.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+          var results = encounterList.querySelector('.ml-search-results[data-midx="' + midx + '"]');
+          if (results) results.style.display = 'none';
+          input.value = '';
+        }
+      });
+    });
+
+    // Monster loot category filters
+    encounterList.querySelectorAll('.ml-cat-filter').forEach(sel => {
+      sel.addEventListener('change', function() {
+        var midx = parseInt(sel.dataset.midx);
+        var input = encounterList.querySelector('.ml-search-input[data-midx="' + midx + '"]');
+        if (input && input.value.trim().length >= 1) doMonsterLootSearch(midx);
+      });
+    });
+
+    // Monster loot custom buttons
+    encounterList.querySelectorAll('.ml-custom-btn').forEach(btn => {
+      btn.addEventListener('click', function() {
+        var midx = parseInt(btn.dataset.midx);
+        var name = prompt('Enter loot item name:');
+        if (name && name.trim()) {
+          addMonsterLootItem(midx, { name: name.trim(), type: 'misc', notes: 'Custom loot' });
+        }
+      });
+    });
+
+    // Monster loot currency inputs
+    encounterList.querySelectorAll('.ml-coin-val').forEach(input => {
+      input.addEventListener('change', function() {
+        var midx = parseInt(input.dataset.midx);
+        var coin = input.dataset.coin;
+        encounter[midx].loot.currency[coin] = parseInt(input.value) || 0;
+      });
+    });
+
+    // Monster loot item quantity buttons
+    encounterList.querySelectorAll('.ml-qty-btn').forEach(btn => {
+      btn.addEventListener('click', function() {
+        changeMonsterLootQty(parseInt(btn.dataset.midx), parseInt(btn.dataset.li), parseInt(btn.dataset.delta));
+      });
+    });
+
+    // Monster loot item remove buttons
+    encounterList.querySelectorAll('.ml-remove-btn').forEach(btn => {
+      btn.addEventListener('click', function() {
+        removeMonsterLootItem(parseInt(btn.dataset.midx), parseInt(btn.dataset.li));
+      });
+    });
+
+    // Close monster loot search on outside click
+    document.addEventListener('click', function(e) {
+      encounterList.querySelectorAll('.ml-search-results').forEach(function(res) {
+        var midx = res.dataset.midx;
+        var input = encounterList.querySelector('.ml-search-input[data-midx="' + midx + '"]');
+        if (input && !input.contains(e.target) && !res.contains(e.target)) {
+          res.style.display = 'none';
+        }
+      });
     });
 
     updateDifficulty();
@@ -461,6 +591,108 @@ const partyMembers = JSON.stringify(activeParty.map(c => ({ name: c.data.name, s
     markerMedium.style.left = medPct + '%';
     markerHard.style.left = hardPct + '%';
     markerDeadly.style.left = deadlyPct + '%';
+  }
+
+  // ============================================================
+  // MONSTER LOOT SYSTEM
+  // ============================================================
+  var openLootPanels = new Set();
+
+  function toggleMonsterLoot(idx) {
+    if (openLootPanels.has(idx)) {
+      openLootPanels.delete(idx);
+    } else {
+      openLootPanels.add(idx);
+    }
+    renderEncounter();
+  }
+
+  function getMonsterLootSummary(idx) {
+    var mon = encounter[idx];
+    if (!mon || !mon.loot) return '';
+    var parts = [];
+    if (mon.loot.items.length > 0) {
+      var totalItems = mon.loot.items.reduce(function(s, i) { return s + (i.quantity || 1); }, 0);
+      parts.push(totalItems + ' item' + (totalItems !== 1 ? 's' : ''));
+    }
+    var cur = mon.loot.currency;
+    if (cur) {
+      var coins = [];
+      if (cur.pp > 0) coins.push(cur.pp + 'pp');
+      if (cur.gp > 0) coins.push(cur.gp + 'gp');
+      if (cur.ep > 0) coins.push(cur.ep + 'ep');
+      if (cur.sp > 0) coins.push(cur.sp + 'sp');
+      if (cur.cp > 0) coins.push(cur.cp + 'cp');
+      if (coins.length > 0) parts.push(coins.join(', '));
+    }
+    return parts.join(', ');
+  }
+
+  function doMonsterLootSearch(midx) {
+    var input = encounterList.querySelector('.ml-search-input[data-midx="' + midx + '"]');
+    var resultsEl = encounterList.querySelector('.ml-search-results[data-midx="' + midx + '"]');
+    var catSel = encounterList.querySelector('.ml-cat-filter[data-midx="' + midx + '"]');
+    if (!input || !resultsEl) return;
+
+    var query = input.value.toLowerCase().trim();
+    if (query.length < 1) { resultsEl.style.display = 'none'; return; }
+
+    var catVal = catSel ? catSel.value : '';
+    var matches = lootDb.filter(function(item) {
+      var nameMatch = item.name.toLowerCase().indexOf(query) >= 0;
+      var catMatch = !catVal || item.category === catVal;
+      return nameMatch && catMatch;
+    }).slice(0, 12);
+
+    if (matches.length === 0) {
+      resultsEl.innerHTML = '<div class="search-item no-match">No items found</div>';
+    } else {
+      resultsEl.innerHTML = matches.map(function(m, i) {
+        var meta = [];
+        if (m.type) meta.push(m.type);
+        if (m.dmg) meta.push(m.dmg);
+        if (m.acBase) meta.push('AC ' + m.acBase);
+        if (m.magical) meta.push('✨');
+        if (m.rarity && m.rarity !== 'common') meta.push(m.rarity);
+        return '<div class="search-item" data-mlidx="' + i + '">' +
+          '<span class="si-name">' + m.name + '</span>' +
+          '<span class="si-meta">' + meta.join(' · ') + '</span>' +
+        '</div>';
+      }).join('');
+    }
+    resultsEl.style.display = '';
+    resultsEl._matches = matches;
+
+    resultsEl.querySelectorAll('.search-item[data-mlidx]').forEach(function(el) {
+      el.addEventListener('click', function() {
+        var idx = parseInt(el.dataset.mlidx, 10);
+        var item = resultsEl._matches[idx];
+        if (item) addMonsterLootItem(midx, item);
+        input.value = '';
+        resultsEl.style.display = 'none';
+      });
+    });
+  }
+
+  function addMonsterLootItem(midx, item) {
+    var existing = encounter[midx].loot.items.find(function(i) { return i.name === item.name; });
+    if (existing) {
+      existing.quantity = (existing.quantity || 1) + 1;
+    } else {
+      encounter[midx].loot.items.push(Object.assign({}, item, { quantity: item.quantity || 1 }));
+    }
+    renderEncounter();
+  }
+
+  function removeMonsterLootItem(midx, itemIdx) {
+    encounter[midx].loot.items.splice(itemIdx, 1);
+    renderEncounter();
+  }
+
+  function changeMonsterLootQty(midx, itemIdx, delta) {
+    var item = encounter[midx].loot.items[itemIdx];
+    item.quantity = Math.max(1, (item.quantity || 1) + delta);
+    renderEncounter();
   }
 
   // ============================================================
@@ -529,7 +761,7 @@ const partyMembers = JSON.stringify(activeParty.map(c => ({ name: c.data.name, s
   function loadEncounter(index) {
     const saved = getSavedEncounters();
     if (!saved[index]) return;
-    encounter = saved[index].monsters.map(m => ({...m}));
+    encounter = JSON.parse(JSON.stringify(saved[index].monsters));
     renderEncounter();
     // Scroll to builder
     document.querySelector('.builder-header').scrollIntoView({ behavior: 'smooth' });
@@ -587,7 +819,7 @@ const partyMembers = JSON.stringify(activeParty.map(c => ({ name: c.data.name, s
       name: name,
       category: saveCategorySelect.value,
       notes: saveNotesInput.value.trim(),
-      monsters: encounter.map(m => ({...m})),
+      monsters: JSON.parse(JSON.stringify(encounter)),
       createdAt: new Date().toISOString(),
     });
     saveSavedEncounters(saved);
@@ -862,15 +1094,62 @@ const partyMembers = JSON.stringify(activeParty.map(c => ({ name: c.data.name, s
       distributed.push(pc.name);
     });
 
+    // Also distribute monster-specific loot
+    var monsterLootCount = 0;
+    encounter.forEach(function(mon) {
+      if (!mon.loot) return;
+      var hasMonItems = mon.loot.items && mon.loot.items.length > 0;
+      var hasMonCur = mon.loot.currency && (mon.loot.currency.pp > 0 || mon.loot.currency.gp > 0 || mon.loot.currency.ep > 0 || mon.loot.currency.sp > 0 || mon.loot.currency.cp > 0);
+      if (!hasMonItems && !hasMonCur) return;
+
+      monsterLootCount++;
+      selectedSlugs.forEach(function(pc) {
+        var invKey = 'sbtf-inventory-' + pc.slug;
+        var curKey = 'sbtf-currency-' + pc.slug;
+
+        // Add monster items
+        if (hasMonItems) {
+          var existingInv = [];
+          try { var raw = localStorage.getItem(invKey); if (raw) existingInv = JSON.parse(raw); } catch(e) {}
+          mon.loot.items.forEach(function(lootItem) {
+            var found = existingInv.find(function(i) { return i.name === lootItem.name && i.type === lootItem.type; });
+            if (found) {
+              found.quantity = (found.quantity || 1) + (lootItem.quantity || 1);
+            } else {
+              existingInv.push(Object.assign({}, lootItem));
+            }
+          });
+          localStorage.setItem(invKey, JSON.stringify(existingInv));
+        }
+
+        // Split monster currency evenly
+        if (hasMonCur) {
+          var existingCur = { pp: 0, gp: 0, ep: 0, sp: 0, cp: 0 };
+          try { var rawC = localStorage.getItem(curKey); if (rawC) existingCur = JSON.parse(rawC); } catch(e) {}
+          existingCur.pp = (existingCur.pp || 0) + Math.floor((mon.loot.currency.pp || 0) / count);
+          existingCur.gp = (existingCur.gp || 0) + Math.floor((mon.loot.currency.gp || 0) / count);
+          existingCur.ep = (existingCur.ep || 0) + Math.floor((mon.loot.currency.ep || 0) / count);
+          existingCur.sp = (existingCur.sp || 0) + Math.floor((mon.loot.currency.sp || 0) / count);
+          existingCur.cp = (existingCur.cp || 0) + Math.floor((mon.loot.currency.cp || 0) / count);
+          localStorage.setItem(curKey, JSON.stringify(existingCur));
+        }
+      });
+
+      // Clear monster loot after distribution
+      mon.loot.items = [];
+      mon.loot.currency = { pp: 0, gp: 0, ep: 0, sp: 0, cp: 0 };
+    });
+
     // Show success
     lootStatusEl.style.display = '';
     lootStatusEl.className = 'loot-status loot-success';
     var parts = [];
-    if (lootItems.length > 0) parts.push(lootItems.length + ' item(s)');
-    if (hasLootCurrency()) parts.push('currency');
+    if (lootItems.length > 0) parts.push(lootItems.length + ' pool item(s)');
+    if (hasLootCurrency()) parts.push('pool currency');
+    if (monsterLootCount > 0) parts.push('loot from ' + monsterLootCount + ' monster(s)');
     lootStatusEl.textContent = 'Distributed ' + parts.join(' + ') + ' to ' + distributed.join(', ') + '.';
 
-    // Clear loot
+    // Clear general loot pool
     lootItems = [];
     document.getElementById('lootPP').value = '0';
     document.getElementById('lootGP').value = '0';
@@ -878,6 +1157,7 @@ const partyMembers = JSON.stringify(activeParty.map(c => ({ name: c.data.name, s
     document.getElementById('lootSP').value = '0';
     document.getElementById('lootCP').value = '0';
     renderLoot();
+    renderEncounter();
 
     setTimeout(function() { lootStatusEl.style.display = 'none'; }, 5000);
   });
@@ -1560,6 +1840,156 @@ a.er-name:hover { color: var(--accent-primary); text-decoration: underline; }
   color: #6ec97a;
 }
 
+/* ═══════════════════════════════════════ */
+/* MONSTER LOOT PANELS */
+/* ═══════════════════════════════════════ */
+.encounter-row-wrap {
+  margin-bottom: 0.35rem;
+}
+.er-loot-badge {
+  display: inline-block;
+  font-size: 0.68rem;
+  padding: 0.1rem 0.4rem;
+  background: rgba(212,168,58,0.12);
+  border: 1px solid rgba(212,168,58,0.3);
+  border-radius: 3px;
+  color: #d4a83a;
+  margin-left: 0.5rem;
+  vertical-align: middle;
+}
+.er-loot-toggle {
+  border-color: rgba(212,168,58,0.4) !important;
+  background: rgba(212,168,58,0.08) !important;
+}
+.er-loot-toggle:hover { background: rgba(212,168,58,0.25) !important; border-color: #d4a83a !important; }
+.er-loot-toggle.er-loot-open {
+  background: rgba(212,168,58,0.2) !important;
+  border-color: #d4a83a !important;
+  box-shadow: 0 0 6px rgba(212,168,58,0.3);
+}
+
+.ml-panel {
+  padding: 0.85rem 1rem;
+  background: rgba(212,168,58,0.04);
+  border: 1px solid rgba(212,168,58,0.2);
+  border-top: none;
+  border-radius: 0 0 8px 8px;
+  margin-top: -1px;
+}
+.ml-header {
+  margin-bottom: 0.65rem;
+}
+.ml-title {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #d4a83a;
+  font-weight: 600;
+}
+.ml-search-row {
+  display: flex;
+  gap: 0.5rem;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  margin-bottom: 0.65rem;
+}
+.ml-search-wrap {
+  position: relative;
+  flex: 1;
+  max-width: 300px;
+}
+.ml-search-wrap input {
+  width: 100%;
+  padding: 0.4rem 0.6rem;
+  font-size: 0.82rem;
+  background: rgba(0,0,0,0.3);
+  border: 1px solid rgba(212,168,58,0.3);
+  border-radius: 5px;
+  color: var(--text-normal);
+}
+.ml-search-wrap input:focus { outline: none; border-color: #d4a83a; }
+.ml-search-results {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 55;
+  background: #0d1b2a;
+  border: 1px solid rgba(212,168,58,0.3);
+  border-top: none;
+  border-radius: 0 0 6px 6px;
+  max-height: 240px;
+  overflow-y: auto;
+}
+.ml-currency {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.65rem;
+  padding: 0.5rem 0.7rem;
+  background: rgba(212,168,58,0.06);
+  border: 1px solid rgba(212,168,58,0.15);
+  border-radius: 6px;
+}
+.ml-currency-label {
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #d4a83a;
+  font-weight: 600;
+}
+.ml-coin-inputs {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+.ml-coin {
+  display: flex;
+  align-items: center;
+  gap: 0.2rem;
+}
+.ml-coin input {
+  width: 55px;
+  padding: 0.25rem 0.4rem;
+  font-size: 0.8rem;
+  background: rgba(0,0,0,0.3);
+  border: 1px solid rgba(212,168,58,0.25);
+  border-radius: 4px;
+  color: var(--text-normal);
+  text-align: center;
+}
+.ml-coin input:focus { outline: none; border-color: #d4a83a; }
+.ml-coin span {
+  font-size: 0.62rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  min-width: 1.2rem;
+}
+.ml-items-list {
+  min-height: 24px;
+}
+.ml-items-empty {
+  text-align: center;
+  padding: 0.6rem;
+  color: var(--text-muted);
+  font-style: italic;
+  font-size: 0.78rem;
+}
+.ml-item-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.35rem 0.5rem;
+  background: rgba(212,168,58,0.03);
+  border: 1px solid rgba(212,168,58,0.12);
+  border-radius: 5px;
+  margin-bottom: 0.25rem;
+}
+.ml-item-row:hover { border-color: rgba(212,168,58,0.25); }
+
 @media (max-width: 640px) {
   .add-section { flex-direction: column; }
   .search-wrap { max-width: none; }
@@ -1574,5 +2004,8 @@ a.er-name:hover { color: var(--accent-primary); text-decoration: underline; }
   .loot-coin-inputs { width: 100%; }
   .loot-row { flex-direction: column; align-items: stretch; gap: 0.4rem; }
   .lr-controls { justify-content: flex-end; }
+  .ml-search-row { flex-direction: column; }
+  .ml-search-wrap { max-width: none; }
+  .ml-item-row { flex-direction: column; align-items: stretch; gap: 0.3rem; }
 }
 </style>
