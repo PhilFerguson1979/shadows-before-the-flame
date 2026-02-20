@@ -175,12 +175,10 @@ const classDataForWizard = classData ? {
     />
 
     <!-- Currency -->
-    {char.data.currency && <CurrencyDisplay currency={char.data.currency} />}
+    <CurrencyDisplay characterSlug={char.slug} currency={char.data.currency} />
 
     <!-- Equipment Panel -->
-    {char.data.inventory && char.data.inventory.length > 0 && (
-      <EquipmentPanel character={char.data} />
-    )}
+    <EquipmentPanel characterSlug={char.slug} character={char.data} />
 
     <!-- Active Conditions -->
     {char.data.conditions && char.data.conditions.length > 0 && (

@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { monsters, crXpTable, encounterThresholds, getEncounterMultiplier } from '../../data/monsters';
+import { items as itemDatabase, itemCategories } from '../../data/items';
 import { getCollection } from 'astro:content';
 
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
@@ -35,6 +36,11 @@ const monsterList = monsters.map(m => ({
   type: m.type,
   size: m.size,
 }));
+
+// Loot system data
+const lootItemDb = JSON.stringify(itemDatabase.map(i => ({ name: i.name, type: i.type, slot: i.slot, acBase: i.acBase, acBonus: i.acBonus, dmg: i.dmg, dmgType: i.dmgType, weight: i.weight, properties: i.properties, notes: i.notes, magical: i.magical, value: i.value, rarity: i.rarity, category: i.category })));
+const lootCategories = JSON.stringify(itemCategories);
+const partyMembers = JSON.stringify(activeParty.map(c => ({ name: c.data.name, slug: c.slug })));
 ---
 
 <BaseLayout title="Encounter Planner">
@@ -137,10 +143,80 @@ const monsterList = monsters.map(m => ({
         </div>
       </div>
     </div>
+
+    <!-- ═══════════════════════════════════════ -->
+    <!-- LOOT SYSTEM -->
+    <!-- ═══════════════════════════════════════ -->
+    <div class="loot-section">
+      <h2 class="section-title">Encounter Loot</h2>
+      <p class="loot-intro">Add treasure to this encounter and distribute it to party members.</p>
+
+      <!-- Loot Search -->
+      <div class="loot-add-controls">
+        <div class="loot-search-wrap">
+          <input type="text" id="lootSearch" placeholder="Search items to add as loot..." autocomplete="off" />
+          <div id="lootSearchResults" class="loot-search-results" style="display:none;"></div>
+        </div>
+        <select id="lootCatFilter" class="loot-cat-filter">
+          <option value="">All Categories</option>
+        </select>
+        <button id="lootCustomBtn" class="btn btn-secondary">+ Custom Loot</button>
+      </div>
+
+      <!-- Currency Loot -->
+      <div class="loot-currency">
+        <span class="loot-currency-label">Currency:</span>
+        <div class="loot-coin-inputs">
+          <div class="loot-coin-input">
+            <input type="number" id="lootPP" value="0" min="0" />
+            <span>PP</span>
+          </div>
+          <div class="loot-coin-input">
+            <input type="number" id="lootGP" value="0" min="0" />
+            <span>GP</span>
+          </div>
+          <div class="loot-coin-input">
+            <input type="number" id="lootEP" value="0" min="0" />
+            <span>EP</span>
+          </div>
+          <div class="loot-coin-input">
+            <input type="number" id="lootSP" value="0" min="0" />
+            <span>SP</span>
+          </div>
+          <div class="loot-coin-input">
+            <input type="number" id="lootCP" value="0" min="0" />
+            <span>CP</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Loot Items List -->
+      <div id="lootList" class="loot-list">
+        <div class="loot-empty" id="lootEmpty">No loot items yet. Search above to add treasure.</div>
+      </div>
+
+      <!-- Distribute Actions -->
+      <div class="loot-actions" id="lootActions" style="display:none;">
+        <div class="loot-distribute-header">
+          <h3>Distribute To</h3>
+          <button id="lootSplitEvenly" class="btn btn-secondary">Split Evenly</button>
+        </div>
+        <div class="loot-party-grid" id="lootPartyGrid">
+          {activeParty.map(c => (
+            <label class="loot-party-member">
+              <input type="checkbox" value={c.slug} data-name={c.data.name} checked />
+              <span class="lpm-name">{c.data.name}</span>
+            </label>
+          ))}
+        </div>
+        <button id="lootDistribute" class="btn btn-primary">Distribute Loot to Selected Characters</button>
+        <div id="lootStatus" class="loot-status" style="display:none;"></div>
+      </div>
+    </div>
   </div>
 </BaseLayout>
 
-<script define:vars={{ monsterList, partyThresholds, partySize, base }}>
+<script define:vars={{ monsterList, partyThresholds, partySize, base, lootItemDb, lootCategories, partyMembers }}>
   const searchInput = document.getElementById('monsterSearch');
   const searchResults = document.getElementById('searchResults');
   const encounterList = document.getElementById('encounterList');
@@ -549,6 +625,270 @@ const monsterList = monsters.map(m => ({
 
   // Initialize saved encounters display
   renderSavedEncounters();
+
+  // ============================================================
+  // LOOT SYSTEM
+  // ============================================================
+  var lootDb = JSON.parse(lootItemDb);
+  var lootCats = JSON.parse(lootCategories);
+  var party = JSON.parse(partyMembers);
+  var lootItems = [];
+
+  var lootSearchInput = document.getElementById('lootSearch');
+  var lootSearchResultsEl = document.getElementById('lootSearchResults');
+  var lootCatFilterEl = document.getElementById('lootCatFilter');
+  var lootListEl = document.getElementById('lootList');
+  var lootEmptyEl = document.getElementById('lootEmpty');
+  var lootActionsEl = document.getElementById('lootActions');
+  var lootStatusEl = document.getElementById('lootStatus');
+
+  // Populate loot category filter
+  lootCats.forEach(function(cat) {
+    var opt = document.createElement('option');
+    opt.value = cat;
+    opt.textContent = cat;
+    lootCatFilterEl.appendChild(opt);
+  });
+
+  var lootCurrentCat = '';
+  lootCatFilterEl.addEventListener('change', function() {
+    lootCurrentCat = lootCatFilterEl.value;
+    if (lootSearchInput.value.length >= 1) doLootSearch();
+  });
+
+  function doLootSearch() {
+    var query = lootSearchInput.value.toLowerCase().trim();
+    if (query.length < 1) {
+      lootSearchResultsEl.style.display = 'none';
+      return;
+    }
+    var matches = lootDb.filter(function(item) {
+      var nameMatch = item.name.toLowerCase().indexOf(query) >= 0;
+      var catMatch = !lootCurrentCat || item.category === lootCurrentCat;
+      return nameMatch && catMatch;
+    }).slice(0, 15);
+
+    if (matches.length === 0) {
+      lootSearchResultsEl.innerHTML = '<div class="search-item no-match">No items found</div>';
+    } else {
+      lootSearchResultsEl.innerHTML = matches.map(function(m, i) {
+        var meta = [];
+        if (m.type) meta.push(m.type);
+        if (m.dmg) meta.push(m.dmg + ' ' + (m.dmgType || ''));
+        if (m.acBase) meta.push('AC ' + m.acBase);
+        if (m.value) meta.push(m.value);
+        if (m.rarity && m.rarity !== 'common') meta.push(m.rarity);
+        return '<div class="search-item" data-lidx="' + i + '">' +
+          '<span class="si-name">' + m.name + (m.magical ? ' ✨' : '') + '</span>' +
+          '<span class="si-meta">' + meta.join(' · ') + '</span>' +
+        '</div>';
+      }).join('');
+    }
+    lootSearchResultsEl.style.display = '';
+    lootSearchResultsEl._matches = matches;
+
+    lootSearchResultsEl.querySelectorAll('.search-item[data-lidx]').forEach(function(el) {
+      el.addEventListener('click', function() {
+        var idx = parseInt(el.dataset.lidx, 10);
+        var item = lootSearchResultsEl._matches[idx];
+        if (item) addLootItem(item);
+        lootSearchInput.value = '';
+        lootSearchResultsEl.style.display = 'none';
+      });
+    });
+  }
+
+  lootSearchInput.addEventListener('input', doLootSearch);
+  document.addEventListener('click', function(e) {
+    if (!lootSearchInput.contains(e.target) && !lootSearchResultsEl.contains(e.target)) {
+      lootSearchResultsEl.style.display = 'none';
+    }
+  });
+  lootSearchInput.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') { lootSearchResultsEl.style.display = 'none'; lootSearchInput.value = ''; }
+  });
+
+  // Custom loot
+  document.getElementById('lootCustomBtn').addEventListener('click', function() {
+    var name = prompt('Enter loot item name:');
+    if (name && name.trim()) {
+      addLootItem({ name: name.trim(), type: 'misc', notes: 'Custom loot' });
+    }
+  });
+
+  function addLootItem(item) {
+    var existing = lootItems.find(function(i) { return i.name === item.name; });
+    if (existing) {
+      existing.quantity = (existing.quantity || 1) + 1;
+    } else {
+      lootItems.push(Object.assign({}, item, { quantity: item.quantity || 1 }));
+    }
+    renderLoot();
+  }
+
+  function removeLootItem(idx) {
+    lootItems.splice(idx, 1);
+    renderLoot();
+  }
+
+  function changeLootQty(idx, delta) {
+    lootItems[idx].quantity = Math.max(1, (lootItems[idx].quantity || 1) + delta);
+    renderLoot();
+  }
+
+  function renderLoot() {
+    lootListEl.querySelectorAll('.loot-row').forEach(function(r) { r.remove(); });
+
+    if (lootItems.length === 0) {
+      lootEmptyEl.style.display = '';
+      lootActionsEl.style.display = 'none';
+      return;
+    }
+
+    lootEmptyEl.style.display = 'none';
+    lootActionsEl.style.display = '';
+
+    lootItems.forEach(function(item, i) {
+      var meta = [];
+      if (item.type && item.type !== 'misc') meta.push(item.type);
+      if (item.dmg) meta.push(item.dmg + ' ' + (item.dmgType || ''));
+      if (item.acBase) meta.push('AC ' + item.acBase);
+      if (item.value) meta.push(item.value);
+      if (item.magical) meta.push('✨ magical');
+
+      var row = document.createElement('div');
+      row.className = 'loot-row';
+      row.innerHTML =
+        '<div class="lr-info">' +
+          '<span class="lr-name">' + item.name + '</span>' +
+          (meta.length ? '<span class="lr-meta">' + meta.join(' · ') + '</span>' : '') +
+        '</div>' +
+        '<div class="lr-controls">' +
+          '<button class="er-btn er-minus" data-li="' + i + '">➖</button>' +
+          '<span class="er-count">' + (item.quantity || 1) + '</span>' +
+          '<button class="er-btn er-plus" data-li="' + i + '">➕</button>' +
+          '<button class="er-btn-remove" data-li="' + i + '">🗑️</button>' +
+        '</div>';
+      lootListEl.appendChild(row);
+    });
+
+    lootListEl.querySelectorAll('.er-minus[data-li]').forEach(function(btn) {
+      btn.addEventListener('click', function() { changeLootQty(parseInt(btn.dataset.li), -1); });
+    });
+    lootListEl.querySelectorAll('.er-plus[data-li]').forEach(function(btn) {
+      btn.addEventListener('click', function() { changeLootQty(parseInt(btn.dataset.li), 1); });
+    });
+    lootListEl.querySelectorAll('.er-btn-remove[data-li]').forEach(function(btn) {
+      btn.addEventListener('click', function() { removeLootItem(parseInt(btn.dataset.li)); });
+    });
+  }
+
+  // Split evenly
+  document.getElementById('lootSplitEvenly').addEventListener('click', function() {
+    document.querySelectorAll('#lootPartyGrid input[type="checkbox"]').forEach(function(cb) {
+      cb.checked = true;
+    });
+  });
+
+  // Distribute loot
+  document.getElementById('lootDistribute').addEventListener('click', function() {
+    var selectedSlugs = [];
+    document.querySelectorAll('#lootPartyGrid input[type="checkbox"]:checked').forEach(function(cb) {
+      selectedSlugs.push({ slug: cb.value, name: cb.dataset.name });
+    });
+
+    if (selectedSlugs.length === 0) {
+      alert('Select at least one party member.');
+      return;
+    }
+
+    if (lootItems.length === 0 && !hasLootCurrency()) {
+      alert('No loot to distribute.');
+      return;
+    }
+
+    var count = selectedSlugs.length;
+    var distributed = [];
+
+    // Distribute items — each item goes to all selected characters
+    selectedSlugs.forEach(function(pc) {
+      var invKey = 'sbtf-inventory-' + pc.slug;
+      var curKey = 'sbtf-currency-' + pc.slug;
+
+      // Add items
+      if (lootItems.length > 0) {
+        var existingInv = [];
+        try {
+          var raw = localStorage.getItem(invKey);
+          if (raw) existingInv = JSON.parse(raw);
+        } catch(e) {}
+
+        lootItems.forEach(function(lootItem) {
+          var found = existingInv.find(function(i) { return i.name === lootItem.name && i.type === lootItem.type; });
+          if (found) {
+            found.quantity = (found.quantity || 1) + (lootItem.quantity || 1);
+          } else {
+            var copy = Object.assign({}, lootItem);
+            existingInv.push(copy);
+          }
+        });
+
+        localStorage.setItem(invKey, JSON.stringify(existingInv));
+      }
+
+      // Split currency evenly
+      if (hasLootCurrency()) {
+        var existingCur = { pp: 0, gp: 0, ep: 0, sp: 0, cp: 0 };
+        try {
+          var rawC = localStorage.getItem(curKey);
+          if (rawC) existingCur = JSON.parse(rawC);
+        } catch(e) {}
+
+        var lpp = Math.floor(parseInt(document.getElementById('lootPP').value || '0', 10) / count);
+        var lgp = Math.floor(parseInt(document.getElementById('lootGP').value || '0', 10) / count);
+        var lep = Math.floor(parseInt(document.getElementById('lootEP').value || '0', 10) / count);
+        var lsp = Math.floor(parseInt(document.getElementById('lootSP').value || '0', 10) / count);
+        var lcp = Math.floor(parseInt(document.getElementById('lootCP').value || '0', 10) / count);
+
+        existingCur.pp = (existingCur.pp || 0) + lpp;
+        existingCur.gp = (existingCur.gp || 0) + lgp;
+        existingCur.ep = (existingCur.ep || 0) + lep;
+        existingCur.sp = (existingCur.sp || 0) + lsp;
+        existingCur.cp = (existingCur.cp || 0) + lcp;
+
+        localStorage.setItem(curKey, JSON.stringify(existingCur));
+      }
+
+      distributed.push(pc.name);
+    });
+
+    // Show success
+    lootStatusEl.style.display = '';
+    lootStatusEl.className = 'loot-status loot-success';
+    var parts = [];
+    if (lootItems.length > 0) parts.push(lootItems.length + ' item(s)');
+    if (hasLootCurrency()) parts.push('currency');
+    lootStatusEl.textContent = 'Distributed ' + parts.join(' + ') + ' to ' + distributed.join(', ') + '.';
+
+    // Clear loot
+    lootItems = [];
+    document.getElementById('lootPP').value = '0';
+    document.getElementById('lootGP').value = '0';
+    document.getElementById('lootEP').value = '0';
+    document.getElementById('lootSP').value = '0';
+    document.getElementById('lootCP').value = '0';
+    renderLoot();
+
+    setTimeout(function() { lootStatusEl.style.display = 'none'; }, 5000);
+  });
+
+  function hasLootCurrency() {
+    return (parseInt(document.getElementById('lootPP').value || '0', 10) > 0) ||
+           (parseInt(document.getElementById('lootGP').value || '0', 10) > 0) ||
+           (parseInt(document.getElementById('lootEP').value || '0', 10) > 0) ||
+           (parseInt(document.getElementById('lootSP').value || '0', 10) > 0) ||
+           (parseInt(document.getElementById('lootCP').value || '0', 10) > 0);
+  }
 </script>
 
 <style>
@@ -1001,6 +1341,225 @@ a.er-name:hover { color: var(--accent-primary); text-decoration: underline; }
   margin-top: 1rem;
 }
 
+/* ═══════════════════════════════════════ */
+/* LOOT SYSTEM */
+/* ═══════════════════════════════════════ */
+.loot-section {
+  margin-top: 3rem;
+  padding-top: 2rem;
+  border-top: 2px solid rgba(0,201,167,0.2);
+}
+.section-title {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  margin: 0 0 0.25rem 0;
+}
+.loot-intro {
+  color: var(--text-dim);
+  font-size: 0.82rem;
+  margin-bottom: 1.25rem;
+}
+.loot-add-controls {
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+.loot-search-wrap {
+  position: relative;
+  flex: 1;
+  max-width: 400px;
+}
+.loot-search-wrap input {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.88rem;
+  background: rgba(0,0,0,0.3);
+  border: 1px solid rgba(0,201,167,0.3);
+  border-radius: 6px;
+  color: var(--text-normal);
+}
+.loot-search-wrap input:focus { outline: none; border-color: var(--accent-primary); }
+.loot-search-results {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  background: #0d1b2a;
+  border: 1px solid rgba(0,201,167,0.3);
+  border-top: none;
+  border-radius: 0 0 6px 6px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+.loot-cat-filter {
+  padding: 0.5rem 0.75rem;
+  font-size: 0.82rem;
+  background: rgba(0,0,0,0.3);
+  border: 1px solid rgba(0,201,167,0.3);
+  border-radius: 6px;
+  color: var(--text-normal);
+  font-family: inherit;
+  cursor: pointer;
+}
+.loot-cat-filter:focus { outline: none; border-color: var(--accent-primary); }
+.loot-cat-filter option { background: #0a1a18; color: var(--text-normal); }
+
+/* Currency inputs */
+.loot-currency {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+  padding: 0.75rem 1rem;
+  background: rgba(212,168,58,0.06);
+  border: 1px solid rgba(212,168,58,0.2);
+  border-radius: 8px;
+}
+.loot-currency-label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #d4a83a;
+  font-weight: 600;
+}
+.loot-coin-inputs {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+.loot-coin-input {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+.loot-coin-input input {
+  width: 60px;
+  padding: 0.3rem 0.5rem;
+  font-size: 0.85rem;
+  background: rgba(0,0,0,0.3);
+  border: 1px solid rgba(212,168,58,0.3);
+  border-radius: 4px;
+  color: var(--text-normal);
+  text-align: center;
+}
+.loot-coin-input input:focus { outline: none; border-color: #d4a83a; }
+.loot-coin-input span {
+  font-size: 0.68rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  min-width: 1.5rem;
+}
+
+/* Loot list */
+.loot-list {
+  min-height: 40px;
+  margin-bottom: 1rem;
+}
+.loot-empty {
+  text-align: center;
+  padding: 1.5rem;
+  color: var(--text-muted);
+  font-style: italic;
+  font-size: 0.82rem;
+}
+.loot-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  background: rgba(212,168,58,0.04);
+  border: 1px solid rgba(212,168,58,0.15);
+  border-radius: 6px;
+  margin-bottom: 0.35rem;
+}
+.loot-row:hover { border-color: rgba(212,168,58,0.3); }
+.lr-info { flex: 1; min-width: 0; }
+.lr-name {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-normal);
+}
+.lr-meta {
+  display: block;
+  font-size: 0.68rem;
+  color: var(--text-muted);
+}
+.lr-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-shrink: 0;
+}
+
+/* Distribute */
+.loot-actions {
+  background: rgba(0,201,167,0.04);
+  border: 1px solid rgba(0,201,167,0.2);
+  border-radius: 8px;
+  padding: 1rem;
+}
+.loot-distribute-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+}
+.loot-distribute-header h3 {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  margin: 0;
+}
+.loot-party-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+.loot-party-member {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.65rem;
+  background: rgba(0,201,167,0.06);
+  border: 1px solid rgba(0,201,167,0.2);
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.15s;
+  font-size: 0.82rem;
+}
+.loot-party-member:hover { border-color: rgba(0,201,167,0.4); }
+.loot-party-member input[type="checkbox"] {
+  accent-color: var(--accent-primary);
+}
+.lpm-name { color: var(--text-normal); }
+
+#lootDistribute {
+  width: 100%;
+}
+
+.loot-status {
+  margin-top: 0.75rem;
+  padding: 0.6rem 0.85rem;
+  border-radius: 6px;
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+.loot-success {
+  background: rgba(39,174,96,0.15);
+  border: 1px solid rgba(39,174,96,0.4);
+  color: #6ec97a;
+}
+
 @media (max-width: 640px) {
   .add-section { flex-direction: column; }
   .search-wrap { max-width: none; }
@@ -1010,5 +1569,10 @@ a.er-name:hover { color: var(--accent-primary); text-decoration: underline; }
   .saved-entry { flex-direction: column; align-items: stretch; gap: 0.5rem; }
   .se-actions { justify-content: flex-end; flex-wrap: wrap; }
   .se-btn { flex: 1; text-align: center; }
+  .loot-add-controls { flex-direction: column; }
+  .loot-search-wrap { max-width: none; }
+  .loot-coin-inputs { width: 100%; }
+  .loot-row { flex-direction: column; align-items: stretch; gap: 0.4rem; }
+  .lr-controls { justify-content: flex-end; }
 }
 </style>

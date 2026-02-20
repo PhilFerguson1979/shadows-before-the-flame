@@ -1,5 +1,6 @@
 ---
 interface Props {
+  characterSlug: string;
   currency?: {
     pp?: number;
     gp?: number;
@@ -8,70 +9,238 @@ interface Props {
     cp?: number;
   };
 }
-const { currency } = Astro.props;
-const hasCurrency = currency && Object.values(currency).some(v => v && v > 0);
+const { characterSlug, currency } = Astro.props;
+
+const COINS = [
+  { key: 'pp', label: 'PP', name: 'Platinum', icon: '🪙', gpRate: 10 },
+  { key: 'gp', label: 'GP', name: 'Gold',     icon: '🟡', gpRate: 1 },
+  { key: 'ep', label: 'EP', name: 'Electrum',  icon: '🔘', gpRate: 0.5 },
+  { key: 'sp', label: 'SP', name: 'Silver',    icon: '⚪', gpRate: 0.1 },
+  { key: 'cp', label: 'CP', name: 'Copper',    icon: '🟤', gpRate: 0.01 },
+];
+
+const baseCurrency = {
+  pp: currency?.pp ?? 0,
+  gp: currency?.gp ?? 0,
+  ep: currency?.ep ?? 0,
+  sp: currency?.sp ?? 0,
+  cp: currency?.cp ?? 0,
+};
+
+const configJson = JSON.stringify({ slug: characterSlug, baseCurrency, coins: COINS });
 ---
 
-{hasCurrency && (
-  <div class="currency-display">
+<section class="currency-display" id="currencyDisplay">
+  <div class="cd-header">
     <h3 class="currency-title">Currency</h3>
-    <div class="coin-row">
-      {currency?.pp ? (
-        <div class="coin coin-pp" title="Platinum Pieces">
-          <span class="coin-icon">🪙</span>
-          <span class="coin-amount">{currency.pp}</span>
-          <span class="coin-label">PP</span>
-          <span class="coin-value">={currency.pp * 10} gp</span>
-        </div>
-      ) : null}
-      {currency?.gp ? (
-        <div class="coin coin-gp" title="Gold Pieces">
-          <span class="coin-icon">🟡</span>
-          <span class="coin-amount">{currency.gp}</span>
-          <span class="coin-label">GP</span>
-        </div>
-      ) : null}
-      {currency?.ep ? (
-        <div class="coin coin-ep" title="Electrum Pieces">
-          <span class="coin-icon">🔘</span>
-          <span class="coin-amount">{currency.ep}</span>
-          <span class="coin-label">EP</span>
-          <span class="coin-value">= {currency.ep / 2} gp</span>
-        </div>
-      ) : null}
-      {currency?.sp ? (
-        <div class="coin coin-sp" title="Silver Pieces">
-          <span class="coin-icon">⚪</span>
-          <span class="coin-amount">{currency.sp}</span>
-          <span class="coin-label">SP</span>
-          <span class="coin-value">= {(currency.sp / 10).toFixed(1)} gp</span>
-        </div>
-      ) : null}
-      {currency?.cp ? (
-        <div class="coin coin-cp" title="Copper Pieces">
-          <span class="coin-icon">🟤</span>
-          <span class="coin-amount">{currency.cp}</span>
-          <span class="coin-label">CP</span>
-          <span class="coin-value">= {(currency.cp / 100).toFixed(2)} gp</span>
-        </div>
-      ) : null}
-      {!hasCurrency && (
-        <div class="coin-empty">No coins — broke as a goblin.</div>
-      )}
+    <div class="cd-total" id="cdGpTotal">
+      <span class="cd-total-val" id="cdTotalVal">0</span>
+      <span class="cd-total-lbl">GP Total</span>
     </div>
   </div>
-)}
+
+  <div class="coin-row" id="coinRow">
+    {COINS.map(c => (
+      <div class={`coin coin-${c.key}`} data-coin={c.key} title={`${c.name} Pieces`}>
+        <span class="coin-icon">{c.icon}</span>
+        <div class="coin-controls">
+          <button class="coin-btn coin-minus" data-coin={c.key} data-delta="-1" title={`Remove 1 ${c.label}`}>-</button>
+          <span class="coin-amount" id={`amt-${c.key}`}>{baseCurrency[c.key as keyof typeof baseCurrency]}</span>
+          <button class="coin-btn coin-plus" data-coin={c.key} data-delta="1" title={`Add 1 ${c.label}`}>+</button>
+        </div>
+        <span class="coin-label">{c.label}</span>
+        <span class="coin-value" id={`val-${c.key}`}></span>
+      </div>
+    ))}
+  </div>
+
+  <div class="cd-actions">
+    <button class="cd-action-btn" id="cdAddCustom" title="Add a custom amount">+ Add</button>
+    <button class="cd-action-btn cd-reset" id="cdReset" title="Reset to base values">Reset</button>
+  </div>
+
+  <!-- Quick-add dialog -->
+  <div class="cd-dialog-overlay" id="cdDialogOverlay" style="display:none;">
+    <div class="cd-dialog">
+      <h4>Add / Remove Currency</h4>
+      <div class="cd-dialog-row">
+        <label for="cdDialogAmount">Amount</label>
+        <input type="number" id="cdDialogAmount" min="0" value="1" />
+      </div>
+      <div class="cd-dialog-row">
+        <label for="cdDialogCoin">Denomination</label>
+        <select id="cdDialogCoin">
+          <option value="pp">Platinum (PP)</option>
+          <option value="gp" selected>Gold (GP)</option>
+          <option value="ep">Electrum (EP)</option>
+          <option value="sp">Silver (SP)</option>
+          <option value="cp">Copper (CP)</option>
+        </select>
+      </div>
+      <div class="cd-dialog-actions">
+        <button class="cd-dlg-btn cd-dlg-add" id="cdDialogAdd">+ Add</button>
+        <button class="cd-dlg-btn cd-dlg-sub" id="cdDialogSub">- Remove</button>
+        <button class="cd-dlg-btn cd-dlg-cancel" id="cdDialogCancel">Cancel</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script define:vars={{ configJson }}>
+const config = JSON.parse(configJson);
+const STORAGE_KEY = 'sbtf-currency-' + config.slug;
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch(e) {}
+  return null;
+}
+
+function saveState(state) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+}
+
+function getCurrency() {
+  const saved = loadState();
+  if (saved) return saved;
+  return { ...config.baseCurrency };
+}
+
+function updateDisplay() {
+  const cur = getCurrency();
+  let totalGP = 0;
+
+  config.coins.forEach(function(c) {
+    var amt = cur[c.key] || 0;
+    var amtEl = document.getElementById('amt-' + c.key);
+    var valEl = document.getElementById('val-' + c.key);
+    if (amtEl) amtEl.textContent = String(amt);
+    if (valEl) {
+      if (c.key === 'gp') {
+        valEl.textContent = '';
+      } else if (amt > 0) {
+        var gpVal = amt * c.gpRate;
+        valEl.textContent = '= ' + (gpVal % 1 === 0 ? gpVal : gpVal.toFixed(2)) + ' gp';
+      } else {
+        valEl.textContent = '';
+      }
+    }
+    totalGP += amt * c.gpRate;
+  });
+
+  var totalEl = document.getElementById('cdTotalVal');
+  if (totalEl) {
+    totalEl.textContent = totalGP % 1 === 0 ? String(totalGP) : totalGP.toFixed(2);
+  }
+}
+
+function changeCoin(coinKey, delta) {
+  var cur = getCurrency();
+  cur[coinKey] = Math.max(0, (cur[coinKey] || 0) + delta);
+  saveState(cur);
+  updateDisplay();
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  updateDisplay();
+
+  // +/- buttons
+  document.querySelectorAll('.coin-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var coin = btn.dataset.coin;
+      var delta = parseInt(btn.dataset.delta, 10);
+      changeCoin(coin, delta);
+    });
+  });
+
+  // Quick-add dialog
+  var overlay = document.getElementById('cdDialogOverlay');
+  var amtInput = document.getElementById('cdDialogAmount');
+
+  document.getElementById('cdAddCustom').addEventListener('click', function() {
+    amtInput.value = '1';
+    overlay.style.display = 'flex';
+    amtInput.focus();
+  });
+
+  document.getElementById('cdDialogCancel').addEventListener('click', function() {
+    overlay.style.display = 'none';
+  });
+
+  overlay.addEventListener('click', function(e) {
+    if (e.target === overlay) overlay.style.display = 'none';
+  });
+
+  document.getElementById('cdDialogAdd').addEventListener('click', function() {
+    var amt = parseInt(amtInput.value, 10);
+    var coin = document.getElementById('cdDialogCoin').value;
+    if (amt > 0) changeCoin(coin, amt);
+    overlay.style.display = 'none';
+  });
+
+  document.getElementById('cdDialogSub').addEventListener('click', function() {
+    var amt = parseInt(amtInput.value, 10);
+    var coin = document.getElementById('cdDialogCoin').value;
+    if (amt > 0) changeCoin(coin, -amt);
+    overlay.style.display = 'none';
+  });
+
+  // Reset
+  document.getElementById('cdReset').addEventListener('click', function() {
+    if (confirm('Reset currency to base values from character sheet?')) {
+      localStorage.removeItem(STORAGE_KEY);
+      updateDisplay();
+    }
+  });
+
+  // Enter key in dialog
+  amtInput.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') document.getElementById('cdDialogAdd').click();
+    if (e.key === 'Escape') overlay.style.display = 'none';
+  });
+});
+</script>
 
 <style>
 .currency-display {
   margin: 1.5rem 0;
+}
+.cd-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
 }
 .currency-title {
   font-size: 0.85rem;
   text-transform: uppercase;
   letter-spacing: 0.1em;
   color: var(--text-muted);
-  margin-bottom: 0.75rem;
+  margin: 0;
+}
+.cd-total {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: rgba(212,168,58,0.12);
+  border: 1px solid rgba(212,168,58,0.35);
+  border-radius: 8px;
+  padding: 0.4rem 1rem;
+}
+.cd-total-val {
+  font-size: 1.4rem;
+  font-weight: bold;
+  color: #d4a83a;
+  line-height: 1;
+}
+.cd-total-lbl {
+  font-size: 0.58rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  margin-top: 0.1rem;
 }
 .coin-row {
   display: flex;
@@ -82,11 +251,11 @@ const hasCurrency = currency && Object.values(currency).some(v => v && v > 0);
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 0.75rem 1.1rem;
+  padding: 0.75rem 0.6rem;
   border-radius: 8px;
   border: 2px solid;
-  min-width: 70px;
-  transition: transform 0.15s;
+  min-width: 80px;
+  transition: transform 0.15s, border-color 0.2s;
 }
 .coin:hover { transform: translateY(-2px); }
 
@@ -96,28 +265,181 @@ const hasCurrency = currency && Object.values(currency).some(v => v && v > 0);
 .coin-sp { background: rgba(180,180,200,0.1); border-color: #a0a0b0; }
 .coin-cp { background: rgba(160,90,50,0.12); border-color: #a05030; }
 
-.coin-icon { font-size: 1.4rem; line-height: 1; }
+.coin-icon { font-size: 1.2rem; line-height: 1; margin-bottom: 0.25rem; }
+.coin-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+.coin-btn {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 1px solid rgba(0,201,167,0.4);
+  background: rgba(0,201,167,0.12);
+  color: var(--accent-primary);
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+  padding: 0;
+  line-height: 1;
+}
+.coin-btn:hover {
+  background: rgba(0,201,167,0.3);
+  border-color: var(--accent-primary);
+}
+.coin-btn:active { transform: scale(0.9); }
+.coin-minus {
+  border-color: rgba(192,57,43,0.4);
+  background: rgba(192,57,43,0.12);
+  color: #e74c3c;
+}
+.coin-minus:hover {
+  background: rgba(192,57,43,0.3);
+  border-color: #e74c3c;
+}
 .coin-amount {
-  font-size: 1.6rem;
+  font-size: 1.5rem;
   font-weight: bold;
   color: var(--accent-primary);
-  line-height: 1.1;
+  line-height: 1;
+  min-width: 1.8rem;
+  text-align: center;
 }
 .coin-label {
-  font-size: 0.65rem;
+  font-size: 0.62rem;
   text-transform: uppercase;
   letter-spacing: 0.1em;
   color: var(--text-muted);
+  margin-top: 0.15rem;
 }
 .coin-value {
-  font-size: 0.62rem;
+  font-size: 0.58rem;
   color: var(--text-dim);
-  margin-top: 0.15rem;
+  margin-top: 0.1rem;
   font-style: italic;
+  min-height: 0.8rem;
 }
-.coin-empty {
-  color: var(--text-dim);
-  font-style: italic;
-  font-size: 0.85rem;
+.cd-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+.cd-action-btn {
+  padding: 0.3rem 0.8rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-radius: 5px;
+  border: 1px solid rgba(0,201,167,0.35);
+  background: rgba(0,201,167,0.1);
+  color: var(--accent-primary);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.cd-action-btn:hover {
+  background: rgba(0,201,167,0.25);
+  border-color: var(--accent-primary);
+}
+.cd-action-btn.cd-reset {
+  border-color: rgba(100,100,100,0.3);
+  background: rgba(100,100,100,0.08);
+  color: var(--text-muted);
+}
+.cd-action-btn.cd-reset:hover {
+  background: rgba(100,100,100,0.2);
+}
+/* Quick-add dialog */
+.cd-dialog-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.7);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.cd-dialog {
+  background: #0d1b2a;
+  border: 1px solid rgba(0,201,167,0.4);
+  border-radius: 10px;
+  padding: 1.25rem;
+  width: 90%;
+  max-width: 320px;
+}
+.cd-dialog h4 {
+  color: var(--text-bright);
+  margin: 0 0 1rem 0;
+  font-size: 0.95rem;
+}
+.cd-dialog-row {
+  margin-bottom: 0.6rem;
+}
+.cd-dialog-row label {
+  display: block;
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  margin-bottom: 0.2rem;
+}
+.cd-dialog-row input,
+.cd-dialog-row select {
+  width: 100%;
+  padding: 0.4rem 0.6rem;
+  font-size: 0.88rem;
+  background: rgba(0,0,0,0.3);
+  border: 1px solid rgba(0,201,167,0.3);
+  border-radius: 5px;
+  color: var(--text-normal);
+  font-family: inherit;
+}
+.cd-dialog-row input:focus,
+.cd-dialog-row select:focus {
+  outline: none;
+  border-color: var(--accent-primary);
+}
+.cd-dialog-actions {
+  display: flex;
+  gap: 0.4rem;
+  margin-top: 0.75rem;
+}
+.cd-dlg-btn {
+  flex: 1;
+  padding: 0.45rem 0.6rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  border-radius: 5px;
+  border: 1px solid;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.cd-dlg-add {
+  background: rgba(0,201,167,0.15);
+  border-color: rgba(0,201,167,0.4);
+  color: var(--accent-primary);
+}
+.cd-dlg-add:hover { background: rgba(0,201,167,0.3); }
+.cd-dlg-sub {
+  background: rgba(192,57,43,0.12);
+  border-color: rgba(192,57,43,0.4);
+  color: #e74c3c;
+}
+.cd-dlg-sub:hover { background: rgba(192,57,43,0.3); }
+.cd-dlg-cancel {
+  background: rgba(100,100,100,0.08);
+  border-color: rgba(100,100,100,0.25);
+  color: var(--text-muted);
+}
+.cd-dlg-cancel:hover { background: rgba(100,100,100,0.2); }
+
+@media (max-width: 640px) {
+  .coin-row { gap: 0.5rem; }
+  .coin { min-width: 64px; padding: 0.6rem 0.4rem; }
+  .coin-amount { font-size: 1.2rem; }
+  .coin-btn { width: 20px; height: 20px; font-size: 0.85rem; }
 }
 </style>

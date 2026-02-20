@@ -1,6 +1,8 @@
 ---
 // EquipmentPanel.astro
-// Dynamic D&D 5e equipment system with stat calculations
+// Dynamic D&D 5e equipment system with stat calculations, item search, and localStorage
+import { items as itemDatabase, itemCategories } from '../data/items';
+
 interface Item {
   name: string;
   type: string;
@@ -14,9 +16,13 @@ interface Item {
   notes?: string;
   quantity?: number;
   magical?: boolean;
+  value?: string;
+  rarity?: string;
+  category?: string;
 }
 
 interface Props {
+  characterSlug: string;
   character: {
     name: string;
     class?: string;
@@ -32,7 +38,7 @@ interface Props {
   };
 }
 
-const { character } = Astro.props;
+const { characterSlug, character } = Astro.props;
 
 // Compute ability modifiers
 function mod(score: number | undefined): number {
@@ -61,10 +67,13 @@ const SLOTS = [
   { id: 'amulet',   label: 'Amulet',      icon: '📿', types: ['amulet', 'misc'] },
 ];
 
-// Serialize inventory and equipped for client-side JS
-const inventoryJson = JSON.stringify(character.inventory ?? []);
+// Serialize for client-side JS
+const baseInventoryJson = JSON.stringify(character.inventory ?? []);
 const equippedJson = JSON.stringify(character.equipped ?? {});
 const statsJson = JSON.stringify({ strMod, dexMod, conMod, intMod, wisMod, chaMod, baseAC: character.ac ?? 10, charClass: character.class ?? '' });
+const itemDbJson = JSON.stringify(itemDatabase.map(i => ({ name: i.name, type: i.type, slot: i.slot, acBase: i.acBase, acBonus: i.acBonus, dmg: i.dmg, dmgType: i.dmgType, weight: i.weight, properties: i.properties, notes: i.notes, magical: i.magical, value: i.value, rarity: i.rarity, category: i.category })));
+const categoriesJson = JSON.stringify(itemCategories);
+const configJson = JSON.stringify({ slug: characterSlug });
 ---
 
 <section class="equipment-panel">
@@ -128,25 +137,127 @@ const statsJson = JSON.stringify({ strMod, dexMod, conMod, intMod, wisMod, chaMo
       <div id="active-effects" class="effects-list">
         <p class="effects-empty">Equip items to see their bonuses here.</p>
       </div>
-
       <!-- Weapon Attack Cards -->
       <div id="weapon-cards" class="weapon-cards"></div>
     </div>
   </div>
 
+  <!-- Add Item Section -->
+  <div class="ep-add-section">
+    <h3 class="ep-section-title">Add Items</h3>
+    <div class="ep-add-controls">
+      <div class="ep-search-wrap">
+        <input type="text" id="epItemSearch" placeholder="Search D&D 5e items..." autocomplete="off" />
+        <div id="epSearchResults" class="ep-search-results" style="display:none;"></div>
+      </div>
+      <select id="epCategoryFilter" class="ep-cat-filter">
+        <option value="">All Categories</option>
+      </select>
+      <button id="epCustomItemBtn" class="ep-add-btn">+ Custom Item</button>
+    </div>
+  </div>
+
+  <!-- Custom Item Dialog -->
+  <div class="ep-dialog-overlay" id="epCustomDialog" style="display:none;">
+    <div class="ep-dialog">
+      <h3>Add Custom Item</h3>
+      <div class="ep-dialog-grid">
+        <div class="ep-field">
+          <label for="ciName">Name *</label>
+          <input type="text" id="ciName" placeholder="Item name" />
+        </div>
+        <div class="ep-field">
+          <label for="ciType">Type</label>
+          <select id="ciType">
+            <option value="gear">Gear</option>
+            <option value="weapon">Weapon</option>
+            <option value="armor">Armor</option>
+            <option value="shield">Shield</option>
+            <option value="potion">Potion</option>
+            <option value="ring">Ring</option>
+            <option value="amulet">Amulet</option>
+            <option value="cloak">Cloak</option>
+            <option value="boots">Boots</option>
+            <option value="gloves">Gloves</option>
+            <option value="helmet">Helmet</option>
+            <option value="tool">Tool</option>
+            <option value="misc">Miscellaneous</option>
+          </select>
+        </div>
+        <div class="ep-field">
+          <label for="ciDmg">Damage</label>
+          <input type="text" id="ciDmg" placeholder="e.g. 1d8" />
+        </div>
+        <div class="ep-field">
+          <label for="ciDmgType">Dmg Type</label>
+          <input type="text" id="ciDmgType" placeholder="e.g. slashing" />
+        </div>
+        <div class="ep-field">
+          <label for="ciAcBase">AC Base</label>
+          <input type="number" id="ciAcBase" placeholder="e.g. 14" />
+        </div>
+        <div class="ep-field">
+          <label for="ciAcBonus">AC Bonus</label>
+          <input type="number" id="ciAcBonus" placeholder="e.g. 2" />
+        </div>
+        <div class="ep-field">
+          <label for="ciWeight">Armor Weight</label>
+          <select id="ciWeight">
+            <option value="">N/A</option>
+            <option value="light">Light</option>
+            <option value="medium">Medium</option>
+            <option value="heavy">Heavy</option>
+          </select>
+        </div>
+        <div class="ep-field">
+          <label for="ciQty">Quantity</label>
+          <input type="number" id="ciQty" value="1" min="1" />
+        </div>
+        <div class="ep-field ep-field-wide">
+          <label for="ciProps">Properties (comma-separated)</label>
+          <input type="text" id="ciProps" placeholder="e.g. finesse, light, thrown" />
+        </div>
+        <div class="ep-field ep-field-wide">
+          <label for="ciNotes">Notes</label>
+          <input type="text" id="ciNotes" placeholder="Special properties, lore, etc." />
+        </div>
+        <div class="ep-field">
+          <label>
+            <input type="checkbox" id="ciMagical" /> Magical
+          </label>
+        </div>
+      </div>
+      <div class="ep-dialog-actions">
+        <button id="ciConfirm" class="ep-dlg-btn ep-dlg-confirm">Add to Inventory</button>
+        <button id="ciCancel" class="ep-dlg-btn ep-dlg-cancel">Cancel</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Full Inventory -->
   <div class="ep-inventory">
-    <h3 class="ep-section-title">Full Inventory</h3>
+    <div class="ep-inv-header">
+      <h3 class="ep-section-title">Full Inventory</h3>
+      <span class="ep-inv-count" id="epInvCount">0 items</span>
+    </div>
     <div id="inventory-list" class="inventory-grid"></div>
+    <div class="ep-inv-actions">
+      <button id="epResetInventory" class="ep-reset-btn">Reset to Base</button>
+    </div>
   </div>
 </section>
 
-<script define:vars={{ inventoryJson, equippedJson, statsJson }}>
-const inventory = JSON.parse(inventoryJson);
-const initialEquipped = JSON.parse(equippedJson);
-const stats = JSON.parse(statsJson);
+<script define:vars={{ baseInventoryJson, equippedJson, statsJson, itemDbJson, categoriesJson, configJson }}>
+var config = JSON.parse(configJson);
+var baseInventory = JSON.parse(baseInventoryJson);
+var stats = JSON.parse(statsJson);
+var itemDb = JSON.parse(itemDbJson);
+var categories = JSON.parse(categoriesJson);
 
-const SLOTS = [
+var STORAGE_KEY = 'sbtf-inventory-' + config.slug;
+var EQUIP_KEY = 'sbtf-equipped-' + config.slug;
+
+var SLOTS = [
   { id: 'armor',    label: 'Armor',        types: ['armor'] },
   { id: 'mainhand', label: 'Main Hand',    types: ['weapon'] },
   { id: 'offhand',  label: 'Off Hand',     types: ['weapon', 'shield'] },
@@ -159,51 +270,69 @@ const SLOTS = [
   { id: 'amulet',   label: 'Amulet',       types: ['amulet', 'misc'] },
 ];
 
-let equipped = { ...initialEquipped };
+// ---- State ----
+function getInventory() {
+  try {
+    var raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch(e) {}
+  return baseInventory.map(function(i) { return Object.assign({}, i); });
+}
 
+function saveInventory(inv) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(inv));
+}
+
+function getEquipped() {
+  try {
+    var raw = localStorage.getItem(EQUIP_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch(e) {}
+  return JSON.parse(equippedJson);
+}
+
+function saveEquipped(eq) {
+  localStorage.setItem(EQUIP_KEY, JSON.stringify(eq));
+}
+
+var inventory = getInventory();
+var equipped = getEquipped();
+
+// ---- Helpers ----
 function getItemByName(name) {
-  return inventory.find(i => i.name === name);
+  return inventory.find(function(i) { return i.name === name; });
 }
 
 function calcAC() {
-  const armorItem = getItemByName(equipped.armor);
-  const shieldItem = getItemByName(equipped.offhand);
-  const { dexMod, strMod, conMod, wisMod, charClass } = stats;
+  var armorItem = getItemByName(equipped.armor);
+  var shieldItem = getItemByName(equipped.offhand);
+  var dexMod = stats.dexMod;
+  var conMod = stats.conMod;
+  var wisMod = stats.wisMod;
+  var charClass = stats.charClass;
 
-  let ac = 10 + dexMod; // default unarmored
+  var ac = 10 + dexMod;
 
   if (armorItem && armorItem.acBase) {
-    const weight = armorItem.weight || 'light';
-    if (weight === 'light') {
-      ac = armorItem.acBase + dexMod;
-    } else if (weight === 'medium') {
-      ac = armorItem.acBase + Math.min(dexMod, 2);
-    } else if (weight === 'heavy') {
-      ac = armorItem.acBase;
-    } else {
-      ac = armorItem.acBase + dexMod;
-    }
+    var weight = armorItem.weight || 'light';
+    if (weight === 'light') ac = armorItem.acBase + dexMod;
+    else if (weight === 'medium') ac = armorItem.acBase + Math.min(dexMod, 2);
+    else if (weight === 'heavy') ac = armorItem.acBase;
+    else ac = armorItem.acBase + dexMod;
   } else {
-    // Unarmored Defense
-    const cls = charClass.toLowerCase();
-    if (cls.includes('barbarian')) {
-      ac = 10 + dexMod + conMod;
-    } else if (cls.includes('monk')) {
-      ac = 10 + dexMod + wisMod;
-    } else {
-      ac = 10 + dexMod;
-    }
+    var cls = charClass.toLowerCase();
+    if (cls.includes('barbarian')) ac = 10 + dexMod + conMod;
+    else if (cls.includes('monk')) ac = 10 + dexMod + wisMod;
+    else ac = 10 + dexMod;
   }
 
-  // Shield bonus (only if offhand is a shield, not a weapon)
   if (shieldItem && shieldItem.type === 'shield' && shieldItem.acBonus) {
     ac += shieldItem.acBonus;
   }
 
-  // Other AC bonuses from equipped items
-  SLOTS.forEach(slot => {
+  SLOTS.forEach(function(slot) {
     if (slot.id === 'armor' || slot.id === 'offhand') return;
-    const item = getItemByName(equipped[slot.id]);
+    var item = getItemByName(equipped[slot.id]);
     if (item && item.acBonus) ac += item.acBonus;
   });
 
@@ -211,150 +340,365 @@ function calcAC() {
 }
 
 function getActiveEffects() {
-  const effects = [];
-  SLOTS.forEach(slot => {
-    const item = getItemByName(equipped[slot.id]);
+  var effects = [];
+  SLOTS.forEach(function(slot) {
+    var item = getItemByName(equipped[slot.id]);
     if (!item) return;
 
     if (item.acBase || item.acBonus) {
-      const { dexMod } = stats;
       if (item.type === 'armor') {
-        const w = item.weight || 'light';
-        const bonus = w === 'heavy' ? 0 : w === 'medium' ? Math.min(dexMod, 2) : dexMod;
-        effects.push({ slot: slot.label, item: item.name, bonus: `AC ${item.acBase}${bonus >= 0 ? ' + ' + bonus + ' DEX' : ''}`, type: 'defense', icon: '🛡️' });
+        var w = item.weight || 'light';
+        var bonus = w === 'heavy' ? 0 : w === 'medium' ? Math.min(stats.dexMod, 2) : stats.dexMod;
+        effects.push({ slot: slot.label, item: item.name, bonus: 'AC ' + item.acBase + (bonus >= 0 ? ' + ' + bonus + ' DEX' : ''), type: 'defense', icon: '🛡️' });
       } else if (item.type === 'shield') {
-        effects.push({ slot: slot.label, item: item.name, bonus: `+${item.acBonus} AC`, type: 'defense', icon: '🛡️' });
+        effects.push({ slot: slot.label, item: item.name, bonus: '+' + item.acBonus + ' AC', type: 'defense', icon: '🛡️' });
       } else if (item.acBonus) {
-        effects.push({ slot: slot.label, item: item.name, bonus: `+${item.acBonus} AC`, type: 'defense', icon: '🛡️' });
+        effects.push({ slot: slot.label, item: item.name, bonus: '+' + item.acBonus + ' AC', type: 'defense', icon: '🛡️' });
       }
     }
 
     if (item.type === 'weapon' && item.dmg) {
-      effects.push({ slot: slot.label, item: item.name, bonus: `${item.dmg} ${item.dmgType || ''}`, type: 'attack', icon: '⚔️' });
+      effects.push({ slot: slot.label, item: item.name, bonus: item.dmg + ' ' + (item.dmgType || ''), type: 'attack', icon: '⚔️' });
     }
 
     if (item.notes && (item.magical || item.type === 'magic')) {
       effects.push({ slot: slot.label, item: item.name, bonus: item.notes, type: 'magic', icon: '✨' });
-    }
-
-    if (item.notes && item.notes.toLowerCase().includes('note:')) {
-      effects.push({ slot: slot.label, item: item.name, bonus: item.notes, type: 'warning', icon: '⚠️' });
     }
   });
   return effects;
 }
 
 function getWeaponCards() {
-  const weapons = [];
-  ['mainhand', 'offhand'].forEach(slotId => {
-    const item = getItemByName(equipped[slotId]);
+  var weapons = [];
+  ['mainhand', 'offhand'].forEach(function(slotId) {
+    var item = getItemByName(equipped[slotId]);
     if (item && item.type === 'weapon' && item.dmg) {
-      const { dexMod, strMod } = stats;
-      const props = item.properties || [];
-      const isFinesse = props.includes('finesse');
-      const atkMod = isFinesse ? Math.max(dexMod, strMod) : (props.includes('ammunition') ? dexMod : strMod);
-      const profBonus = 2;
-      weapons.push({ ...item, slotId, atkBonus: atkMod + profBonus, dmgBonus: atkMod });
+      var props = item.properties || [];
+      var isFinesse = props.indexOf('finesse') >= 0;
+      var atkMod = isFinesse ? Math.max(stats.dexMod, stats.strMod) : (props.indexOf('ammunition') >= 0 ? stats.dexMod : stats.strMod);
+      var profBonus = 2;
+      var w = Object.assign({}, item);
+      w.slotId = slotId;
+      w.atkBonus = atkMod + profBonus;
+      w.dmgBonus = atkMod;
+      weapons.push(w);
     }
   });
   return weapons;
 }
 
+// ---- UI Updates ----
 function populateDropdowns() {
-  SLOTS.forEach(slot => {
-    const select = document.querySelector(`select[data-slot="${slot.id}"]`);
+  SLOTS.forEach(function(slot) {
+    var select = document.querySelector('select[data-slot="' + slot.id + '"]');
     if (!select) return;
     select.innerHTML = '<option value="">— Empty —</option>';
-    const eligible = inventory.filter(item => slot.types.includes(item.type));
-    eligible.forEach(item => {
-      const opt = document.createElement('option');
+    var eligible = inventory.filter(function(item) { return slot.types.indexOf(item.type) >= 0; });
+    eligible.forEach(function(item) {
+      var opt = document.createElement('option');
       opt.value = item.name;
-      opt.textContent = item.name + (item.quantity > 1 ? ` (×${item.quantity})` : '');
+      opt.textContent = item.name + (item.quantity > 1 ? ' (x' + item.quantity + ')' : '');
       if (equipped[slot.id] === item.name) opt.selected = true;
       select.appendChild(opt);
-    });
-
-    select.addEventListener('change', (e) => {
-      equipped[slot.id] = e.target.value || undefined;
-      updateAll();
     });
   });
 }
 
 function updateAll() {
-  // Update AC
-  const ac = calcAC();
-  const acEl = document.getElementById('computed-ac');
-  if (acEl) acEl.textContent = ac;
+  var ac = calcAC();
+  var acEl = document.getElementById('computed-ac');
+  if (acEl) acEl.textContent = String(ac);
 
-  // Update slot bonus labels
-  SLOTS.forEach(slot => {
-    const bonusEl = document.getElementById(`bonus-${slot.id}`);
+  SLOTS.forEach(function(slot) {
+    var bonusEl = document.getElementById('bonus-' + slot.id);
     if (!bonusEl) return;
-    const item = getItemByName(equipped[slot.id]);
+    var item = getItemByName(equipped[slot.id]);
     if (!item) { bonusEl.innerHTML = ''; return; }
-    const parts = [];
-    if (item.dmg) parts.push(`<span class="tag attack">${item.dmg} ${item.dmgType || ''}</span>`);
-    if (item.acBase) parts.push(`<span class="tag defense">AC ${item.acBase}</span>`);
-    if (item.acBonus) parts.push(`<span class="tag defense">+${item.acBonus} AC</span>`);
-    if (item.magical) parts.push(`<span class="tag magic">✨ Magical</span>`);
+    var parts = [];
+    if (item.dmg) parts.push('<span class="tag attack">' + item.dmg + ' ' + (item.dmgType || '') + '</span>');
+    if (item.acBase) parts.push('<span class="tag defense">AC ' + item.acBase + '</span>');
+    if (item.acBonus) parts.push('<span class="tag defense">+' + item.acBonus + ' AC</span>');
+    if (item.magical) parts.push('<span class="tag magic">✨ Magical</span>');
     bonusEl.innerHTML = parts.join(' ');
   });
 
-  // Update active effects panel
-  const effects = getActiveEffects();
-  const effectsEl = document.getElementById('active-effects');
+  var effects = getActiveEffects();
+  var effectsEl = document.getElementById('active-effects');
   if (effectsEl) {
     if (effects.length === 0) {
       effectsEl.innerHTML = '<p class="effects-empty">Equip items to see their bonuses here.</p>';
     } else {
-      effectsEl.innerHTML = effects.map(e => `
-        <div class="effect-row effect-${e.type}">
-          <span class="effect-icon">${e.icon}</span>
-          <div class="effect-info">
-            <span class="effect-item">${e.item}</span>
-            <span class="effect-bonus">${e.bonus}</span>
-          </div>
-        </div>
-      `).join('');
+      effectsEl.innerHTML = effects.map(function(e) {
+        return '<div class="effect-row effect-' + e.type + '">' +
+          '<span class="effect-icon">' + e.icon + '</span>' +
+          '<div class="effect-info">' +
+            '<span class="effect-item">' + e.item + '</span>' +
+            '<span class="effect-bonus">' + e.bonus + '</span>' +
+          '</div></div>';
+      }).join('');
     }
   }
 
-  // Update weapon attack cards
-  const weapons = getWeaponCards();
-  const cardsEl = document.getElementById('weapon-cards');
+  var weapons = getWeaponCards();
+  var cardsEl = document.getElementById('weapon-cards');
   if (cardsEl) {
-    cardsEl.innerHTML = weapons.map(w => `
-      <div class="weapon-card">
-        <div class="wc-name">${w.name}</div>
-        <div class="wc-stats">
-          <div class="wc-stat"><span class="wc-val">${w.atkBonus >= 0 ? '+' : ''}${w.atkBonus}</span><span class="wc-lbl">To Hit</span></div>
-          <div class="wc-stat"><span class="wc-val">${w.dmg}</span><span class="wc-lbl">Damage Dice</span></div>
-          <div class="wc-stat"><span class="wc-val">${w.dmgBonus >= 0 ? '+' : ''}${w.dmgBonus}</span><span class="wc-lbl">Dmg Bonus</span></div>
-          <div class="wc-stat"><span class="wc-val">${w.dmgType || '—'}</span><span class="wc-lbl">Type</span></div>
-        </div>
-        ${w.properties && w.properties.length ? `<div class="wc-props">${w.properties.map(p => `<span class="prop-tag">${p}</span>`).join('')}</div>` : ''}
-      </div>
-    `).join('');
+    cardsEl.innerHTML = weapons.map(function(w) {
+      return '<div class="weapon-card">' +
+        '<div class="wc-name">' + w.name + '</div>' +
+        '<div class="wc-stats">' +
+          '<div class="wc-stat"><span class="wc-val">' + (w.atkBonus >= 0 ? '+' : '') + w.atkBonus + '</span><span class="wc-lbl">To Hit</span></div>' +
+          '<div class="wc-stat"><span class="wc-val">' + w.dmg + '</span><span class="wc-lbl">Damage Dice</span></div>' +
+          '<div class="wc-stat"><span class="wc-val">' + (w.dmgBonus >= 0 ? '+' : '') + w.dmgBonus + '</span><span class="wc-lbl">Dmg Bonus</span></div>' +
+          '<div class="wc-stat"><span class="wc-val">' + (w.dmgType || '—') + '</span><span class="wc-lbl">Type</span></div>' +
+        '</div>' +
+        (w.properties && w.properties.length ? '<div class="wc-props">' + w.properties.map(function(p) { return '<span class="prop-tag">' + p + '</span>'; }).join('') + '</div>' : '') +
+      '</div>';
+    }).join('');
   }
 }
 
 function renderInventory() {
-  const el = document.getElementById('inventory-list');
+  var el = document.getElementById('inventory-list');
+  var countEl = document.getElementById('epInvCount');
   if (!el) return;
-  el.innerHTML = inventory.map(item => `
-    <div class="inv-item inv-type-${item.type}">
-      <div class="inv-name">${item.name}${item.quantity > 1 ? ` <span class="inv-qty">×${item.quantity}</span>` : ''}${item.magical ? ' <span class="inv-magic">✨</span>' : ''}</div>
-      ${item.dmg ? `<div class="inv-detail">⚔️ ${item.dmg} ${item.dmgType || ''}</div>` : ''}
-      ${item.acBase ? `<div class="inv-detail">🛡️ AC ${item.acBase} (${item.weight || 'armor'})</div>` : ''}
-      ${item.acBonus ? `<div class="inv-detail">🛡️ +${item.acBonus} AC</div>` : ''}
-      ${item.properties && item.properties.length ? `<div class="inv-props">${item.properties.map(p => `<span class="prop-tag">${p}</span>`).join('')}</div>` : ''}
-      ${item.notes ? `<div class="inv-notes">${item.notes}</div>` : ''}
-    </div>
-  `).join('');
+
+  if (countEl) countEl.textContent = inventory.length + ' item' + (inventory.length !== 1 ? 's' : '');
+
+  if (inventory.length === 0) {
+    el.innerHTML = '<div class="inv-empty">No items in inventory. Search above to add items.</div>';
+    return;
+  }
+
+  el.innerHTML = inventory.map(function(item, idx) {
+    return '<div class="inv-item inv-type-' + item.type + '" data-idx="' + idx + '">' +
+      '<div class="inv-item-header">' +
+        '<div class="inv-name">' + item.name +
+          (item.quantity > 1 ? ' <span class="inv-qty">x' + item.quantity + '</span>' : '') +
+          (item.magical ? ' <span class="inv-magic">✨</span>' : '') +
+        '</div>' +
+        '<button class="inv-delete-btn" data-idx="' + idx + '" title="Remove from inventory">✕</button>' +
+      '</div>' +
+      (item.dmg ? '<div class="inv-detail">⚔️ ' + item.dmg + ' ' + (item.dmgType || '') + '</div>' : '') +
+      (item.acBase ? '<div class="inv-detail">🛡️ AC ' + item.acBase + ' (' + (item.weight || 'armor') + ')</div>' : '') +
+      (item.acBonus ? '<div class="inv-detail">🛡️ +' + item.acBonus + ' AC</div>' : '') +
+      (item.value ? '<div class="inv-detail">💰 ' + item.value + '</div>' : '') +
+      (item.rarity && item.rarity !== 'common' ? '<div class="inv-detail rarity-' + item.rarity + '">✦ ' + item.rarity + '</div>' : '') +
+      (item.properties && item.properties.length ? '<div class="inv-props">' + item.properties.map(function(p) { return '<span class="prop-tag">' + p + '</span>'; }).join('') + '</div>' : '') +
+      (item.notes ? '<div class="inv-notes">' + item.notes + '</div>' : '') +
+    '</div>';
+  }).join('');
+
+  // Attach delete handlers
+  el.querySelectorAll('.inv-delete-btn').forEach(function(btn) {
+    btn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      var idx = parseInt(btn.dataset.idx, 10);
+      removeItem(idx);
+    });
+  });
 }
 
-document.addEventListener('DOMContentLoaded', () => {
+function addItem(item) {
+  // Check if same item already exists, increment quantity
+  var existing = inventory.find(function(i) { return i.name === item.name && i.type === item.type; });
+  if (existing) {
+    existing.quantity = (existing.quantity || 1) + (item.quantity || 1);
+  } else {
+    inventory.push(Object.assign({}, item, { quantity: item.quantity || 1 }));
+  }
+  saveInventory(inventory);
+  populateDropdowns();
+  updateAll();
+  renderInventory();
+}
+
+function removeItem(idx) {
+  var item = inventory[idx];
+  if (!item) return;
+
+  // Unequip if this item was equipped
+  Object.keys(equipped).forEach(function(slotId) {
+    if (equipped[slotId] === item.name) {
+      equipped[slotId] = undefined;
+    }
+  });
+  saveEquipped(equipped);
+
+  inventory.splice(idx, 1);
+  saveInventory(inventory);
+  populateDropdowns();
+  updateAll();
+  renderInventory();
+}
+
+// ---- Search ----
+var searchInput = document.getElementById('epItemSearch');
+var searchResults = document.getElementById('epSearchResults');
+var catFilter = document.getElementById('epCategoryFilter');
+
+// Populate category filter
+categories.forEach(function(cat) {
+  var opt = document.createElement('option');
+  opt.value = cat;
+  opt.textContent = cat;
+  catFilter.appendChild(opt);
+});
+
+var currentCategory = '';
+catFilter.addEventListener('change', function() {
+  currentCategory = catFilter.value;
+  if (searchInput.value.length >= 1) doSearch();
+});
+
+function doSearch() {
+  var query = searchInput.value.toLowerCase().trim();
+  if (query.length < 1) {
+    searchResults.style.display = 'none';
+    return;
+  }
+
+  var matches = itemDb.filter(function(item) {
+    var nameMatch = item.name.toLowerCase().indexOf(query) >= 0;
+    var catMatch = !currentCategory || item.category === currentCategory;
+    return nameMatch && catMatch;
+  }).slice(0, 20);
+
+  if (matches.length === 0) {
+    searchResults.innerHTML = '<div class="ep-sr-item ep-sr-empty">No items found</div>';
+  } else {
+    searchResults.innerHTML = matches.map(function(m, i) {
+      var meta = [];
+      if (m.type) meta.push(m.type);
+      if (m.dmg) meta.push(m.dmg + ' ' + (m.dmgType || ''));
+      if (m.acBase) meta.push('AC ' + m.acBase);
+      if (m.acBonus) meta.push('+' + m.acBonus + ' AC');
+      if (m.value) meta.push(m.value);
+      if (m.rarity && m.rarity !== 'common') meta.push(m.rarity);
+      return '<div class="ep-sr-item" data-db-idx="' + i + '">' +
+        '<span class="ep-sr-name">' + m.name + (m.magical ? ' ✨' : '') + '</span>' +
+        '<span class="ep-sr-meta">' + meta.join(' · ') + '</span>' +
+      '</div>';
+    }).join('');
+  }
+  searchResults.style.display = '';
+
+  // Store matches for click handlers
+  searchResults._matches = matches;
+
+  searchResults.querySelectorAll('.ep-sr-item[data-db-idx]').forEach(function(el) {
+    el.addEventListener('click', function() {
+      var idx = parseInt(el.dataset.dbIdx, 10);
+      var item = searchResults._matches[idx];
+      if (item) {
+        addItem(item);
+        searchInput.value = '';
+        searchResults.style.display = 'none';
+      }
+    });
+  });
+}
+
+searchInput.addEventListener('input', doSearch);
+
+document.addEventListener('click', function(e) {
+  if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) {
+    searchResults.style.display = 'none';
+  }
+});
+searchInput.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') { searchResults.style.display = 'none'; searchInput.value = ''; }
+});
+
+// ---- Custom Item Dialog ----
+var customDialog = document.getElementById('epCustomDialog');
+document.getElementById('epCustomItemBtn').addEventListener('click', function() {
+  document.getElementById('ciName').value = '';
+  document.getElementById('ciType').value = 'gear';
+  document.getElementById('ciDmg').value = '';
+  document.getElementById('ciDmgType').value = '';
+  document.getElementById('ciAcBase').value = '';
+  document.getElementById('ciAcBonus').value = '';
+  document.getElementById('ciWeight').value = '';
+  document.getElementById('ciQty').value = '1';
+  document.getElementById('ciProps').value = '';
+  document.getElementById('ciNotes').value = '';
+  document.getElementById('ciMagical').checked = false;
+  customDialog.style.display = 'flex';
+  document.getElementById('ciName').focus();
+});
+
+document.getElementById('ciCancel').addEventListener('click', function() {
+  customDialog.style.display = 'none';
+});
+
+customDialog.addEventListener('click', function(e) {
+  if (e.target === customDialog) customDialog.style.display = 'none';
+});
+
+document.getElementById('ciConfirm').addEventListener('click', function() {
+  var name = document.getElementById('ciName').value.trim();
+  if (!name) {
+    document.getElementById('ciName').style.borderColor = '#c0392b';
+    return;
+  }
+  document.getElementById('ciName').style.borderColor = '';
+
+  var item = { name: name, type: document.getElementById('ciType').value };
+  var dmg = document.getElementById('ciDmg').value.trim();
+  if (dmg) item.dmg = dmg;
+  var dmgType = document.getElementById('ciDmgType').value.trim();
+  if (dmgType) item.dmgType = dmgType;
+  var acBase = parseInt(document.getElementById('ciAcBase').value, 10);
+  if (acBase) item.acBase = acBase;
+  var acBonus = parseInt(document.getElementById('ciAcBonus').value, 10);
+  if (acBonus) item.acBonus = acBonus;
+  var weight = document.getElementById('ciWeight').value;
+  if (weight) item.weight = weight;
+  var qty = parseInt(document.getElementById('ciQty').value, 10);
+  if (qty > 1) item.quantity = qty;
+  var props = document.getElementById('ciProps').value.trim();
+  if (props) item.properties = props.split(',').map(function(p) { return p.trim(); }).filter(function(p) { return p; });
+  var notes = document.getElementById('ciNotes').value.trim();
+  if (notes) item.notes = notes;
+  if (document.getElementById('ciMagical').checked) item.magical = true;
+
+  // Auto-assign slot based on type
+  var typeSlotMap = { armor: 'armor', weapon: 'mainhand', shield: 'offhand', helmet: 'helmet', cloak: 'cloak', gloves: 'gloves', boots: 'boots', ring: 'ring1', amulet: 'amulet' };
+  if (typeSlotMap[item.type]) item.slot = typeSlotMap[item.type];
+
+  addItem(item);
+  customDialog.style.display = 'none';
+});
+
+document.getElementById('ciName').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') document.getElementById('ciConfirm').click();
+  if (e.key === 'Escape') customDialog.style.display = 'none';
+});
+
+// ---- Reset ----
+document.getElementById('epResetInventory').addEventListener('click', function() {
+  if (confirm('Reset inventory to base values from character sheet? This will remove all added items.')) {
+    localStorage.removeItem(STORAGE_KEY);
+    localStorage.removeItem(EQUIP_KEY);
+    inventory = baseInventory.map(function(i) { return Object.assign({}, i); });
+    equipped = JSON.parse(equippedJson);
+    populateDropdowns();
+    updateAll();
+    renderInventory();
+  }
+});
+
+// ---- Slot change handler ----
+document.querySelectorAll('.slot-select').forEach(function(select) {
+  select.addEventListener('change', function() {
+    equipped[select.dataset.slot] = select.value || undefined;
+    saveEquipped(equipped);
+    updateAll();
+  });
+});
+
+// ---- Init ----
+document.addEventListener('DOMContentLoaded', function() {
   populateDropdowns();
   updateAll();
   renderInventory();
@@ -610,11 +954,196 @@ document.addEventListener('DOMContentLoaded', () => {
   text-transform: capitalize;
 }
 
+/* Add Item Section */
+.ep-add-section {
+  margin-bottom: 1.5rem;
+}
+.ep-add-controls {
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+.ep-search-wrap {
+  position: relative;
+  flex: 1;
+  min-width: 200px;
+  max-width: 400px;
+}
+.ep-search-wrap input {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.88rem;
+  background: rgba(0,0,0,0.3);
+  border: 1px solid rgba(0,201,167,0.3);
+  border-radius: 6px;
+  color: var(--text-normal);
+  font-family: inherit;
+}
+.ep-search-wrap input:focus { outline: none; border-color: var(--accent-primary); }
+
+.ep-search-results {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  background: #0d1b2a;
+  border: 1px solid rgba(0,201,167,0.3);
+  border-top: none;
+  border-radius: 0 0 6px 6px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+.ep-sr-item {
+  padding: 0.5rem 0.75rem;
+  cursor: pointer;
+  transition: background 0.1s;
+  border-bottom: 1px solid rgba(100,100,100,0.1);
+}
+.ep-sr-item:hover { background: rgba(0,201,167,0.12); }
+.ep-sr-item.ep-sr-empty { cursor: default; color: var(--text-muted); font-style: italic; }
+.ep-sr-name { display: block; font-size: 0.85rem; font-weight: 600; color: var(--text-normal); }
+.ep-sr-meta { display: block; font-size: 0.7rem; color: var(--text-muted); }
+
+.ep-cat-filter {
+  padding: 0.5rem 0.75rem;
+  font-size: 0.82rem;
+  background: rgba(0,0,0,0.3);
+  border: 1px solid rgba(0,201,167,0.3);
+  border-radius: 6px;
+  color: var(--text-normal);
+  font-family: inherit;
+  cursor: pointer;
+}
+.ep-cat-filter:focus { outline: none; border-color: var(--accent-primary); }
+.ep-cat-filter option { background: #0a1a18; color: var(--text-normal); }
+
+.ep-add-btn {
+  padding: 0.5rem 1rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  border-radius: 6px;
+  border: 1px solid rgba(0,201,167,0.4);
+  background: rgba(0,201,167,0.12);
+  color: var(--accent-primary);
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+.ep-add-btn:hover { background: rgba(0,201,167,0.3); border-color: var(--accent-primary); }
+
+/* Custom Item Dialog */
+.ep-dialog-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.7);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.ep-dialog {
+  background: #0d1b2a;
+  border: 1px solid rgba(0,201,167,0.4);
+  border-radius: 10px;
+  padding: 1.25rem;
+  width: 90%;
+  max-width: 500px;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+.ep-dialog h3 {
+  color: var(--text-bright);
+  margin: 0 0 1rem 0;
+  font-size: 1rem;
+}
+.ep-dialog-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.6rem;
+}
+.ep-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+.ep-field-wide {
+  grid-column: 1 / -1;
+}
+.ep-field label {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+}
+.ep-field input[type="text"],
+.ep-field input[type="number"],
+.ep-field select {
+  padding: 0.4rem 0.6rem;
+  font-size: 0.85rem;
+  background: rgba(0,0,0,0.3);
+  border: 1px solid rgba(0,201,167,0.3);
+  border-radius: 5px;
+  color: var(--text-normal);
+  font-family: inherit;
+}
+.ep-field input:focus,
+.ep-field select:focus {
+  outline: none;
+  border-color: var(--accent-primary);
+}
+.ep-dialog-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+.ep-dlg-btn {
+  flex: 1;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  border-radius: 6px;
+  border: 1px solid;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.ep-dlg-confirm {
+  background: rgba(0,201,167,0.15);
+  border-color: rgba(0,201,167,0.4);
+  color: var(--accent-primary);
+}
+.ep-dlg-confirm:hover { background: rgba(0,201,167,0.3); }
+.ep-dlg-cancel {
+  background: rgba(100,100,100,0.08);
+  border-color: rgba(100,100,100,0.25);
+  color: var(--text-muted);
+}
+.ep-dlg-cancel:hover { background: rgba(100,100,100,0.2); }
+
 /* Inventory grid */
+.ep-inv-header {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+  margin-bottom: 0;
+}
+.ep-inv-count {
+  font-size: 0.72rem;
+  color: var(--text-dim);
+}
 .inventory-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
   gap: 0.75rem;
+}
+.inv-empty {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 2rem;
+  color: var(--text-muted);
+  font-style: italic;
+  font-size: 0.85rem;
 }
 .inv-item {
   background: var(--bg-card);
@@ -622,12 +1151,22 @@ document.addEventListener('DOMContentLoaded', () => {
   border-radius: 6px;
   padding: 0.75rem;
   border-left: 3px solid rgba(0,201,167,0.2);
+  transition: border-color 0.15s;
 }
+.inv-item:hover { border-color: rgba(0,201,167,0.4); }
 .inv-type-weapon { border-left-color: rgba(139,32,32,0.6); }
 .inv-type-armor  { border-left-color: rgba(26,58,92,0.8); }
 .inv-type-shield { border-left-color: rgba(26,80,92,0.8); }
 .inv-type-magic  { border-left-color: rgba(80,40,120,0.8); }
 .inv-type-tool   { border-left-color: rgba(60,90,30,0.6); }
+.inv-type-potion { border-left-color: rgba(200,50,50,0.6); }
+.inv-type-wondrous { border-left-color: rgba(80,40,120,0.8); }
+.inv-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
 .inv-name {
   font-size: 0.88rem;
   font-weight: bold;
@@ -640,6 +1179,29 @@ document.addEventListener('DOMContentLoaded', () => {
   font-weight: normal;
 }
 .inv-magic { color: #c8a; }
+.inv-delete-btn {
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 1px solid rgba(192,57,43,0.3);
+  background: rgba(192,57,43,0.08);
+  color: #e74c3c;
+  font-size: 0.75rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+  padding: 0;
+  opacity: 0.5;
+}
+.inv-item:hover .inv-delete-btn { opacity: 1; }
+.inv-delete-btn:hover {
+  background: rgba(192,57,43,0.25);
+  border-color: #e74c3c;
+  opacity: 1;
+}
 .inv-detail {
   font-size: 0.78rem;
   color: var(--text-muted);
@@ -652,10 +1214,35 @@ document.addEventListener('DOMContentLoaded', () => {
   margin-top: 0.3rem;
   line-height: 1.4;
 }
+.rarity-uncommon { color: #2ecc71; }
+.rarity-rare { color: #3498db; }
+.rarity-very.rare { color: #9b59b6; }
+.rarity-legendary { color: #f39c12; }
+
+.ep-inv-actions {
+  margin-top: 0.75rem;
+}
+.ep-reset-btn {
+  padding: 0.3rem 0.8rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-radius: 5px;
+  border: 1px solid rgba(100,100,100,0.3);
+  background: rgba(100,100,100,0.08);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.ep-reset-btn:hover {
+  background: rgba(100,100,100,0.2);
+}
 
 @media (max-width: 640px) {
   .slot-row { grid-template-columns: 110px 1fr; }
   .slot-bonus { display: none; }
   .ep-stat-val { font-size: 1.2rem; }
+  .ep-add-controls { flex-direction: column; }
+  .ep-search-wrap { max-width: none; }
+  .ep-dialog-grid { grid-template-columns: 1fr; }
 }
 </style>
