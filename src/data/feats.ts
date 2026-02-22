@@ -1,5 +1,5 @@
 // ── D&D 5e Feats Reference ──────────────────────────────────
-// All PHB + Tasha's Cauldron of Everything feats
+// PHB + Tasha's Cauldron + Xanathar's Guide + Fizban's Treasury + Dragonlance feats
 // Used by FeatManager, feat browse pages, and character creation
 
 export interface Feat {
@@ -905,6 +905,114 @@ export const feats: Feat[] = [
       'Wisdom is your spellcasting ability for these spells',
     ],
     source: 'XGE',
+    category: 'Racial',
+  },
+  {
+    name: 'Dwarven Fortitude',
+    slug: 'dwarven-fortitude',
+    prerequisite: 'Dwarf',
+    description: 'You have the blood of dwarf heroes flowing through your veins.',
+    benefits: [
+      'Increase Constitution by 1',
+      'When you take the Dodge action, you can spend one hit die to heal yourself (roll the die, add CON modifier, regain that many HP)',
+    ],
+    source: 'XGE',
+    halfFeat: 'con',
+    category: 'Racial',
+  },
+  {
+    name: 'Fey Teleportation',
+    slug: 'fey-teleportation',
+    prerequisite: 'Elf (high)',
+    description: 'Your study of high elven lore has unlocked fey power that few other elves possess.',
+    benefits: [
+      'Increase Intelligence or Charisma by 1',
+      'Learn the Sylvan language',
+      'Learn Misty Step, which you can cast once per short or long rest without a spell slot',
+      'Intelligence is your spellcasting ability for Misty Step',
+    ],
+    source: 'XGE',
+    halfFeat: 'int/cha',
+    category: 'Racial',
+  },
+  {
+    name: 'Svirfneblin Magic',
+    slug: 'svirfneblin-magic',
+    prerequisite: 'Gnome (deep/svirfneblin)',
+    description: 'You have inherited the innate spellcasting ability of your ancestors.',
+    benefits: [
+      'Can cast Nondetection at will on yourself without a spell slot or material components',
+      'Can cast Blindness/Deafness, Blur, and Disguise Self once each per long rest without a spell slot',
+      'Intelligence is your spellcasting ability for these spells',
+    ],
+    source: 'XGE',
+    category: 'Racial',
+  },
+
+  // ── Fizban's Treasury of Dragons Feats ──
+  {
+    name: 'Gift of the Chromatic Dragon',
+    slug: 'gift-of-the-chromatic-dragon',
+    description: 'You have manifested some of the power of chromatic dragons, granting you elemental resilience and infusing your strikes with elemental energy.',
+    benefits: [
+      'Chromatic Infusion: As a bonus action, touch a simple or martial weapon and infuse it with acid, cold, fire, lightning, or poison. For 1 minute, it deals an extra 1d4 damage of the chosen type on a hit. Once per long rest',
+      'Reactive Resistance: When you take acid, cold, fire, lightning, or poison damage, use your reaction to give yourself resistance to that damage type until the end of your next turn. Proficiency bonus uses per long rest',
+    ],
+    source: 'FToD',
+    category: 'Combat',
+  },
+  {
+    name: 'Gift of the Gem Dragon',
+    slug: 'gift-of-the-gem-dragon',
+    description: 'You have manifested some of the power of gem dragons, granting you telekinetic abilities and a protective reaction.',
+    benefits: [
+      'Increase Intelligence, Wisdom, or Charisma by 1',
+      'Telekinetic Reprisal: When you take damage from a creature within 10 ft, use reaction to force a STR save (DC = 8 + prof + ability modifier). On failure, creature takes 2d8 force damage and is pushed 10 ft. On success, half damage and no push. Damage increases to 3d8 at 5th, 4d8 at 11th, 5d8 at 17th level. Proficiency bonus uses per long rest',
+    ],
+    source: 'FToD',
+    halfFeat: 'int/wis/cha',
+    category: 'Combat',
+  },
+  {
+    name: 'Gift of the Metallic Dragon',
+    slug: 'gift-of-the-metallic-dragon',
+    description: 'You have manifested some of the power of metallic dragons, granting you protective and curative abilities.',
+    benefits: [
+      'Draconic Healing: Learn Cure Wounds. Can cast once per long rest without a spell slot. Can also cast using spell slots. Spellcasting ability is INT, WIS, or CHA (chosen when you take the feat)',
+      'Protective Wings: When you or a creature within 5 ft is hit by an attack, use your reaction to manifest spectral wings and add your proficiency bonus to the target\'s AC, potentially turning the hit into a miss. Proficiency bonus uses per long rest',
+    ],
+    source: 'FToD',
+    category: 'Utility',
+  },
+
+  // ── Dragonlance Setting Feats ──
+  {
+    name: 'Kender Nightstalker',
+    slug: 'kender-nightstalker',
+    prerequisite: 'Kender',
+    description: 'You have developed an eerie connection to the spirits of the dead, granting you heightened perception in haunted places.',
+    benefits: [
+      'Increase Wisdom by 1',
+      'Advantage on Wisdom (Perception) checks in enclosed areas where 5 or more creatures have died, as lingering essences whisper secrets of the surroundings',
+      'Learn Speak with Dead, which you can cast once per long rest without a spell slot or material components',
+    ],
+    source: 'DL',
+    halfFeat: 'wis',
+    category: 'Racial',
+  },
+  {
+    name: 'Draconian Breath Weapon',
+    slug: 'draconian-breath-weapon',
+    prerequisite: 'Draconian',
+    description: 'You can exhale destructive energy, channeling the power of the dragon whose egg you were corrupted from.',
+    benefits: [
+      'Gain a breath weapon usable as an action. DC = 8 + CON modifier + proficiency bonus',
+      'Base damage: 2d6, increasing to 3d6 at 6th level, 4d6 at 11th level, 5d6 at 16th level',
+      'Baaz: 5×30 ft line of fire (DEX save). Kapak: 5×30 ft line of acid (DEX save). Bozak: 5×30 ft line of lightning (DEX save)',
+      'Sivak: 15 ft cone of cold (CON save). Aurak: 15 ft cone of fire (DEX save)',
+      'Recharges on a short or long rest',
+    ],
+    source: 'DL',
     category: 'Racial',
   },
 ];
