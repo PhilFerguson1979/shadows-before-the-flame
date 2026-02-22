@@ -1,0 +1,527 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { classesData, type ClassInfo, type Subclass } from '../../data/classes';
+import { classes as classLevelData, proficiencyBonus } from '../../data/leveling';
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+
+function classNameToSlug(name: string): string {
+  return name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+}
+
+export async function getStaticPaths() {
+  return classesData.map(cls => ({
+    params: { slug: cls.slug },
+    props: { cls },
+  }));
+}
+
+const { cls } = Astro.props as { cls: ClassInfo };
+
+// Get level progression data from leveling.ts
+const levelData = classLevelData[cls.name];
+
+function classColor(name: string): string {
+  const colors: Record<string, string> = {
+    'Artificer': '#8e44ad',
+    'Barbarian': '#e7623e',
+    'Bard': '#ab6dac',
+    'Cleric': '#91d7e0',
+    'Druid': '#7a853b',
+    'Fighter': '#7f513e',
+    'Monk': '#51a5c5',
+    'Paladin': '#b59e54',
+    'Ranger': '#507f62',
+    'Rogue': '#555752',
+    'Sorcerer': '#992e2e',
+    'Warlock': '#7b469b',
+    'Wizard': '#2a50a1',
+  };
+  return colors[name] || 'var(--accent-primary)';
+}
+
+const accent = classColor(cls.name);
+
+function sourceColor(source: string): string {
+  switch (source) {
+    case 'PHB': return '#4fc3f7';
+    case 'XGtE': return '#ab47bc';
+    case 'TCoE': return '#1fc219';
+    case 'FToD': return '#ff8f00';
+    case 'DMG': return '#e57373';
+    case 'EGtW': return '#f0c040';
+    case 'Dragonlance': return '#d4a83a';
+    default: return 'var(--text-muted)';
+  }
+}
+---
+
+<BaseLayout title={cls.name}>
+  <div class="page-container">
+    <div class="back-link"><a href={`${base}/classes`}>&larr; All Classes</a></div>
+
+    <!-- Hero -->
+    <div class="class-hero" style={`--class-accent: ${accent}`}>
+      <div class="hero-top">
+        <span class="hit-die-badge">d{cls.hitDie}</span>
+        <h1>{cls.name}</h1>
+      </div>
+      <p class="class-description">{cls.description}</p>
+
+      <div class="hero-stats">
+        <div class="hero-stat">
+          <span class="hs-label">Primary Ability</span>
+          <span class="hs-value">{cls.primaryAbility}</span>
+        </div>
+        <div class="hero-stat">
+          <span class="hs-label">Saving Throws</span>
+          <span class="hs-value">{cls.savingThrows}</span>
+        </div>
+        <div class="hero-stat">
+          <span class="hs-label">Hit Die</span>
+          <span class="hs-value">d{cls.hitDie} ({cls.hitDie === 6 ? '4' : cls.hitDie === 8 ? '5' : cls.hitDie === 10 ? '6' : '7'} + CON avg/level)</span>
+        </div>
+        <div class="hero-stat">
+          <span class="hs-label">Armor</span>
+          <span class="hs-value">{cls.armorProficiencies}</span>
+        </div>
+        <div class="hero-stat">
+          <span class="hs-label">Weapons</span>
+          <span class="hs-value">{cls.weaponProficiencies}</span>
+        </div>
+        <div class="hero-stat">
+          <span class="hs-label">Skills</span>
+          <span class="hs-value">{cls.skillChoices}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Krynn Notes -->
+    {cls.krynnNotes && (
+      <div class="krynn-section">
+        <h2>On the World of Krynn</h2>
+        <p>{cls.krynnNotes}</p>
+        {cls.roleplayTip && (
+          <div class="roleplay-tip">
+            <span class="tip-label">Roleplay Tip</span>
+            <p>{cls.roleplayTip}</p>
+          </div>
+        )}
+      </div>
+    )}
+
+    <!-- Subclasses -->
+    <div class="subclass-section">
+      <div class="section-header">
+        <h2>{cls.subclassLabel}s</h2>
+      </div>
+      <p class="sc-intro">
+        At level {cls.subclassLevel}, {cls.name}s choose a {cls.subclassLabel}.
+        There are {cls.subclasses.length} options available from official sources.
+      </p>
+
+      <div class="subclass-grid">
+        {cls.subclasses.map(sc => (
+          <div class="subclass-card" id={classNameToSlug(sc.name)}>
+            <div class="sc-card-header">
+              <h3>{sc.name}</h3>
+              <span class="sc-source" style={`color:${sourceColor(sc.source)};border-color:${sourceColor(sc.source)}40;background:${sourceColor(sc.source)}12`}>
+                {sc.source}
+              </span>
+            </div>
+            <p class="sc-desc">{sc.description}</p>
+
+            <div class="sc-features">
+              <span class="features-label">Key Features</span>
+              {sc.features.map(feat => (
+                <div class="sc-feature">
+                  <div class="feat-header">
+                    <span class="feat-name">{feat.name}</span>
+                    <span class="feat-level">Lv {feat.level}</span>
+                  </div>
+                  <p class="feat-desc">{feat.description}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+
+    <!-- Level Progression Table -->
+    {levelData && (
+      <div class="progression-section">
+        <div class="section-header">
+          <h2>Level Progression</h2>
+        </div>
+        <div class="progression-table-wrap">
+          <table class="progression-table">
+            <thead>
+              <tr>
+                <th>Lvl</th>
+                <th>Prof</th>
+                <th>Features</th>
+              </tr>
+            </thead>
+            <tbody>
+              {Array.from({ length: 20 }, (_, i) => i + 1).map(level => {
+                const ld = levelData.levels[level];
+                const features = ld?.features || [];
+                const tags: string[] = [];
+                if (ld?.asiOrFeat) tags.push('ASI/Feat');
+                if (ld?.subclassFeature) tags.push(cls.subclassLabel);
+                if (ld?.extraAttack) tags.push('Extra Attack');
+
+                return (
+                  <tr class={ld?.subclassFeature ? 'sc-row' : ''}>
+                    <td class="lvl-cell">{level}</td>
+                    <td class="prof-cell">+{proficiencyBonus(level)}</td>
+                    <td class="feat-cell">
+                      {features.map(f => (
+                        <span class="table-feat">{f.name}</span>
+                      ))}
+                      {tags.map(tag => (
+                        <span class={`table-tag ${tag === 'ASI/Feat' ? 'tag-asi' : tag === cls.subclassLabel ? 'tag-sc' : 'tag-extra'}`}>{tag}</span>
+                      ))}
+                      {features.length === 0 && tags.length === 0 && (
+                        <span class="table-empty">—</span>
+                      )}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    )}
+  </div>
+</BaseLayout>
+
+<style>
+.back-link { margin-bottom: 1.5rem; }
+.back-link a { color: var(--text-muted); font-size: 0.85rem; }
+.back-link a:hover { color: var(--accent-primary); }
+
+/* Hero */
+.class-hero {
+  margin-bottom: 2.5rem;
+  padding: 1.5rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: 10px;
+  position: relative;
+  overflow: hidden;
+}
+.class-hero::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: var(--class-accent);
+}
+
+.hero-top {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+.hit-die-badge {
+  font-size: 0.85rem;
+  font-weight: bold;
+  color: var(--class-accent);
+  background: color-mix(in srgb, var(--class-accent) 15%, transparent);
+  padding: 0.3rem 0.7rem;
+  border-radius: 6px;
+  font-family: 'Inter', sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.class-hero h1 {
+  margin: 0;
+  color: var(--text-bright);
+}
+.class-description {
+  color: var(--text-normal);
+  font-size: 0.92rem;
+  line-height: 1.6;
+  margin-bottom: 1.25rem;
+}
+
+.hero-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 0.5rem;
+}
+.hero-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  padding: 0.5rem 0.75rem;
+  background: rgba(0,0,0,0.15);
+  border-radius: 6px;
+  border-left: 2px solid var(--class-accent);
+}
+.hs-label {
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--accent-primary);
+  font-weight: 600;
+}
+.hs-value {
+  font-size: 0.82rem;
+  color: var(--text-normal);
+}
+
+/* Krynn Notes */
+.krynn-section {
+  margin-bottom: 2.5rem;
+  padding: 1.25rem;
+  background: rgba(212,168,58,0.06);
+  border: 1px solid rgba(212,168,58,0.2);
+  border-radius: 8px;
+  border-left: 3px solid #d4a83a;
+}
+.krynn-section h2 {
+  font-size: 0.95rem;
+  color: #d4a83a;
+  margin-bottom: 0.75rem;
+}
+.krynn-section > p {
+  font-size: 0.88rem;
+  color: var(--text-normal);
+  line-height: 1.6;
+  font-style: italic;
+}
+.roleplay-tip {
+  margin-top: 1rem;
+  padding: 0.75rem;
+  background: rgba(0,0,0,0.15);
+  border-radius: 6px;
+}
+.tip-label {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #d4a83a;
+  font-weight: 600;
+}
+.roleplay-tip p {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  margin-top: 0.3rem;
+  margin-bottom: 0;
+}
+
+/* Subclass section */
+.subclass-section {
+  margin-bottom: 2.5rem;
+}
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+.section-header h2 {
+  white-space: nowrap;
+  margin: 0;
+}
+.section-header::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, var(--accent-primary-dim), transparent);
+  opacity: 0.5;
+}
+.sc-intro {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-bottom: 1.5rem;
+}
+
+.subclass-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+.subclass-card {
+  padding: 1.25rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+.subclass-card:hover {
+  border-color: var(--border-accent);
+}
+.sc-card-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+.sc-card-header h3 {
+  margin: 0;
+  font-size: 1.05rem;
+  color: var(--text-bright);
+  flex: 1;
+}
+.sc-source {
+  font-size: 0.62rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 0.12rem 0.45rem;
+  border-radius: 3px;
+  border: 1px solid;
+  white-space: nowrap;
+}
+.sc-desc {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+  margin-bottom: 0.75rem;
+}
+
+.sc-features {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+.features-label {
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--accent-primary);
+  font-weight: 600;
+  margin-bottom: 0.2rem;
+}
+.sc-feature {
+  padding: 0.5rem 0.75rem;
+  background: rgba(0,0,0,0.12);
+  border-radius: 5px;
+  border-left: 2px solid var(--accent-primary-dim);
+}
+.feat-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.feat-name {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-bright);
+  flex: 1;
+}
+.feat-level {
+  font-size: 0.65rem;
+  color: var(--accent-primary);
+  background: rgba(0,201,167,0.1);
+  padding: 0.1rem 0.35rem;
+  border-radius: 3px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.feat-desc {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  line-height: 1.4;
+  margin: 0.2rem 0 0 0;
+}
+
+/* Progression Table */
+.progression-section {
+  margin-bottom: 2.5rem;
+}
+.progression-table-wrap {
+  overflow-x: auto;
+}
+.progression-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+}
+.progression-table th {
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--accent-primary);
+  border-bottom: 1px solid var(--border-accent);
+  background: rgba(0,201,167,0.06);
+}
+.progression-table td {
+  padding: 0.4rem 0.75rem;
+  border-bottom: 1px solid var(--border-subtle);
+  vertical-align: top;
+}
+.lvl-cell {
+  font-weight: bold;
+  color: var(--text-bright);
+  width: 40px;
+}
+.prof-cell {
+  color: var(--accent-primary);
+  width: 45px;
+  font-weight: 600;
+}
+.feat-cell {
+  display: flex;
+  gap: 0.3rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.table-feat {
+  font-size: 0.78rem;
+  color: var(--text-normal);
+}
+.table-feat::after {
+  content: ',';
+  color: var(--text-dim);
+  margin-right: 0.15rem;
+}
+.table-feat:last-of-type::after {
+  content: '';
+}
+.table-tag {
+  font-size: 0.6rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 0.08rem 0.3rem;
+  border-radius: 2px;
+}
+.tag-asi {
+  background: rgba(171,71,188,0.15);
+  color: #ce93d8;
+  border: 1px solid rgba(171,71,188,0.3);
+}
+.tag-sc {
+  background: rgba(0,201,167,0.1);
+  color: var(--accent-primary);
+  border: 1px solid rgba(0,201,167,0.3);
+}
+.tag-extra {
+  background: rgba(255,143,0,0.12);
+  color: #ff8f00;
+  border: 1px solid rgba(255,143,0,0.3);
+}
+.table-empty {
+  color: var(--text-dim);
+}
+.sc-row td {
+  background: rgba(0,201,167,0.03);
+}
+
+@media (max-width: 640px) {
+  .hero-stats { grid-template-columns: 1fr; }
+  .class-hero { padding: 1rem; }
+  .hero-top { flex-wrap: wrap; }
+  .feat-cell { flex-direction: column; gap: 0.15rem; }
+}
+</style>

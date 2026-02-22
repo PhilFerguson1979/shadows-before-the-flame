@@ -1,0 +1,368 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { classesData } from '../../data/classes';
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+
+function classNameToSlug(name: string): string {
+  return name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+}
+
+// Class color mapping
+function classColor(name: string): string {
+  const colors: Record<string, string> = {
+    'Artificer': '#8e44ad',
+    'Barbarian': '#e7623e',
+    'Bard': '#ab6dac',
+    'Cleric': '#91d7e0',
+    'Druid': '#7a853b',
+    'Fighter': '#7f513e',
+    'Monk': '#51a5c5',
+    'Paladin': '#b59e54',
+    'Ranger': '#507f62',
+    'Rogue': '#555752',
+    'Sorcerer': '#992e2e',
+    'Warlock': '#7b469b',
+    'Wizard': '#2a50a1',
+  };
+  return colors[name] || 'var(--accent-primary)';
+}
+
+function hitDieIcon(hitDie: number): string {
+  return `d${hitDie}`;
+}
+
+// Group by caster type for filtering
+const casterTypes = ['Full Caster', 'Half Caster', 'Third Caster', 'Pact Caster', 'Non-Caster'];
+function getCasterType(name: string): string {
+  const fullCasters = ['Bard', 'Cleric', 'Druid', 'Sorcerer', 'Wizard'];
+  const halfCasters = ['Paladin', 'Ranger', 'Artificer'];
+  const pactCasters = ['Warlock'];
+  // Fighter (EK) and Rogue (AT) have third-caster subclasses
+  if (fullCasters.includes(name)) return 'Full Caster';
+  if (halfCasters.includes(name)) return 'Half Caster';
+  if (pactCasters.includes(name)) return 'Pact Caster';
+  return 'Non-Caster';
+}
+
+const totalSubclasses = classesData.reduce((sum, c) => sum + c.subclasses.length, 0);
+---
+
+<BaseLayout title="Classes & Subclasses">
+  <div class="page-container">
+    <h1>Classes & Subclasses</h1>
+    <p class="page-count">{classesData.length} classes with {totalSubclasses} subclasses from D&D 5e</p>
+
+    <!-- Filter Bar -->
+    <div class="filter-bar">
+      <div class="filter-group">
+        <label for="search-input">Search</label>
+        <input type="text" id="search-input" placeholder="Class or subclass name..." autocomplete="off" />
+      </div>
+      <div class="filter-group">
+        <label for="caster-filter">Casting</label>
+        <select id="caster-filter">
+          <option value="">All Types</option>
+          {casterTypes.map(ct => (
+            <option value={ct}>{ct}</option>
+          ))}
+        </select>
+      </div>
+      <div class="filter-group">
+        <label for="hitdie-filter">Hit Die</label>
+        <select id="hitdie-filter">
+          <option value="">Any</option>
+          <option value="6">d6</option>
+          <option value="8">d8</option>
+          <option value="10">d10</option>
+          <option value="12">d12</option>
+        </select>
+      </div>
+      <button id="clear-filters" class="clear-btn">Clear</button>
+    </div>
+
+    <div id="no-results" class="no-results" style="display:none;">
+      No classes match your filters.
+    </div>
+
+    <!-- Class Cards -->
+    <div class="class-grid">
+      {classesData.map(cls => (
+        <a
+          href={`${base}/classes/${classNameToSlug(cls.name)}`}
+          class="class-card"
+          data-name={cls.name.toLowerCase()}
+          data-subclasses={cls.subclasses.map(sc => sc.name.toLowerCase()).join(' ')}
+          data-caster={getCasterType(cls.name)}
+          data-hitdie={String(cls.hitDie)}
+          style={`--class-accent: ${classColor(cls.name)}`}
+        >
+          <div class="class-card-header">
+            <span class="class-hit-die">{hitDieIcon(cls.hitDie)}</span>
+            <h2 class="class-name">{cls.name}</h2>
+            <span class="subclass-count">{cls.subclasses.length} subclasses</span>
+          </div>
+
+          <p class="class-desc">{cls.description}</p>
+
+          <div class="class-stats">
+            <div class="stat-pill">
+              <span class="pill-label">Primary</span>
+              <span class="pill-value">{cls.primaryAbility}</span>
+            </div>
+            <div class="stat-pill">
+              <span class="pill-label">Saves</span>
+              <span class="pill-value">{cls.savingThrows}</span>
+            </div>
+          </div>
+
+          <div class="subclass-list">
+            <span class="sc-label">{cls.subclassLabel}s:</span>
+            <span class="sc-names">
+              {cls.subclasses.slice(0, 5).map(sc => sc.name.replace(/^(Path of the |Path of |College of |Circle of the |Circle of |School of |Way of the |Way of |Oath of the |Oath of |The )/, '')).join(', ')}
+              {cls.subclasses.length > 5 && ` +${cls.subclasses.length - 5} more`}
+            </span>
+          </div>
+        </a>
+      ))}
+    </div>
+  </div>
+</BaseLayout>
+
+<script>
+  const searchInput = document.getElementById('search-input') as HTMLInputElement;
+  const casterFilter = document.getElementById('caster-filter') as HTMLSelectElement;
+  const hitdieFilter = document.getElementById('hitdie-filter') as HTMLSelectElement;
+  const clearBtn = document.getElementById('clear-filters');
+  const noResults = document.getElementById('no-results');
+
+  function applyFilters() {
+    const search = searchInput.value.toLowerCase().trim();
+    const caster = casterFilter.value;
+    const hitdie = hitdieFilter.value;
+
+    let totalVisible = 0;
+
+    document.querySelectorAll('.class-card').forEach(card => {
+      const el = card as HTMLElement;
+      const name = el.dataset.name || '';
+      const subclasses = el.dataset.subclasses || '';
+      const cardCaster = el.dataset.caster || '';
+      const cardHitdie = el.dataset.hitdie || '';
+
+      let show = true;
+      if (search && !name.includes(search) && !subclasses.includes(search)) show = false;
+      if (caster && cardCaster !== caster) show = false;
+      if (hitdie && cardHitdie !== hitdie) show = false;
+
+      el.style.display = show ? '' : 'none';
+      if (show) totalVisible++;
+    });
+
+    if (noResults) {
+      noResults.style.display = totalVisible === 0 ? '' : 'none';
+    }
+  }
+
+  searchInput.addEventListener('input', applyFilters);
+  casterFilter.addEventListener('change', applyFilters);
+  hitdieFilter.addEventListener('change', applyFilters);
+
+  clearBtn?.addEventListener('click', () => {
+    searchInput.value = '';
+    casterFilter.value = '';
+    hitdieFilter.value = '';
+    applyFilters();
+  });
+</script>
+
+<style>
+h1 { margin-bottom: 0.25rem; }
+.page-count {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  margin-bottom: 1.5rem;
+}
+
+/* Filter bar */
+.filter-bar {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  margin-bottom: 2rem;
+  padding: 1rem;
+  background: rgba(0,201,167,0.04);
+  border: 1px solid rgba(0,201,167,0.15);
+  border-radius: 8px;
+}
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+.filter-group label {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+}
+.filter-group input[type="text"],
+.filter-group select {
+  padding: 0.4rem 0.6rem;
+  font-size: 0.82rem;
+  background: rgba(0,0,0,0.3);
+  border: 1px solid rgba(0,201,167,0.3);
+  border-radius: 4px;
+  color: var(--text-normal);
+  min-width: 140px;
+}
+.filter-group input[type="text"]:focus,
+.filter-group select:focus {
+  outline: none;
+  border-color: var(--accent-primary);
+}
+.clear-btn {
+  padding: 0.4rem 0.8rem;
+  font-size: 0.78rem;
+  background: rgba(0,201,167,0.15);
+  border: 1px solid rgba(0,201,167,0.3);
+  border-radius: 4px;
+  color: var(--accent-primary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.clear-btn:hover {
+  background: rgba(0,201,167,0.25);
+}
+
+.no-results {
+  text-align: center;
+  padding: 3rem;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+/* Class grid */
+.class-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 1rem;
+}
+
+/* Class cards */
+.class-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding: 1.25rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+.class-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: var(--class-accent);
+  opacity: 0.7;
+}
+.class-card:hover {
+  background: var(--bg-card-hover);
+  border-color: var(--border-accent);
+  box-shadow: 0 0 20px color-mix(in srgb, var(--class-accent) 15%, transparent);
+  transform: translateY(-2px);
+}
+.class-card:hover::before {
+  opacity: 1;
+}
+
+.class-card-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.class-hit-die {
+  font-size: 0.7rem;
+  font-weight: bold;
+  color: var(--class-accent);
+  background: color-mix(in srgb, var(--class-accent) 15%, transparent);
+  padding: 0.2rem 0.45rem;
+  border-radius: 4px;
+  font-family: 'Inter', sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.class-name {
+  font-size: 1.15rem;
+  color: var(--text-bright);
+  margin: 0;
+  flex: 1;
+}
+.subclass-count {
+  font-size: 0.68rem;
+  color: var(--text-muted);
+  background: rgba(255,255,255,0.04);
+  padding: 0.15rem 0.5rem;
+  border-radius: 10px;
+  white-space: nowrap;
+}
+
+.class-desc {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.class-stats {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+.stat-pill {
+  display: flex;
+  gap: 0.3rem;
+  align-items: center;
+  font-size: 0.72rem;
+}
+.pill-label {
+  color: var(--accent-primary);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: 0.62rem;
+}
+.pill-value {
+  color: var(--text-normal);
+}
+
+.subclass-list {
+  font-size: 0.72rem;
+  padding-top: 0.4rem;
+  border-top: 1px solid var(--border-subtle);
+}
+.sc-label {
+  color: var(--text-muted);
+  font-weight: 600;
+}
+.sc-names {
+  color: var(--text-dim);
+}
+
+@media (max-width: 640px) {
+  .filter-bar { flex-direction: column; align-items: stretch; }
+  .filter-group input[type="text"],
+  .filter-group select { min-width: auto; width: 100%; }
+  .class-grid { grid-template-columns: 1fr; }
+}
+</style>
