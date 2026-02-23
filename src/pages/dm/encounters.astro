@@ -782,7 +782,7 @@ const partyMembers = JSON.stringify(activeParty.map(c => ({ name: c.data.name, s
       }
     });
     localStorage.setItem('sbtf-pending-enemies', JSON.stringify(enemies));
-    window.location.href = base + '/party/initiative';
+    window.location.href = base + '/dm/initiative';
   }
 
   function deleteSavedEncounter(index) {
@@ -846,7 +846,7 @@ const partyMembers = JSON.stringify(activeParty.map(c => ({ name: c.data.name, s
       }
     });
     localStorage.setItem('sbtf-pending-enemies', JSON.stringify(enemies));
-    window.location.href = base + '/party/initiative';
+    window.location.href = base + '/dm/initiative';
   });
 
   // Clear

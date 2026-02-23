@@ -19,7 +19,6 @@ const navGroups = [
       { href: `${base}/characters`, label: 'Characters' },
       { href: `${base}/party/level-tracker`, label: 'Level Tracker' },
       { href: `${base}/party/level-up`, label: 'Level Up' },
-      { href: `${base}/party/initiative`, label: 'Combat Initiative' },
       { href: `${base}/character-creation`, label: 'Create Character' },
     ],
   },
@@ -31,7 +30,6 @@ const navGroups = [
       { href: `${base}/locations`, label: 'Locations' },
       { href: `${base}/lore`, label: 'Lore' },
       { href: `${base}/monsters`, label: 'Bestiary' },
-      { href: `${base}/encounters`, label: 'Encounters' },
     ],
   },
   {
@@ -45,7 +43,14 @@ const navGroups = [
     ],
   },
   { href: `${base}/inventory`, label: 'Inventory' },
-  { href: `${base}/dm`, label: 'DM Tools' },
+  {
+    label: 'DM Tools',
+    children: [
+      { href: `${base}/dm`, label: 'Award Items & Currency' },
+      { href: `${base}/dm/encounters`, label: 'Encounter Builder' },
+      { href: `${base}/dm/initiative`, label: 'Initiative Tracker' },
+    ],
+  },
 ];
 
 function isActive(href: string): boolean {
