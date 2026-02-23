@@ -34,39 +34,65 @@
 ## Project Structure
 ```
 public/
-  portraits/                 ← 9 SVG character portrait placeholders (class-themed)
+  portraits/                   ← 9 SVG character portrait placeholders (class-themed)
 src/
   components/
-    EquipmentPanel.astro     ← dynamic D&D equipment system (interactive JS)
-    CurrencyDisplay.astro    ← coin display with GP/SP/CP/PP/EP
-    LevelUpTracker.astro     ← level pip bar + level history per character
+    CurrencyDisplay.astro      ← coin display with GP/SP/CP/PP/EP
+    EquipmentPanel.astro       ← dynamic D&D equipment system (interactive JS)
+    FeatManager.astro          ← feat management for character pages
+    LevelTracker.astro         ← level tracking display
+    LevelUpTracker.astro       ← level pip bar + level history per character
+    LevelUpWizard.astro        ← interactive level-up wizard
+    SkillsPanel.astro          ← skills display for character pages
+    SpellManager.astro         ← interactive spell slot tracking + prepared/known caster support
+    XPTracker.astro            ← XP tracking with level-up detection
   content/
-    characters/              ← 9 character .md files with full frontmatter
-    sessions/                ← session logs
-    npcs/                    ← NPC entries
-    locations/               ← location entries
-    lore/                    ← lore articles
-    inventory/               ← (placeholder, unused)
-    config.ts                ← Zod schemas for all collections
+    characters/                ← 9 character .md files with full frontmatter
+    sessions/                  ← session logs
+    npcs/                      ← NPC entries
+    locations/                 ← location entries
+    lore/                      ← lore articles
+    inventory/                 ← (placeholder, unused)
+    config.ts                  ← Zod schemas for all collections
   data/
-    spells.ts                ← master spell database (200+ D&D 5e spells, TypeScript)
+    backgrounds.ts             ← 15 backgrounds (13 PHB + 2 Dragonlance)
+    classes.ts                 ← 13 classes with 95 subclasses
+    feats.ts                   ← 78 feats from PHB, TCE, XGE, FToD, DL
+    items.ts                   ← comprehensive item database (weapons, armor, gear, magic items)
+    leveling.ts                ← leveling rules/data
+    monsters.ts                ← 290+ monster stat blocks
+    races.ts                   ← 12 races with 16 subraces (PHB + Dragonlance)
+    skills.ts                  ← 18 core D&D 5e skills
+    spells.ts                  ← 425 D&D 5e spells with full stat blocks
   layouts/
-    BaseLayout.astro         ← nav, header, footer wrapper
+    BaseLayout.astro           ← grouped dropdown nav, header, footer wrapper
   pages/
-    index.astro              ← homepage
-    characters/[slug].astro  ← character detail (portrait, stats, spells, conditions, equipment)
-    sessions/[slug].astro    ← rich session log page
-    sessions/index.astro     ← session archive with campaign stats
-    spells/index.astro       ← spell browser with level groups + filter bar
-    spells/[slug].astro      ← spell detail pages (stat block, description, party cross-ref)
-    party/level-tracker.astro ← full party level overview + Level 2 preview
-    party/initiative.astro   ← combat initiative tracker (roll, sort, damage, enemies)
-    npcs/[slug].astro
-    locations/[slug].astro
-    lore/[slug].astro
-    inventory/index.astro
+    index.astro                ← homepage
+    character-creation/index.astro ← 5-step interactive character builder
+    characters/index.astro     ← party grid with portraits
+    characters/[slug].astro    ← character detail (stats, spells, equipment, feats, skills)
+    classes/index.astro        ← class browser
+    classes/[slug].astro       ← class detail with subclasses
+    dm/index.astro             ← DM award items & currency tool
+    dm/encounters.astro        ← encounter builder with difficulty calc + loot
+    dm/initiative.astro        ← combat initiative tracker
+    feats/index.astro          ← feat browser with filters
+    feats/[slug].astro         ← feat detail pages
+    inventory/index.astro      ← party inventory tracker
+    items/index.astro          ← item browser with search/filter
+    items/[slug].astro         ← item detail pages
+    locations/index.astro + [slug].astro
+    lore/index.astro + [slug].astro
+    monsters/index.astro       ← bestiary browser
+    monsters/[slug].astro      ← monster stat block pages
+    npcs/index.astro + [slug].astro
+    party/level-tracker.astro  ← full party level overview
+    party/level-up.astro       ← level-up wizard page
+    sessions/index.astro + [slug].astro
+    skills/index.astro + [slug].astro
+    spells/index.astro + [slug].astro
   styles/
-    global.css               ← CSS variables, base styles, shared components
+    global.css                 ← CSS variables, base styles, shared components
 ```
 
 ---
@@ -361,6 +387,230 @@ cc292f8  Fix all internal links to use BASE_URL for GitHub Pages
 - "Spells" nav link visible in top navigation
 - GitHub Actions deploy #7 succeeded
 
+### Session 7 — Interactive Spell Manager Component
+- `src/components/SpellManager.astro` — **NEW** interactive spell slot tracking
+  - Supports both "prepared" and "known" caster types
+  - Slot usage tracking with pip toggles
+  - Add/remove prepared spells for Druids, Clerics, etc.
+- `src/components/XPTracker.astro` — **NEW** XP tracking with level-up detection
+- Initiative tracker improvements: HP +/- buttons and manual dice roll entry
+
+**Commits:**
+```
+ea50dad  Add interactive SpellManager component with slot tracking
+873a5a2  Add HP +/- buttons and manual dice roll entry to initiative tracker
+1401dab  Add XP Tracker component with level-up detection
+```
+
+### Session 8 — Dragonlance Source Material Extraction
+- Extracted comprehensive content from Dragonlance sourcebooks into `DATA_REFERENCE.md`
+  - 5e stat blocks, race traits, magic items, and moon magic from Raistlin's Guide
+  - Complete deity pantheon, cosmology, campaign rules, and High Sorcery
+  - Shadow of the Dragon Queen official 5e content
+  - Classic adventure module lore from DL6/DL7/DL10
+  - Lost Leaves, Unsung Heroes, and Monstrous Compendium content
+  - AD&D 2e sourcebook extractions with 5e conversions
+- Added comprehensive D&D 5e SRD reference document (2500+ lines)
+
+**Commits:**
+```
+409e3e9  Add comprehensive D&D 5e SRD reference document
+d84f5b9  Expand Dragonlance/Krynn lore in DATA_REFERENCE.md
+5e07174  Add 5e stat blocks, race traits, magic items, and moon magic
+38b7f20  Add complete deity pantheon, cosmology, campaign rules
+12c4b9d  Add Shadow of the Dragon Queen official 5e content
+2e9a1a2  Add classic adventure module lore from DL6/DL7/DL10
+af4b991  Add Lost Leaves, Unsung Heroes, and Monstrous Compendium content
+fb5390d  Add comprehensive AD&D 2e sourcebook extractions with 5e conversions
+```
+
+### Session 9 — Skills & Feats Tracker
+- `src/data/skills.ts` — **NEW** 18 core D&D 5e skills with ability scores, descriptions, example uses
+- `src/data/feats.ts` — **NEW** 70 feats from PHB, TCE, XGE with prerequisites, benefits, categories
+- `src/pages/skills/index.astro` + `[slug].astro` — **NEW** skill browser and detail pages
+- `src/pages/feats/index.astro` + `[slug].astro` — **NEW** feat browser and detail pages with filtering
+- `src/components/SkillsPanel.astro` — **NEW** skills display on character pages
+- `src/components/FeatManager.astro` — **NEW** feat management on character pages
+- Character sheet integration: skills and feats panels added to `[slug].astro`
+
+**Commits:**
+```
+4121a3f  Add Skills Tracker with browse pages and character sheet integration
+354e911  Add Feats Tracker with 70 feats, browse pages, and character sheet integration
+```
+
+### Session 10 — Encounter Planner & Bestiary
+- `src/data/monsters.ts` — **NEW** monster database with 290+ creatures
+  - Full stat blocks: CR, AC, HP, DEX, type, size, XP
+  - CR-to-XP table, encounter thresholds by level, encounter multiplier function
+- `src/pages/monsters/index.astro` + `[slug].astro` — **NEW** bestiary browser with search/filter and monster detail pages
+- `src/pages/encounters/index.astro` — **NEW** encounter planner
+  - Monster search with autocomplete
+  - Add custom enemies
+  - Difficulty calculator with proper DMG multiplier adjustments for large parties (6-8 PCs: -1 step, 9+ PCs: -2 steps)
+  - Visual difficulty bar with Easy/Medium/Hard/Deadly markers
+  - Save/load encounter presets to localStorage
+  - "Launch in Combat Tracker" sends enemies to initiative tracker
+  - Monster dropdown search added to initiative tracker
+- Bug fixes: removed duplicate monster entries (Beholder, Wraith, Mummy Lord, Goblin Boss)
+- UI improvements: restyled encounter planner buttons for visibility and sizing
+
+**Commits:**
+```
+cd3e0b9  Add Encounter Planner, Bestiary, and monster dropdown for initiative tracker
+5db8630  Add encounter save/load system and fix difficulty calc for large parties
+0432e12  Expand monster database to ~290+ creatures
+280637d  Remove duplicate monster entries
+5060d1d  Improve Encounter Planner button visibility and sizing
+ea2238e  Restyle encounter +/- and remove buttons to match action button style
+```
+
+### Session 11 — Character Leveling System
+- `src/data/leveling.ts` — **NEW** leveling rules data (XP thresholds, proficiency by level, features)
+- `src/components/XPTracker.astro` — expanded with XP removal, set XP, and level override
+- `src/components/LevelUpWizard.astro` — **NEW** interactive level-up wizard component
+- `src/pages/party/level-up.astro` — **NEW** level-up wizard page
+- Fixed localStorage XP sync for level-up detection
+
+**Commits:**
+```
+6862e48  Feature 7: Character Leveling System
+e457835  Add XP removal, set XP, and level override to XP Tracker
+80c99f1  Fix level-up system: localStorage XP sync + Level-Up Wizard
+```
+
+### Session 12 — Visual Overhaul & Itemization System
+- Full visual overhaul: D&D Beyond-inspired dark teal theme
+  - New color palette, card styles, hover effects across all pages
+  - Consistent button styling, form inputs, and table designs
+- `src/data/items.ts` — **MASSIVE EXPANSION** comprehensive item database
+  - Weapons (simple + martial), armor (light/medium/heavy/shields), adventuring gear
+  - Magic items with rarity tiers, attunement requirements
+  - Campaign artifacts from Dragonlance source material
+  - Item categories for filtering
+- `src/pages/inventory/index.astro` — rebuilt as interactive party inventory tracker
+  - Per-character inventory with localStorage persistence
+  - Currency tracking (PP/GP/EP/SP/CP) per character
+  - Add items from database or custom items
+  - Equipment management
+- Encounter loot system integrated into encounter planner
+  - Per-monster loot configuration with item search
+  - Per-monster currency drops
+  - Encounter-wide loot pool
+  - "Distribute Loot" distributes items + currency to selected party members via localStorage
+
+**Commits:**
+```
+773c294  Full visual overhaul: D&D Beyond dark teal theme
+e941335  Add itemization system: items database, currency tracking, equipment management, encounter loot
+```
+
+### Session 13 — DM Tools, Spell Expansion & Item Browser
+- `src/pages/dm/index.astro` — **NEW** DM award tools page
+  - Searchable item database for awarding items to party members
+  - Create custom items on-the-fly
+  - Award currency with split/full distribution modes
+  - Award history with localStorage persistence (up to 200 entries)
+  - Select multiple recipients for bulk awards
+- Per-monster loot drops added to encounter builder (collapsible loot panel per monster)
+- `src/data/spells.ts` — expanded from 344 to 425 unique spells
+- `src/pages/items/index.astro` + `[slug].astro` — **NEW** item browser with search, category filters, and item detail pages
+
+**Commits:**
+```
+551d50e  Add DM Tools page and per-monster loot drops in encounter builder
+5a9394e  Expand spell database from 344 to 425 unique spells
+1248e67  Add Item Browser with searchable/filterable item catalog and detail pages
+```
+
+### Session 14 — Classes & Subclasses Database
+- `src/data/classes.ts` — **NEW** comprehensive class database (~2000+ lines)
+  - All 13 D&D 5e classes: Barbarian, Bard, Cleric, Druid, Fighter, Monk, Paladin, Ranger, Rogue, Sorcerer, Warlock, Wizard, Artificer
+  - 95 subclasses across all classes from PHB, XGE, TCE, FToD, and Dragonlance
+  - Interface: name, slug, hitDie (number), primaryAbility, savingThrows, armorProficiencies, weaponProficiencies, description, features, subclasses[], source
+  - Helper functions: getClassBySlug, getClassByName, getSubclassesForClass
+- `src/pages/classes/index.astro` + `[slug].astro` — **NEW** class browser and detail pages with subclass listings
+
+**Commit:**
+```
+b65e924  Add Classes & Subclasses database with 13 classes and 95 subclasses
+```
+
+### Session 15 — Feats Expansion, Races, Backgrounds & Character Creation
+**Date:** 2026-02-22/23
+
+**Feats expansion (70 → 78 feats):**
+- Added 8 new feats from previously missing sources:
+  - 3 XGE racial feats: Dwarven Fortitude, Fey Teleportation, Svirfneblin Magic
+  - 3 Fizban's Treasury of Dragons feats: Gift of Chromatic/Gem/Metallic Dragon
+  - 2 Dragonlance feats: Kender Nightstalker, Draconian Breath Weapon
+- Added new source codes: 'FToD' (Fizban's Treasury of Dragons), 'DL' (Dragonlance)
+
+**Races database (`src/data/races.ts`)** — **NEW** (~430 lines):
+- 9 PHB races: Dwarf (Hill/Mountain/Dark Dwarf/Gully Dwarf), Elf (High/Wood/Drow), Halfling (Lightfoot/Stout), Human (Variant), Dragonborn, Gnome (Forest/Rock), Half-Elf, Half-Orc, Tiefling
+- 3 Dragonlance races from `588526580-Dragonlance-5e-v2-5.md`:
+  - Kender (True/Afflicted subraces) — Lucky, Keen Senses, Kender Pockets traits
+  - Draconian (Baaz/Kapak/Bozak/Sivak/Aurak) — +2 CON base, Common + Nerakan, subrace-specific death throes
+  - Minotaur (Krynn) — horns, goring rush, hammering horns
+  - Half-Ogre (Krynn) — powerful build, aggressive
+- Interface: Race { name, slug, abilityScoreIncrease, size, speed, languages, traits: RacialTrait[], subraces: Subrace[], description, source }
+- Dragonlance data sourced directly from actual markdown source files for accuracy
+
+**Backgrounds database (`src/data/backgrounds.ts`)** — **NEW** (~200 lines):
+- 13 PHB backgrounds: Acolyte, Charlatan, Criminal, Entertainer, Folk Hero, Guild Artisan, Hermit, Noble, Outlander, Sage, Sailor, Soldier, Urchin
+- 2 Dragonlance: Knight of Solamnia, Mage of High Sorcery
+- Interface: Background { name, slug, skillProficiencies, toolProficiencies, languages, equipment, feature: BackgroundFeature, description, source }
+
+**Character Creation page (`src/pages/character-creation/index.astro`)** — **NEW** (1127 lines):
+- Full 5-step interactive character builder:
+  1. **Race** — card grid selection with dynamic subrace picker
+  2. **Class** — card grid with hit die, primary ability, saves display
+  3. **Ability Scores** — Standard Array (click-to-assign) and Point Buy (27 points) with live racial bonus calculation
+  4. **Background** — card grid with skill/tool/language proficiencies
+  5. **Review** — full character sheet preview with computed HP/AC/initiative/speed + downloadable .md file
+- Data injected via `define:vars` → `window.__RACES__` etc. for client-side interactivity
+- `parseRacialBonuses()` parses "+2 Strength, +1 Constitution" strings into computed modifiers
+- Download generates proper Astro content collection frontmatter YAML
+
+**Commits:**
+```
+ac56b8d  Expand feats.ts: add 8 feats from XGE, Fizban's, and Dragonlance
+8ed6c94  Add races.ts and backgrounds.ts for character creation
+cffe156  Add interactive Character Creation page
+```
+
+### Session 16 — DM Tools Reorganization
+**Date:** 2026-02-23
+
+Moved Encounter Builder and Initiative Tracker under the DM Tools section for better organization.
+
+**File moves:**
+- `src/pages/encounters/index.astro` → `src/pages/dm/encounters.astro`
+- `src/pages/party/initiative.astro` → `src/pages/dm/initiative.astro`
+
+**Navigation restructured:**
+- **DM Tools** is now a dropdown menu with 3 items:
+  - Award Items & Currency → `/dm`
+  - Encounter Builder → `/dm/encounters`
+  - Initiative Tracker → `/dm/initiative`
+- Removed "Encounters" from World dropdown
+- Removed "Combat Initiative" from Party dropdown
+- Updated cross-links between encounter builder and initiative tracker
+
+**Current navigation structure:**
+```
+Home | Party ▾ | Sessions | World ▾ | Reference ▾ | Inventory | DM Tools ▾
+```
+- **Party ▾** → Characters, Level Tracker, Level Up, Create Character
+- **World ▾** → NPCs, Locations, Lore, Bestiary
+- **Reference ▾** → Classes, Items & Equipment, Spells, Skills, Feats
+- **DM Tools ▾** → Award Items & Currency, Encounter Builder, Initiative Tracker
+
+**Commit:**
+```
+731a313  Move Encounter Builder and Initiative Tracker to DM Tools section
+```
+
 ---
 
 ## Deployment Status
@@ -373,40 +623,99 @@ cc292f8  Fix all internal links to use BASE_URL for GitHub Pages
 
 ## TODO — Still To Do
 
+### Completed (Sessions 1-16)
 - [x] ~~Push to GitHub~~ — force pushed 2026-02-18, resolved history divergence
 - [x] ~~Fix 404 on subpages~~ — all links now use `import.meta.env.BASE_URL` prefix
-- [x] ~~Add portraits~~ — 9 SVG placeholders with class-themed icons, wired into cards + detail pages
-- [x] ~~Initiative tracker~~ — full combat page with roll, sort, add enemies, damage/heal, round tracking
-- [x] ~~Condition tracking~~ — `conditions[]` schema + red tag display on character detail pages
-- [x] ~~Spell tracking~~ — spells/spellSlots schema, full UI with slot pips, grouping, C/R tags; 3 casters populated
-- [x] ~~Spell browser~~ — 200+ spell database, filterable browser page, spell detail pages with full stat blocks
-- [x] ~~Clickable spell links~~ — character page spell cards link to spell detail pages (graceful fallback for homebrew)
-- [x] ~~Spells nav link~~ — "Spells" added to top navigation bar
-- [x] ~~Verify the live site~~ — all pages tested 2026-02-18: spells browser, spell detail, character spell links, nav
-- [ ] **Expand spell database** — add more spells from supplemental books (currently 223, D&D 5e has ~500+ total). Priority: fill gaps in 2nd-4th level where party spells will grow next. See plan file for approach.
+- [x] ~~Add portraits~~ — 9 SVG placeholders with class-themed icons
+- [x] ~~Initiative tracker~~ — full combat tracker with roll, sort, enemies, damage/heal, rounds
+- [x] ~~Condition tracking~~ — `conditions[]` schema + red tag display
+- [x] ~~Spell tracking~~ — spells/spellSlots schema, full UI with slot pips, grouping, C/R tags
+- [x] ~~Spell browser~~ — 425 spells, filterable browser, spell detail pages
+- [x] ~~Clickable spell links~~ — character spell cards link to spell detail pages
+- [x] ~~Fix dropdown/nav readability~~ — grouped dropdown navigation with dark theme (PLAN Task 1)
+- [x] ~~Complete Items database~~ — comprehensive item database with browser + detail pages (PLAN Task 2)
+- [x] ~~Expand Classes & Subclasses~~ — 13 classes, 95 subclasses in `classes.ts` (PLAN Task 4)
+- [x] ~~Verify/expand Skills & Feats~~ — 18 skills verified, 78 feats expanded (PLAN Task 5)
+- [x] ~~Character Creation page~~ — 5-step interactive builder with races, classes, backgrounds (PLAN Task 3)
+- [x] ~~Encounter Planner~~ — full builder with difficulty calc, save/load, loot system
+- [x] ~~Bestiary~~ — 290+ monster database with browser and stat block pages
+- [x] ~~DM Tools~~ — award items/currency, encounter builder, initiative tracker under DM dropdown
+- [x] ~~Character Leveling System~~ — XP tracker, level-up wizard, leveling data
+- [x] ~~Visual Overhaul~~ — D&D Beyond-inspired dark teal theme
+- [x] ~~Source Material Extraction~~ — comprehensive DATA_REFERENCE.md from all Dragonlance books
+
+### ALL WEBSITE_UPDATE_PLAN.md TASKS COMPLETE ✅
+
+### Future Ideas (when ready)
 - [ ] **Replace placeholder portraits** — swap SVG placeholders with actual character art when players provide images
-- [ ] **Add spells to Legolas Pine** — Ranger spells unlocked at Level 2 (no spells at Level 1). Add Hunter's Mark, Cure Wounds, or other Ranger picks when level-up happens.
-- [ ] **Session 2 content** — add session 2 `.md` file to `src/content/sessions/` after next game session
-- [ ] **Level up characters** — when party hits Level 2, update each character's `level`, `maxHp`, `hp`, `profBonus`, add `levelHistory` entry with features gained, add new spells/spell slots for casters
-- [ ] **Share site with players** — site is live at `https://philferguson1979.github.io/shadows-before-the-flame/`
-- [ ] **Homepage refresh** — update `index.astro` to feature recent session, party overview, and quick links to new features (spells, combat)
-- [ ] **NPC & Location content** — populate NPC and location entries from Session 1 encounters (Ispin Greenshield, Inn of the Last Home, etc.)
-- [ ] **DM screen / quick reference** — create a DM-facing page with party stats at a glance, conditions reference, quick dice roller
+- [ ] **Add spells to Legolas Pine** — Ranger spells unlocked at Level 2 (no spells at Level 1)
+- [ ] **Session 2+ content** — add new session `.md` files after game sessions
+- [ ] **Level up characters** — when party hits Level 2, update levels, HP, features, spells
+- [ ] **Homepage refresh** — update `index.astro` to feature recent session, party overview, quick links
+- [ ] **NPC & Location content** — populate more NPC/location entries from gameplay
+- [ ] **Expand spell database** — currently 425, D&D 5e has ~500+ total
+- [ ] **DM quick reference page** — party stats at a glance, conditions reference, quick dice roller
+
+---
+
+## Current Git State (after Session 16)
+```
+731a313  Move Encounter Builder and Initiative Tracker to DM Tools section
+cffe156  Add interactive Character Creation page
+8ed6c94  Add races.ts and backgrounds.ts for character creation
+ac56b8d  Expand feats.ts: add 8 feats from XGE, Fizban's, and Dragonlance
+b65e924  Add Classes & Subclasses database with 13 classes and 95 subclasses
+1248e67  Add Item Browser with searchable/filterable item catalog and detail pages
+5a9394e  Expand spell database from 344 to 425 unique spells
+551d50e  Add DM Tools page and per-monster loot drops in encounter builder
+e941335  Add itemization system: items database, currency tracking, equipment management
+773c294  Full visual overhaul: D&D Beyond dark teal theme
+... (40+ commits total)
+```
+
+**Build:** 1336 pages, zero errors
+**Working tree:** Clean (no uncommitted changes)
+
+---
+
+## Current Site Stats
+- **Total pages:** 1336
+- **Spells:** 425
+- **Monsters:** 290+
+- **Items:** comprehensive database (weapons, armor, gear, magic items, artifacts)
+- **Classes:** 13 with 95 subclasses
+- **Feats:** 78 from 5 source books
+- **Skills:** 18 (complete)
+- **Races:** 12 with 16 subraces
+- **Backgrounds:** 15
+- **Characters:** 9 active party members
 
 ---
 
 ## How To Pick Up Next Session
 
 1. Read this file top to bottom
-2. Run the local dev server:
+2. Read `WEBSITE_UPDATE_PLAN.md` for reference (all tasks complete as of Session 16)
+3. Read `MEMORY.md` at `C:\Users\djric\.claude\projects\...\memory\MEMORY.md` for global context
+4. Run the local dev server:
    ```
    Set-Location 'C:\Users\djric\OneDrive\Documents\GitHub\shadows-before-the-flame'
-   & 'C:\Program Files\nodejs\node.exe' '.\node_modules\astro\astro.js' preview
+   & 'C:\Program Files\nodejs\node.exe' '.\node_modules\astro\astro.js' dev
    ```
-3. Open `http://localhost:4321` to see current state
-4. Make changes to `src/` files
-5. Rebuild: `& 'C:\Program Files\nodejs\node.exe' '.\node_modules\astro\astro.js' build`
-6. Restart preview server (kill old PID, run preview again)
-7. Push via GitHub Desktop when ready
+5. Open `http://localhost:4321` to see current state
+6. Make changes to `src/` files (hot-reloads in dev mode)
+7. Build: use `run_build.bat` or:
+   ```
+   & 'C:\Program Files\nodejs\node.exe' '.\node_modules\astro\astro.js' build
+   ```
+8. Commit and push:
+   ```
+   cd 'C:\Users\djric\OneDrive\Documents\GitHub\shadows-before-the-flame'
+   git add <files>
+   git commit -m "message"
+   git push
+   ```
+
+**Note on Windows build issues:** OneDrive paths with spaces can cause issues with Desktop Commander tool. Use `run_build.bat` in the project root or create batch files for complex commands. Git operations work fine from the standard terminal.
 
 ---

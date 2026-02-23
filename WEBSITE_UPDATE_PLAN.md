@@ -54,13 +54,15 @@ Never hardcode `href="/path"` — it will 404 on GitHub Pages.
 | Spells | `/spells` + `/spells/[slug]` | TypeScript data (`src/data/spells.ts`, 223 spells) | Done |
 | Skills | `/skills` + `/skills/[slug]` | TypeScript data (`src/data/skills.ts`) | Done |
 | Feats | `/feats` + `/feats/[slug]` | TypeScript data (`src/data/feats.ts`) | Done |
-| Items | `/items` + `/items/[slug]` | TypeScript data (`src/data/items.ts`) | INCOMPLETE — missing tons of items |
+| Items | `/items` + `/items/[slug]` | TypeScript data (`src/data/items.ts`) | Done |
 | Bestiary | `/monsters` + `/monsters/[slug]` | TypeScript data (`src/data/monsters.ts`) | Done |
-| Encounters | `/encounters` | Page exists | Needs content |
-| DM Tools | `/dm` | Page exists | Needs content |
+| Encounters | `/dm/encounters` | Interactive JS + monsters.ts + items.ts | Done |
+| DM Tools | `/dm` | Interactive JS + items.ts | Done |
+| DM Initiative | `/dm/initiative` | Interactive JS + monsters.ts | Done |
 | Level Tracker | `/party/level-tracker` | Character data | Done |
-| Level Up | `/party/level-up` | Page exists | Needs content |
-| Combat Initiative | `/party/initiative` | Interactive JS | Done |
+| Level Up | `/party/level-up` | Interactive JS + leveling.ts | Done |
+| Classes | `/classes` + `/classes/[slug]` | TypeScript data (`src/data/classes.ts`) | Done |
+| Character Creation | `/character-creation` | Interactive JS + races/classes/backgrounds | Done |
 
 ### Components Built
 - `EquipmentPanel.astro` — 10 equipment slots, AC calculation, weapon attack cards, inventory grid
@@ -73,18 +75,21 @@ Never hardcode `href="/path"` — it will 404 on GitHub Pages.
 - `XPTracker.astro` — XP tracking
 
 ### Data Files (TypeScript)
-- `src/data/spells.ts` — 223 D&D 5e spells with full stat blocks
-- `src/data/items.ts` — Item database (NEEDS EXPANSION)
-- `src/data/skills.ts` — Skills database
-- `src/data/feats.ts` — Feats database
-- `src/data/monsters.ts` — Monster/bestiary database
+- `src/data/spells.ts` — 425 D&D 5e spells with full stat blocks
+- `src/data/items.ts` — Comprehensive item database (weapons, armor, gear, magic items, artifacts)
+- `src/data/skills.ts` — 18 core D&D 5e skills
+- `src/data/feats.ts` — 78 feats from PHB, TCE, XGE, FToD, DL
+- `src/data/monsters.ts` — 290+ monster stat blocks
+- `src/data/classes.ts` — 13 classes with 95 subclasses
+- `src/data/races.ts` — 12 races with 16 subraces (PHB + Dragonlance)
+- `src/data/backgrounds.ts` — 15 backgrounds (13 PHB + 2 Dragonlance)
 - `src/data/leveling.ts` — Leveling rules/data
 
 ---
 
 ## TASK 1: Fix Dropdown/Navigation Menu Readability
 **Priority:** HIGHEST — Quick fix, high impact
-**Status:** NOT STARTED
+**Status:** ✅ COMPLETE (Session 12 — visual overhaul + grouped dropdown nav)
 
 ### Problem
 The navigation bar has 17 flat links that wrap and become cramped. On mobile the hamburger menu shows a dropdown, but the text colors are hard to read — gray text appears on a light/white background instead of the dark theme.
@@ -125,7 +130,7 @@ Where:
 
 ## TASK 2: Complete Items Page — Full D&D 5e Item Database
 **Priority:** HIGH — Largest content task
-**Status:** NOT STARTED
+**Status:** ✅ COMPLETE (Sessions 12-13 — items.ts + item browser + detail pages)
 
 ### Problem
 `src/data/items.ts` exists but is missing the vast majority of D&D 5e items. The Items page and individual item detail pages exist (`/items` and `/items/[slug]`) but the database needs to be massively expanded.
@@ -182,7 +187,7 @@ Each item should have: name, slug, type, subtype, rarity, attunement, weight, co
 
 ## TASK 3: Player Character Creation Page (Interactive Builder)
 **Priority:** MEDIUM — Depends on classes/items being populated
-**Status:** NOT STARTED
+**Status:** ✅ COMPLETE (Session 15 — 5-step builder with races.ts, backgrounds.ts, character-creation page)
 
 ### Requirements
 Build a fully interactive character creation page where players can:
@@ -253,7 +258,7 @@ Build a fully interactive character creation page where players can:
 
 ## TASK 4: Expand Classes & Subclasses Data
 **Priority:** MEDIUM — Needed for character creation
-**Status:** NOT STARTED (some class data exists in class guides but not in TypeScript)
+**Status:** ✅ COMPLETE (Session 14 — 13 classes, 95 subclasses in classes.ts + browser pages)
 
 ### All 13 Classes + All Subclasses Needed
 
@@ -277,7 +282,7 @@ Create `src/data/classes.ts` with:
 
 ## TASK 5: Expand Skills & Feats Data
 **Priority:** MEDIUM
-**Status:** PARTIALLY DONE — `src/data/skills.ts` and `src/data/feats.ts` exist, need verification
+**Status:** ✅ COMPLETE (Sessions 9 + 15 — 18 skills verified, 78 feats from PHB/TCE/XGE/FToD/DL)
 
 ### Skills
 Verify all 18 core skills are present with:
