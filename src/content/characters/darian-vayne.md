@@ -27,8 +27,8 @@ portrait: "/portraits/darian-vayne.svg"
 str: 13
 dex: 19
 con: 18
-int: 11
-wis: 13
+int: 13
+wis: 11
 cha: 13
 currency:
   gp: 0

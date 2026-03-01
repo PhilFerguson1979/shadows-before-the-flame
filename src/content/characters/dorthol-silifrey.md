@@ -4,8 +4,8 @@ player: "Daniel"
 race: "Half-Elf"
 class: "Lunar Sorcerer"
 level: 1
-hp: 15
-maxHp: 15
+hp: 10
+maxHp: 10
 ac: 12
 speed: 30
 profBonus: 2
