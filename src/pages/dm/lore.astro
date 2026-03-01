@@ -1,0 +1,454 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import DmPinGate from '../../components/DmPinGate.astro';
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+---
+
+<BaseLayout title="DM Lore">
+  <DmPinGate>
+  <div class="page-container">
+    <h1>DM Lore &amp; Secrets</h1>
+    <p class="intro-text">Campaign secrets, hidden mechanics, and DM reference material. Players should not see this page.</p>
+
+    <nav class="dm-toc">
+      <h3>Contents</h3>
+      <ul>
+        <li><a href="#ispin-murder">The Murder of Ispin Greenshield</a></li>
+        <li><a href="#miracle-table">Cleric Miracle Table</a></li>
+        <li><a href="#draconic">The Draconic Language</a></li>
+        <li><a href="#lycanthropes">Lycanthropes on Krynn</a></li>
+        <li><a href="#high-sanction">High Sanction &amp; Moon Phases</a></li>
+        <li><a href="#monk-options">Monk Draconic Options</a></li>
+        <li><a href="#robe">Robe of Useful Items (Ispin's Legacy)</a></li>
+        <li><a href="#battle-maps">Battle Maps</a></li>
+      </ul>
+    </nav>
+
+    <!-- ══════════════════════════════════ -->
+    <!-- THE MURDER OF ISPIN GREENSHIELD -->
+    <!-- ══════════════════════════════════ -->
+    <section class="dm-section" id="ispin-murder">
+      <h2>The Murder of Ispin Greenshield</h2>
+
+      <div class="dm-subsection">
+        <h3>The Official Story (The Public Cover)</h3>
+        <p>To the citizens of Solace, Ispin Greenshield died of a sudden, violent fever known as the <strong>"Shaking Chill."</strong> To maintain this lie, the <strong>High Seekers</strong> of Solace — who are greedy pawns of the Dragon Army — were bribed by a shadowy assassin to enforce a strict quarantine. They insisted on a swift, closed-casket burial, claiming it was necessary to prevent the spread of the "contagion" to the rest of the Vallenwoods.</p>
+      </div>
+
+      <div class="dm-subsection secret-box">
+        <h3>The Dark Reality (The Secret)</h3>
+        <p>Ispin was <strong>assassinated</strong>. While traveling, he intercepted a message meant for the Dragon Highlords and discovered a terrifying truth: while the Queen of Darkness prepares her conquest, the "Master of the Tower" (<strong>Fistandantilus</strong>) is manipulating the front lines. He plans to harvest the souls of the fallen to fuel a ritual to open the portal to the Abyss with an ultimate goal of defeating Takhisis herself and becoming the sole god of darkness.</p>
+        <p>Ispin was killed by a <strong>Shadow Agent</strong> of the Master — not a common assassin, but a creature empowered by stolen life force. The body was not diseased; it was <em>drained</em>. The cause of death was the complete extraction of his life essence, leaving behind a corpse that appeared to have died of a violent fever. The "Shaking Chill" was a cover story planted by the Seekers, who were paid in Dragon Army gold to keep the truth buried.</p>
+      </div>
+
+      <div class="dm-subsection">
+        <h3>What the Players Don't Know (Yet)</h3>
+        <ul>
+          <li>Ispin's death was not natural — it was a targeted assassination</li>
+          <li>The Seekers were bribed to maintain the cover-up</li>
+          <li>Fistandantilus is the true puppet master behind the scenes</li>
+          <li>The soul harvesting plan threatens to open a portal to the Abyss</li>
+          <li>The artifacts Ispin mentioned in his letter are the key to stopping this plan</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════ -->
+    <!-- CLERIC MIRACLE TABLE -->
+    <!-- ══════════════════════════════════ -->
+    <section class="dm-section" id="miracle-table">
+      <h2>Cleric Miracle Table</h2>
+      <p>On Krynn, a Cleric's first few spells shouldn't just be a dice roll; they are historic events. When the Cleric casts their first miracle (or at a high-drama moment), roll a <strong>d6</strong> to describe the awe-inspiring return of divine power.</p>
+
+      <table class="dm-table">
+        <thead>
+          <tr><th>d6</th><th>Effect</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>1</td><td><strong>The Echo of the Bells</strong></td><td>The faint, haunting sound of celestial bells rings out — heard by all within 100 feet but originating from no visible source.</td></tr>
+          <tr><td>2</td><td><strong>The Warmth of Solace</strong></td><td>Instead of just "healing," the target feels a physical warmth spread from the point of contact, as if basking in a shaft of pure sunlight on a cold day.</td></tr>
+          <tr><td>3</td><td><strong>The Prismatic Flare</strong></td><td>A beam of pure, brilliant light pierces the clouds (even if indoors, the ceiling seems to part) and illuminates the caster for a single, breathtaking heartbeat.</td></tr>
+          <tr><td>4</td><td><strong>The Healing Scripture</strong></td><td>When the wounds close, the skin is briefly etched with glowing, ancient runes in a language no one recognizes — then they fade.</td></tr>
+          <tr><td>5</td><td><strong>The Weight of Presence</strong></td><td>A heavy, peaceful silence falls over the immediate area. Animals stop moving. Fire stops flickering. For one moment, the world holds its breath.</td></tr>
+          <tr><td>6</td><td><strong>The Spark of the True Gods</strong></td><td>The caster's eyes glow with the color of their deity's domain for a brief flash, visible to all. An NPC who sees this may fall to their knees or flee in terror.</td></tr>
+        </tbody>
+      </table>
+
+      <div class="dm-subsection">
+        <h3>How to Use This</h3>
+        <ul>
+          <li><strong>The Witness Effect:</strong> If a "Seeker" witnesses this, they might become obsessed with the player, viewing them as a messiah or a threat to their own power.</li>
+          <li><strong>The First Healing:</strong> When the Cleric casts their first Cure Wounds, don't just say "you get 8 HP back." Describe the miracle first. It should feel like the first rain after a three-hundred-year drought.</li>
+        </ul>
+      </div>
+
+      <div class="dm-subsection">
+        <h3>Roleplay Reactions for the Band</h3>
+        <ul>
+          <li><strong>The Solamnic Knight:</strong> May be moved to tears, realizing the gods of their ancestors have finally answered.</li>
+          <li><strong>The Tinker Gnome:</strong> Will likely try to measure the "luminescence" with a thermometer and be baffled when it registers as "Infinite."</li>
+          <li><strong>The Kender:</strong> Will be delighted and immediately ask if they can "borrow" some of that light to keep in a jar.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════ -->
+    <!-- DRACONIC LANGUAGE -->
+    <!-- ══════════════════════════════════ -->
+    <section class="dm-section" id="draconic">
+      <h2>The Draconic Language</h2>
+      <p>In the world of Ansalon, Draconic is not just a language of beasts; it is the language of magic (the Magius), of the ancient ogre civilizations, and of the dragons themselves.</p>
+
+      <div class="dm-subsection">
+        <h3>The Draconic Script (Krynn)</h3>
+        <ul>
+          <li><strong>Visual Style:</strong> Sharp, angular, and claw-like. Designed to be carved into stone or etched into metal with a claw or talon. Lacks the flowing curves of Elvish.</li>
+          <li><strong>The "Magius" Language:</strong> Most arcane spells are spoken in a dialect of Draconic. This is why mages speak harsh, guttural words when casting.</li>
+          <li><strong>Neraka &amp; The Dragonarmies:</strong> The Dragonarmies use a bastardized version of this script for their ciphers and battle orders, often mixed with Common or Goblin for secrecy.</li>
+          <li><strong>Ancient Texts:</strong> The Grimoire of Fistandantilus or the Blue Crystal Staff's original inscriptions will be in High Draconic — complex, archaic, and difficult even for a native speaker to decipher.</li>
+        </ul>
+      </div>
+
+      <div class="dm-subsection">
+        <h3>Example: Military Draconic</h3>
+        <p><strong>Common:</strong> "Secure the river with the Iron Vessel. Let no vessel pass. The Queen's eyes are upon you."</p>
+        <p><strong>Draconic (Phonetic):</strong> <em>"Vek ossalur mrith Jesh-Waeth. Thric waeth gethrisj. Maekrix sauriv vucot turalisj."</em></p>
+
+        <table class="dm-table compact">
+          <thead><tr><th>Word</th><th>Meaning</th></tr></thead>
+          <tbody>
+            <tr><td>Vek</td><td>Secure / Guard</td></tr>
+            <tr><td>Ossalur</td><td>River (literally "travel-water")</td></tr>
+            <tr><td>Mrith</td><td>With / Using</td></tr>
+            <tr><td>Jesh-Waeth</td><td>Iron-Vessel (Iron-Ship)</td></tr>
+            <tr><td>Thric</td><td>No / None</td></tr>
+            <tr><td>Gethrisj</td><td>Pass / Go</td></tr>
+            <tr><td>Maekrix</td><td>Queen (standard military deferential)</td></tr>
+            <tr><td>Sauriv</td><td>Eyes</td></tr>
+            <tr><td>Vucot</td><td>Upon (heavy/burdening)</td></tr>
+            <tr><td>Turalisj</td><td>You (plural/all of you)</td></tr>
+          </tbody>
+        </table>
+        <p class="dm-note">Flavor Note: When read aloud, emphasize "s" and "sh" sounds to mimic a reptilian hiss. "Jesh-Waeth" should be spoken with a guttural, hard stop.</p>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════ -->
+    <!-- LYCANTHROPES ON KRYNN -->
+    <!-- ══════════════════════════════════ -->
+    <section class="dm-section" id="lycanthropes">
+      <h2>Lycanthropes on Krynn</h2>
+      <p>In Krynn, lycanthropes are exceedingly rare compared to other worlds. Their transformation is tied to the celestial dance of the three moons.</p>
+
+      <table class="dm-table">
+        <thead><tr><th>Moon</th><th>Color</th><th>Alignment</th><th>Lycanthropic Influence</th></tr></thead>
+        <tbody>
+          <tr><td>Solinari</td><td>White</td><td>Good</td><td>Rarely affects lycanthropes; some legends speak of "blessed" werewolves who protect the innocent.</td></tr>
+          <tr><td>Lunitari</td><td>Red</td><td>Neutral</td><td>Most common for "natural" lycanthropes. Transformation tied to the red moon's cycle.</td></tr>
+          <tr><td>Nuitari</td><td>Black</td><td>Evil</td><td>Invisible to those without darkvision or magical aptitude. Evil lycanthropes transform on "moonless" nights when Nuitari is full.</td></tr>
+        </tbody>
+      </table>
+
+      <div class="dm-subsection">
+        <h3>The Law of the Triple Moon</h3>
+        <p>Because the moons have different orbital periods, they occasionally align in an event called the <strong>Night of the Eye</strong>.</p>
+        <ul>
+          <li><strong>Transformation Trigger:</strong> A lycanthrope typically transforms when the moon of their alignment reaches <strong>High Sanction</strong>.</li>
+          <li><strong>The "Black Moon" Danger:</strong> Since Nuitari is black and invisible to most humans, a common traveler might be attacked by a werewolf on a "moonless" night, unaware that the black moon is actually at its full power.</li>
+        </ul>
+      </div>
+
+      <div class="dm-subsection">
+        <h3>Campaign Integration</h3>
+        <p>These creatures are not a common threat in the current age of the War of the Lance. Most folk in Abanasinia or Solamnia would consider stories of werewolves to be "old wives' tales" compared to the very real and visible threat of the Dragonarmies and their Draconians.</p>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════ -->
+    <!-- HIGH SANCTION & MOON PHASES -->
+    <!-- ══════════════════════════════════ -->
+    <section class="dm-section" id="high-sanction">
+      <h2>High Sanction &amp; Moon Phases</h2>
+      <p><strong>High Sanction</strong> is the phase of the moon when it is at its absolute fullest and brightest — the period of peak power for that moon's magic and influence.</p>
+
+      <div class="dm-subsection">
+        <h3>Moon Orbital Periods</h3>
+        <table class="dm-table compact">
+          <thead><tr><th>Moon</th><th>Orbit</th><th>High Sanction Duration</th><th>Frequency</th></tr></thead>
+          <tbody>
+            <tr><td>Nuitari (Black)</td><td>8 days</td><td>~1 day</td><td>Once a week</td></tr>
+            <tr><td>Lunitari (Red)</td><td>28 days</td><td>3-4 days</td><td>Monthly</td></tr>
+            <tr><td>Solinari (White)</td><td>36 days</td><td>5 days</td><td>Every 5 weeks</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="dm-subsection">
+        <h3>Effects of High Sanction</h3>
+        <ul>
+          <li><strong>Arcane Empowerment:</strong> Wizards of High Sorcery receive a <strong>+1 bonus</strong> to spell save DCs and spell attack rolls during their moon's High Sanction.</li>
+          <li><strong>Lycanthropic Transformation:</strong> Lycanthropes transform when their aligned moon hits High Sanction.</li>
+          <li><strong>The Light of the Gods:</strong> Solinari's white light can pierce the thickest canopy; Lunitari's red glow makes the ground look blood-stained — fitting for the War of the Lance.</li>
+        </ul>
+      </div>
+
+      <div class="dm-subsection">
+        <h3>The Night of the Eye</h3>
+        <p>If all three moons reach High Sanction simultaneously, the sky bleeds red and white (with a void of black), and magic becomes nearly uncontrollable.</p>
+      </div>
+
+      <div class="dm-subsection">
+        <h3>Current State (August 13, 351 AC)</h3>
+        <p>As the party meets at the Inn of the Last Home, <strong>Lunitari</strong> is currently waxing toward High Sanction. The red moon looms large over Solace, casting a crimson hue over the Vallenwood trees — a subtle hint of the "Shadows Before the Flame" that are about to engulf the town.</p>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════ -->
+    <!-- MONK DRACONIC OPTIONS -->
+    <!-- ══════════════════════════════════ -->
+    <section class="dm-section" id="monk-options">
+      <h2>Monk Draconic Options</h2>
+      <p>Options for a monk who wants to channel draconic power through their ki.</p>
+
+      <div class="dm-subsection">
+        <h3>Option 1: Way of the Ascendant Dragon (Subclass)</h3>
+        <p>From <em>Fizban's Treasury of Dragons</em>. Allows a monk to channel dragon power through ki.</p>
+        <ul>
+          <li><strong>Draconic Disciple:</strong> Change unarmed strike damage type to Acid, Cold, Fire, Lightning, or Poison.</li>
+          <li><strong>Visual:</strong> Punch with Fire one second and Ice the next.</li>
+        </ul>
+        <div class="narrative-box">
+          <p><em>"You have begun to study the movements of the great wyrms. By aligning your breath with the rhythm of the world, you can ignite your fists with the fury of a Red Dragon or freeze the air around your strikes like the chill of the Icewall Glacier. You do not just fight the dragon; you become it."</em></p>
+        </div>
+      </div>
+
+      <div class="dm-subsection">
+        <h3>Option 2: Gift of the Chromatic Dragon (Feat)</h3>
+        <p>For monks already in a different subclass.</p>
+        <ul>
+          <li><strong>Chromatic Infusion:</strong> As a bonus action, infuse a weapon with acid, cold, fire, lightning, or poison for 1 minute.</li>
+          <li><strong>Damage:</strong> Adds <strong>1d4</strong> of the chosen element to attacks.</li>
+        </ul>
+      </div>
+
+      <div class="dm-subsection">
+        <h3>Option 3: Wraps of Ice and Flame (Magic Item)</h3>
+        <p>Strips of cloth — one woven from red silk (warm to touch), the other from white silk (cool to touch). Said to be woven by monks of Majere.</p>
+        <ul>
+          <li><strong>Effect:</strong> Deal <strong>Fire damage</strong> with right hand and <strong>Cold damage</strong> with left.</li>
+          <li><strong>Bonus:</strong> Once per day, cast <strong>Burning Hands</strong> or <strong>Ice Knife</strong> using Ki points.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════ -->
+    <!-- ROBE OF USEFUL ITEMS -->
+    <!-- ══════════════════════════════════ -->
+    <section class="dm-section" id="robe">
+      <h2>Robe of Useful Items (Ispin's Legacy)</h2>
+
+      <div class="dm-subsection">
+        <h3>General Description</h3>
+        <div class="narrative-box">
+          <p><em>"This heavy, woolen robe smells faintly of woodsmoke and old parchment. The fabric is dyed a deep, forest green that has faded in areas to a soft mossy hue. What draws the eye is the patchwork — odd, mismatched shapes of cloth sewn haphazardly onto the lining and hem. Each patch is embroidered with startling realism: a sturdy iron door, a coiled hempen rope, daggers, sacks, and other tools. When the fabric shifts, the patches seem to ripple, as if the objects depicted are merely sleeping within the cloth."</em></p>
+        </div>
+      </div>
+
+      <div class="dm-subsection">
+        <h3>The 20 Patches</h3>
+        <div class="patch-grid">
+          <div class="patch-item"><strong>1.</strong> Small Rowboat (2 people, with oars)</div>
+          <div class="patch-item"><strong>2.</strong> 60-foot Wooden Ladder</div>
+          <div class="patch-item"><strong>3.</strong> Dagger</div>
+          <div class="patch-item"><strong>4.</strong> Bullseye Lantern (filled &amp; lit)</div>
+          <div class="patch-item"><strong>5.</strong> Steel Mirror</div>
+          <div class="patch-item"><strong>6.</strong> 10-foot Pole</div>
+          <div class="patch-item"><strong>7.</strong> Hempen Rope (50 ft)</div>
+          <div class="patch-item"><strong>8.</strong> Large Sack (30 lbs)</div>
+          <div class="patch-item"><strong>9.</strong> Bag of Gold (100 gp)</div>
+          <div class="patch-item"><strong>10.</strong> Silver Coffer (worth 500 gp)</div>
+          <div class="patch-item"><strong>11.</strong> Iron Door (up to 10ft x 10ft)</div>
+          <div class="patch-item"><strong>12.</strong> Gems (10 gems, 100 gp each)</div>
+          <div class="patch-item"><strong>13.</strong> Riding Horse (with saddlebags)</div>
+          <div class="patch-item"><strong>14.</strong> The Pit (10-foot cube)</div>
+          <div class="patch-item"><strong>15.</strong> Crate of Potions (4 Healing)</div>
+          <div class="patch-item"><strong>16.</strong> Spell Scroll (2nd-level, DM choice)</div>
+          <div class="patch-item"><strong>17.</strong> Mastiff (loyal hunting dog)</div>
+          <div class="patch-item"><strong>18.</strong> Window (2ft x 4ft opening)</div>
+          <div class="patch-item"><strong>19.</strong> Portable Ram (+4 STR checks)</div>
+          <div class="patch-item"><strong>20.</strong> Spyglass</div>
+        </div>
+        <p class="dm-note">19/20 patches remaining (Ladder used in Session 1 to escape Solace).</p>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════ -->
+    <!-- BATTLE MAPS -->
+    <!-- ══════════════════════════════════ -->
+    <section class="dm-section" id="battle-maps">
+      <h2>Battle Maps</h2>
+      <p>Map descriptions for key campaign locations.</p>
+
+      <div class="dm-subsection">
+        <h3>Dargaard Keep</h3>
+        <ul>
+          <li><strong>Entry Hall:</strong> Circular central chamber with two grand staircases leading to a balcony, fallen chandelier in the center, Lord Soth's throne on a dais at the back.</li>
+          <li><strong>Central Tower (Multi-Level):</strong> Three floors — Banquet Hall (ground), Barracks (second), Armory (third) — connected by a central spiral staircase. Top level has collapsed roof and wall.</li>
+          <li><strong>Full Complex:</strong> Outer walls with rose-petal pattern, large Front Courtyard, Outer Gates, main keep structure. "Line of Wall Collapse" from the Cataclysm clearly marked.</li>
+          <li><strong>Upper Level:</strong> Balcony overlooking the Entry Hall, Kitiara's Room, connected War Room.</li>
+        </ul>
+      </div>
+
+      <div class="dm-subsection">
+        <h3>Temple of Luerkhisis</h3>
+        <ul>
+          <li><strong>Draconian Breeding Chamber:</strong> Central "Altar of Corruption" with dragon eggs. Four separate Egg Rooms (Silver, Gold, Bronze, Copper). Corruptor's Den with furniture.</li>
+          <li><strong>Cavern of Fire:</strong> River of molten magma with rising steam, stone bridge, Central Conduit, and "Cavern of the Old One" opening.</li>
+          <li><strong>Audience Hall &amp; Dragonlord's Apartment:</strong> Grand dais with dragon head altar. Kitchen, Dining Hall, Barracks, Library, Conference Room. Dragonlord's Bedroom, Office, Map Room with secret passage.</li>
+        </ul>
+      </div>
+
+      <div class="dm-subsection">
+        <h3>City of Sanction</h3>
+        <p>Walled city next to a harbor and three volcanoes: Temple of Huerzyd, Temple of Duerghast, and Temple of Luerkhisis. A Lava River flows from the central volcano through the Central Slum. Features Harbor &amp; Docks, three Dragonarmy Camps on city outskirts, and a Secret Tunnel entrance.</p>
+      </div>
+    </section>
+
+  </div>
+  </DmPinGate>
+</BaseLayout>
+
+<style>
+.intro-text {
+  color: var(--text-muted);
+  margin-bottom: 2rem;
+}
+.dm-toc {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-accent);
+  border-radius: 8px;
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 2.5rem;
+}
+.dm-toc h3 {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+  margin: 0 0 0.75rem 0;
+}
+.dm-toc ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 0.4rem;
+}
+.dm-toc a {
+  color: var(--accent-primary);
+  font-size: 0.85rem;
+  text-decoration: none;
+}
+.dm-toc a:hover { text-decoration: underline; }
+
+.dm-section {
+  margin-bottom: 3rem;
+  padding-bottom: 2rem;
+  border-bottom: 1px solid rgba(0,201,167,0.15);
+}
+.dm-section h2 {
+  color: var(--accent-primary);
+  font-family: 'Cinzel', 'Georgia', serif;
+  margin-bottom: 0.75rem;
+}
+.dm-subsection {
+  margin: 1.25rem 0;
+}
+.dm-subsection h3 {
+  color: var(--text-parchment);
+  font-size: 0.95rem;
+  margin-bottom: 0.5rem;
+}
+.dm-subsection ul {
+  padding-left: 1.25rem;
+  color: var(--text-normal);
+  font-size: 0.88rem;
+  line-height: 1.6;
+}
+.dm-subsection p {
+  color: var(--text-normal);
+  font-size: 0.88rem;
+  line-height: 1.6;
+}
+
+.secret-box {
+  background: rgba(139,32,32,0.08);
+  border: 1px solid rgba(139,32,32,0.3);
+  border-radius: 8px;
+  padding: 1rem 1.25rem;
+}
+
+.narrative-box {
+  background: rgba(0,201,167,0.05);
+  border-left: 3px solid rgba(0,201,167,0.3);
+  padding: 0.75rem 1rem;
+  border-radius: 0 6px 6px 0;
+  margin: 0.75rem 0;
+}
+.narrative-box p {
+  font-style: italic;
+  color: var(--text-muted);
+}
+
+.dm-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1rem 0;
+  font-size: 0.85rem;
+}
+.dm-table th {
+  background: rgba(0,201,167,0.1);
+  border: 1px solid var(--border-accent);
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+  color: var(--accent-primary);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.dm-table td {
+  border: 1px solid rgba(0,201,167,0.15);
+  padding: 0.5rem 0.75rem;
+  color: var(--text-normal);
+}
+.dm-table.compact td,
+.dm-table.compact th {
+  padding: 0.35rem 0.6rem;
+}
+
+.dm-note {
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  font-style: italic;
+  margin-top: 0.5rem;
+}
+
+.patch-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 0.4rem;
+  margin: 0.75rem 0;
+}
+.patch-item {
+  font-size: 0.85rem;
+  color: var(--text-normal);
+  padding: 0.3rem 0;
+}
+
+@media (max-width: 640px) {
+  .dm-toc ul { grid-template-columns: 1fr; }
+  .patch-grid { grid-template-columns: 1fr; }
+}
+</style>

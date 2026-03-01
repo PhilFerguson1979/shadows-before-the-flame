@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="40%" r="60%">
+      <stop offset="0%" stop-color="#1a0f1a"/>
+      <stop offset="100%" stop-color="#0a0710"/>
+    </radialGradient>
+  </defs>
+  <rect width="200" height="200" rx="12" fill="url(#bg)"/>
+  <circle cx="100" cy="70" r="28" fill="none" stroke="#d4af37" stroke-width="2" opacity="0.6"/>
+  <!-- Holy symbol / radiant sun -->
+  <g transform="translate(100,130)" opacity="0.7">
+    <circle cx="0" cy="0" r="12" fill="none" stroke="#d4af37" stroke-width="2"/>
+    <line x1="0" y1="-18" x2="0" y2="-12" stroke="#d4af37" stroke-width="2"/>
+    <line x1="0" y1="12" x2="0" y2="18" stroke="#d4af37" stroke-width="2"/>
+    <line x1="-18" y1="0" x2="-12" y2="0" stroke="#d4af37" stroke-width="2"/>
+    <line x1="12" y1="0" x2="18" y2="0" stroke="#d4af37" stroke-width="2"/>
+    <line x1="-13" y1="-13" x2="-8.5" y2="-8.5" stroke="#d4af37" stroke-width="1.5"/>
+    <line x1="8.5" y1="-8.5" x2="13" y2="-13" stroke="#d4af37" stroke-width="1.5"/>
+    <line x1="-13" y1="13" x2="-8.5" y2="8.5" stroke="#d4af37" stroke-width="1.5"/>
+    <line x1="8.5" y1="8.5" x2="13" y2="13" stroke="#d4af37" stroke-width="1.5"/>
+    <circle cx="0" cy="0" r="5" fill="none" stroke="#d4af37" stroke-width="1" opacity="0.5"/>
+  </g>
+  <text x="100" y="175" text-anchor="middle" fill="#d4af37" font-family="Georgia,serif" font-size="11" opacity="0.5">CLERIC</text>
+</svg>
