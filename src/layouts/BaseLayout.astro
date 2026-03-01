@@ -1,5 +1,7 @@
 ---
 import '../styles/global.css';
+import { DM_PIN, DM_AUTH_KEY } from '../data/dm-config';
+import InstallPrompt from '../components/InstallPrompt.astro';
 
 export interface Props {
   title: string;
@@ -63,13 +65,20 @@ function isGroupActive(children: { href: string }[]): boolean {
 ---
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-dm-pin={DM_PIN} data-dm-auth-key={DM_AUTH_KEY}>
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content={description} />
   <title>{title} | Shadows Before The Flame</title>
   <link rel="icon" type="image/svg+xml" href={`${base}/favicon.svg`} />
+  <!-- PWA -->
+  <meta name="theme-color" content="#0b0b0d" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="SBtF Campaign" />
+  <link rel="apple-touch-icon" href={`${base}/icons/icon-192.png`} />
+  <link rel="manifest" href={`${base}/manifest.json`} />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
@@ -91,7 +100,10 @@ function isGroupActive(children: { href: string }[]): boolean {
       <nav class="main-nav" id="mainNav">
         {navGroups.map(group => (
           'children' in group && group.children ? (
-            <div class={`nav-dropdown ${isGroupActive(group.children) ? 'active' : ''}`}>
+            <div
+              class={`nav-dropdown ${isGroupActive(group.children) ? 'active' : ''}`}
+              {...(group.label === 'DM Tools' ? { 'data-dm-nav': 'true', style: 'display:none' } : {})}
+            >
               <button class="nav-link dropdown-trigger" type="button">
                 {group.label}
                 <svg class="dropdown-arrow" width="10" height="6" viewBox="0 0 10 6" fill="none">
@@ -135,6 +147,9 @@ function isGroupActive(children: { href: string }[]): boolean {
     </div>
   </footer>
 
+  <!-- DM Unlock Trigger (subtle lock icon, bottom-right) -->
+  <button id="dmUnlockTrigger" class="dm-unlock-trigger" title="DM Access" aria-label="DM Access">&#x1F512;</button>
+
   <script>
     // Mobile nav toggle
     const toggle = document.getElementById('navToggle');
@@ -167,6 +182,51 @@ function isGroupActive(children: { href: string }[]): boolean {
     document.querySelectorAll('.dropdown-menu').forEach(menu => {
       menu.addEventListener('click', (e) => e.stopPropagation());
     });
+
+    // DM Tools auth — show/hide nav dropdown and unlock trigger
+    (function() {
+      var authKey = document.documentElement.dataset.dmAuthKey;
+      var dmNav = document.querySelector('[data-dm-nav]');
+      var unlockBtn = document.getElementById('dmUnlockTrigger');
+
+      function checkDmAuth() {
+        var isAuthed = localStorage.getItem(authKey) === 'true';
+        if (dmNav) dmNav.style.display = isAuthed ? '' : 'none';
+        if (unlockBtn) unlockBtn.style.display = isAuthed ? 'none' : '';
+      }
+
+      checkDmAuth();
+
+      // Listen for auth events from the PIN gate component
+      window.addEventListener('sbtf-dm-auth', checkDmAuth);
+
+      // Unlock trigger click — prompt for PIN
+      if (unlockBtn) {
+        unlockBtn.addEventListener('click', function() {
+          var pin = prompt('Enter DM PIN:');
+          if (pin === null) return;
+          var correctPin = document.documentElement.dataset.dmPin;
+          if (pin === correctPin) {
+            localStorage.setItem(authKey, 'true');
+            checkDmAuth();
+          } else {
+            alert('Incorrect PIN.');
+          }
+        });
+      }
+    })();
+  </script>
+
+  <!-- PWA: Install prompt banner -->
+  <InstallPrompt />
+
+  <!-- PWA: Service worker registration -->
+  <script is:inline>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/shadows-before-the-flame/sw.js', {
+        scope: '/shadows-before-the-flame/'
+      });
+    }
   </script>
 </body>
 </html>
@@ -335,6 +395,27 @@ function isGroupActive(children: { href: string }[]): boolean {
 .nav-toggle.open span:nth-child(3) {
   transform: rotate(-45deg) translate(5px, -5px);
 }
+
+/* --- DM Unlock Trigger --- */
+.dm-unlock-trigger {
+  position: fixed;
+  bottom: 1rem;
+  right: 1rem;
+  background: rgba(0,0,0,0.4);
+  border: 1px solid rgba(100,100,100,0.2);
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 0.85rem;
+  opacity: 0.25;
+  transition: opacity 0.2s;
+  z-index: 50;
+}
+.dm-unlock-trigger:hover { opacity: 0.8; }
 
 /* --- Footer --- */
 .site-footer {

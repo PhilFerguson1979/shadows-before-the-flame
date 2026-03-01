@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import DmPinGate from '../../components/DmPinGate.astro';
 import { monsters, crXpTable, encounterThresholds, getEncounterMultiplier } from '../../data/monsters';
 import { items as itemDatabase, itemCategories } from '../../data/items';
 import { getCollection } from 'astro:content';
@@ -44,6 +45,7 @@ const partyMembers = JSON.stringify(activeParty.map(c => ({ name: c.data.name, s
 ---
 
 <BaseLayout title="Encounter Planner">
+  <DmPinGate>
   <div class="page-container">
     <h1>Encounter Planner</h1>
     <p class="intro-text">Build encounters, check difficulty, save presets, and launch into the combat tracker.</p>
@@ -214,6 +216,7 @@ const partyMembers = JSON.stringify(activeParty.map(c => ({ name: c.data.name, s
       </div>
     </div>
   </div>
+  </DmPinGate>
 </BaseLayout>
 
 <script define:vars={{ monsterList, partyThresholds, partySize, base, lootItemDb, lootCategories, partyMembers }}>

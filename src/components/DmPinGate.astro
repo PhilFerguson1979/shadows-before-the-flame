@@ -1,0 +1,138 @@
+---
+import { DM_PIN, DM_AUTH_KEY } from '../data/dm-config';
+---
+
+<div id="dm-pin-overlay" class="dm-pin-overlay">
+  <div class="dm-pin-dialog">
+    <div class="dm-pin-icon">&#x1F512;</div>
+    <h2>DM Access Required</h2>
+    <p>Enter the DM PIN to access these tools.</p>
+    <form id="dmPinForm">
+      <input type="password" id="dmPinInput" placeholder="Enter PIN..." maxlength="10" autocomplete="off" inputmode="numeric" />
+      <button type="submit" class="dm-pin-btn">Unlock</button>
+    </form>
+    <p id="dmPinError" class="dm-pin-error" style="display:none;">Incorrect PIN. Try again.</p>
+  </div>
+</div>
+
+<div id="dm-content" style="display:none;">
+  <slot />
+</div>
+
+<script define:vars={{ DM_PIN, DM_AUTH_KEY }}>
+  const overlay = document.getElementById('dm-pin-overlay');
+  const content = document.getElementById('dm-content');
+  const form = document.getElementById('dmPinForm');
+  const input = document.getElementById('dmPinInput');
+  const errorEl = document.getElementById('dmPinError');
+
+  // Check if already authenticated
+  if (localStorage.getItem(DM_AUTH_KEY) === 'true') {
+    overlay.style.display = 'none';
+    content.style.display = '';
+  }
+
+  form.addEventListener('submit', function(e) {
+    e.preventDefault();
+    if (input.value === DM_PIN) {
+      localStorage.setItem(DM_AUTH_KEY, 'true');
+      overlay.style.display = 'none';
+      content.style.display = '';
+      // Notify nav to show DM Tools dropdown
+      window.dispatchEvent(new Event('sbtf-dm-auth'));
+    } else {
+      errorEl.style.display = '';
+      input.classList.add('shake');
+      setTimeout(function() { input.classList.remove('shake'); }, 400);
+      input.value = '';
+      input.focus();
+    }
+  });
+</script>
+
+<style>
+.dm-pin-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: var(--bg-dark, #0b0b0d);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.dm-pin-dialog {
+  text-align: center;
+  padding: 2.5rem;
+  background: var(--bg-card, #181b24);
+  border: 1px solid rgba(0,201,167,0.3);
+  border-radius: 12px;
+  max-width: 360px;
+  width: 90%;
+}
+.dm-pin-icon { font-size: 2.5rem; margin-bottom: 0.75rem; }
+.dm-pin-dialog h2 {
+  color: var(--accent-primary, #00c9a7);
+  font-family: 'Cinzel', 'Georgia', serif;
+  font-size: 1.2rem;
+  margin: 0 0 0.5rem 0;
+}
+.dm-pin-dialog p {
+  color: var(--text-muted, #8a8e96);
+  font-size: 0.85rem;
+  margin: 0;
+  font-family: 'Inter', sans-serif;
+}
+.dm-pin-dialog form {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1.25rem;
+  justify-content: center;
+}
+.dm-pin-dialog input {
+  padding: 0.6rem 0.75rem;
+  font-size: 1.1rem;
+  background: rgba(0,0,0,0.3);
+  border: 1px solid rgba(0,201,167,0.3);
+  border-radius: 6px;
+  color: var(--text-normal, #c4c7cc);
+  width: 140px;
+  text-align: center;
+  letter-spacing: 0.25em;
+  font-family: 'Inter', sans-serif;
+}
+.dm-pin-dialog input:focus {
+  outline: none;
+  border-color: var(--accent-primary, #00c9a7);
+  box-shadow: 0 0 8px rgba(0,201,167,0.2);
+}
+.dm-pin-btn {
+  padding: 0.6rem 1.25rem;
+  background: var(--accent-primary, #00c9a7);
+  color: #0b0b0d;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  transition: background 0.2s;
+}
+.dm-pin-btn:hover {
+  background: #00e0bb;
+}
+.dm-pin-error {
+  color: #e74c3c;
+  font-size: 0.82rem;
+  margin-top: 0.75rem;
+  font-family: 'Inter', sans-serif;
+}
+.shake {
+  animation: shake 0.4s ease;
+}
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-6px); }
+  50% { transform: translateX(6px); }
+  75% { transform: translateX(-4px); }
+}
+</style>

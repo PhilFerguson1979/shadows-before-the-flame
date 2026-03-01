@@ -1,0 +1,38 @@
+{
+  "name": "Shadows Before The Flame",
+  "short_name": "SBtF Campaign",
+  "description": "A Dragonlance 5e Campaign Companion",
+  "start_url": "/shadows-before-the-flame/",
+  "scope": "/shadows-before-the-flame/",
+  "display": "standalone",
+  "background_color": "#0b0b0d",
+  "theme_color": "#0b0b0d",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "/shadows-before-the-flame/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/shadows-before-the-flame/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/shadows-before-the-flame/icons/icon-maskable-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/shadows-before-the-flame/icons/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "categories": ["games", "entertainment"]
+}
