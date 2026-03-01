@@ -1,6 +1,6 @@
 ---
 name: "Hysteria Wilks"
-player: "TBD"
+player: "Rilyn Ferguson"
 race: "Variant Human"
 class: "Cleric"
 level: 1
