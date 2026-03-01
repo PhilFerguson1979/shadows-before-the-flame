@@ -8,6 +8,7 @@ import SpellManager from '../../components/SpellManager.astro';
 import XPTracker from '../../components/XPTracker.astro';
 import SkillsPanel from '../../components/SkillsPanel.astro';
 import FeatManager from '../../components/FeatManager.astro';
+import HPManager from '../../components/HPManager.astro';
 import { getCollection } from 'astro:content';
 import { getNextLevelPreview, getClassData } from '../../data/leveling';
 
@@ -22,11 +23,6 @@ export async function getStaticPaths() {
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 const { char } = Astro.props;
 const { Content } = await char.render();
-
-const hpPct = char.data.hp && char.data.maxHp
-  ? Math.round((char.data.hp / char.data.maxHp) * 100)
-  : 100;
-const hpClass = hpPct > 60 ? 'healthy' : hpPct > 30 ? 'wounded' : '';
 
 function mod(score) {
   if (!score) return 0;
@@ -77,15 +73,11 @@ const classDataForWizard = classData ? {
 
       <div class="char-vitals">
         {char.data.hp !== undefined && char.data.maxHp !== undefined && (
-          <div class="vitals-hp">
-            <div class="vital-label">Hit Points</div>
-            <div class="vital-value">
-              {char.data.hp} <span class="vital-max">/ {char.data.maxHp}</span>
-            </div>
-            <div class="hp-bar">
-              <div class={`hp-bar-fill ${hpClass}`} style={`width: ${hpPct}%`}></div>
-            </div>
-          </div>
+          <HPManager
+            characterSlug={char.slug}
+            baseHp={char.data.hp}
+            baseMaxHp={char.data.maxHp}
+          />
         )}
         {char.data.ac !== undefined && (
           <div class="stat-badge"><span class="value">{char.data.ac}</span><span class="label">AC</span></div>
@@ -262,10 +254,6 @@ const classDataForWizard = classData ? {
   gap: 1rem;
   flex-shrink: 0;
 }
-.vitals-hp { min-width: 140px; }
-.vital-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); margin-bottom: 0.2rem; }
-.vital-value { font-size: 1.8rem; font-weight: bold; color: var(--accent-primary); line-height: 1; }
-.vital-max { font-size: 1rem; color: var(--text-muted); }
 
 /* Ability score bar */
 .ability-scores-bar {

@@ -40,10 +40,10 @@ const active = characters.filter(c => c.data.status === 'active')
             <div class="char-race">{char.data.race}</div>
 
             {char.data.hp !== undefined && char.data.maxHp !== undefined && (
-              <div class="char-hp">
+              <div class="char-hp" data-char-slug={char.slug}>
                 <div class="hp-label">
                   <span>HP</span>
-                  <span>{char.data.hp} / {char.data.maxHp}</span>
+                  <span class="hp-text-value">{char.data.hp} / {char.data.maxHp}</span>
                 </div>
                 <div class="hp-bar">
                   <div class={`hp-bar-fill ${hpClass}`} style={`width: ${hpPct}%`}></div>
@@ -98,3 +98,52 @@ const active = characters.filter(c => c.data.status === 'active')
   .char-grid { grid-template-columns: 1fr 1fr; }
 }
 </style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Sync HP values from localStorage
+    document.querySelectorAll('.char-hp[data-char-slug]').forEach(function(hpBlock) {
+      var slug = hpBlock.getAttribute('data-char-slug');
+      if (!slug) return;
+      try {
+        var saved = localStorage.getItem('sbtf-hp-' + slug);
+        if (!saved) return;
+        var data = JSON.parse(saved);
+        var hp = data.currentHp;
+        var maxHp = data.maxHp;
+        if (hp == null || maxHp == null) return;
+
+        var textEl = hpBlock.querySelector('.hp-text-value');
+        if (textEl) textEl.textContent = hp + ' / ' + maxHp;
+
+        var pct = maxHp > 0 ? Math.round((hp / maxHp) * 100) : 100;
+        var barFill = hpBlock.querySelector('.hp-bar-fill');
+        if (barFill) {
+          barFill.style.width = pct + '%';
+          barFill.className = 'hp-bar-fill ' + (pct > 60 ? 'healthy' : pct > 30 ? 'wounded' : '');
+        }
+      } catch(e) { /* ignore */ }
+    });
+
+    // Sync level values from localStorage
+    document.querySelectorAll('.char-card').forEach(function(card) {
+      var link = card.getAttribute('href');
+      if (!link) return;
+      var parts = link.split('/');
+      var slug = parts[parts.length - 1];
+      if (!slug) return;
+      try {
+        var saved = localStorage.getItem('sbtf-level-' + slug);
+        if (!saved) return;
+        var data = JSON.parse(saved);
+        if (!data.effectiveLevel) return;
+        card.querySelectorAll('.stat-badge').forEach(function(badge) {
+          var label = badge.querySelector('.label');
+          if (label && label.textContent === 'Lvl') {
+            badge.querySelector('.value').textContent = data.effectiveLevel;
+          }
+        });
+      } catch(e) { /* ignore */ }
+    });
+  });
+</script>

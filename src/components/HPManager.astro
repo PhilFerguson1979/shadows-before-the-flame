@@ -1,0 +1,344 @@
+---
+interface Props {
+  characterSlug: string;
+  baseHp: number;
+  baseMaxHp: number;
+}
+
+const { characterSlug, baseHp, baseMaxHp } = Astro.props;
+
+const configJson = JSON.stringify({ characterSlug, baseHp, baseMaxHp });
+---
+
+<div class="hp-manager" id="hpManager">
+  <div class="hp-mgr-header">
+    <div class="hp-mgr-label">Hit Points</div>
+    <button class="hp-mgr-reset" id="hpReset" title="Reset HP to max">Reset</button>
+  </div>
+
+  <div class="hp-mgr-display">
+    <button class="hp-btn hp-dmg" id="hpDmgBtn" title="Click: -1 HP | Shift+Click: custom amount">-</button>
+
+    <div class="hp-mgr-value">
+      <span class="hp-mgr-current" id="hpCurrent">{baseHp}</span>
+      <span class="hp-mgr-sep">/</span>
+      <span class="hp-mgr-max" id="hpMax">{baseMaxHp}</span>
+    </div>
+
+    <button class="hp-btn hp-heal" id="hpHealBtn" title="Click: +1 HP | Shift+Click: custom amount">+</button>
+  </div>
+
+  <div class="hp-custom-input" id="hpCustomWrap" style="display:none;">
+    <input type="number" class="hp-custom-val" id="hpCustomVal" min="1" max="999" placeholder="#" />
+    <button class="hp-custom-apply hp-custom-dmg" id="hpCustomDmg" title="Apply damage">&#x2713;</button>
+    <button class="hp-custom-apply hp-custom-heal-btn" id="hpCustomHeal" title="Apply healing">&#x2713;</button>
+  </div>
+
+  <div class="hp-bar">
+    <div class="hp-bar-fill healthy" id="hpBarFill" style="width: 100%"></div>
+  </div>
+</div>
+
+<style>
+.hp-manager {
+  min-width: 160px;
+}
+
+.hp-mgr-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.3rem;
+}
+
+.hp-mgr-label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+}
+
+.hp-mgr-reset {
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  background: rgba(100,100,100,0.12);
+  border: 1px solid rgba(100,100,100,0.25);
+  color: var(--text-muted);
+  padding: 0.15rem 0.45rem;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.hp-mgr-reset:hover {
+  background: rgba(39,174,96,0.15);
+  border-color: rgba(39,174,96,0.4);
+  color: #27ae60;
+}
+
+.hp-mgr-display {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+}
+
+.hp-mgr-value {
+  text-align: center;
+  line-height: 1;
+}
+
+.hp-mgr-current {
+  font-size: 1.8rem;
+  font-weight: bold;
+  color: var(--accent-primary);
+}
+
+.hp-mgr-sep {
+  font-size: 1rem;
+  color: var(--text-muted);
+  margin: 0 0.15rem;
+}
+
+.hp-mgr-max {
+  font-size: 1rem;
+  color: var(--text-muted);
+}
+
+/* Buttons — same as initiative tracker */
+.hp-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid;
+  font-size: 1.1rem;
+  font-weight: bold;
+  cursor: pointer;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s;
+  flex-shrink: 0;
+}
+.hp-dmg { background: rgba(192,57,43,0.15); border-color: rgba(192,57,43,0.4); color: #e74c3c; }
+.hp-dmg:hover { background: rgba(192,57,43,0.3); }
+.hp-heal { background: rgba(39,174,96,0.15); border-color: rgba(39,174,96,0.4); color: #27ae60; }
+.hp-heal:hover { background: rgba(39,174,96,0.3); }
+
+/* Custom HP input */
+.hp-custom-input {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3rem;
+  margin-top: 0.4rem;
+}
+.hp-custom-val {
+  width: 52px;
+  padding: 0.2rem 0.35rem;
+  text-align: center;
+  background: rgba(100,100,100,0.2);
+  border: 1px solid rgba(0,201,167,0.4);
+  color: var(--text-normal);
+  border-radius: 4px;
+  font-size: 0.85rem;
+  -moz-appearance: textfield;
+}
+.hp-custom-val::-webkit-outer-spin-button,
+.hp-custom-val::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.hp-custom-val:focus { outline: none; border-color: var(--accent-primary); box-shadow: 0 0 6px rgba(0,201,167,0.3); }
+
+.hp-custom-apply {
+  width: 26px;
+  height: 26px;
+  border-radius: 4px;
+  border: 1px solid;
+  font-size: 0.8rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+.hp-custom-dmg { background: rgba(192,57,43,0.2); border-color: rgba(192,57,43,0.4); color: #e74c3c; }
+.hp-custom-dmg:hover { background: rgba(192,57,43,0.35); }
+.hp-custom-heal-btn { background: rgba(39,174,96,0.2); border-color: rgba(39,174,96,0.4); color: #27ae60; }
+.hp-custom-heal-btn:hover { background: rgba(39,174,96,0.35); }
+
+/* HP bar reuses global .hp-bar / .hp-bar-fill / .healthy / .wounded */
+.hp-manager .hp-bar {
+  margin-top: 0.4rem;
+}
+</style>
+
+<script define:vars={{ configJson }}>
+(function() {
+  var config = JSON.parse(configJson);
+  var storageKey = 'sbtf-hp-' + config.characterSlug;
+
+  // State
+  var state = {
+    currentHp: config.baseHp,
+    maxHp: config.baseMaxHp
+  };
+
+  // DOM refs
+  var hpCurrent = document.getElementById('hpCurrent');
+  var hpMax = document.getElementById('hpMax');
+  var barFill = document.getElementById('hpBarFill');
+  var resetBtn = document.getElementById('hpReset');
+  var dmgBtn = document.getElementById('hpDmgBtn');
+  var healBtn = document.getElementById('hpHealBtn');
+  var customWrap = document.getElementById('hpCustomWrap');
+  var customInput = document.getElementById('hpCustomVal');
+  var customDmg = document.getElementById('hpCustomDmg');
+  var customHeal = document.getElementById('hpCustomHeal');
+
+  var customMode = null;
+
+  // --- localStorage ---
+  function loadState() {
+    try {
+      var saved = localStorage.getItem(storageKey);
+      if (saved) {
+        var parsed = JSON.parse(saved);
+        state.currentHp = parsed.currentHp ?? config.baseHp;
+        state.maxHp = parsed.maxHp ?? config.baseMaxHp;
+      }
+    } catch (e) { /* ignore */ }
+    syncMaxHpFromLevelUps();
+  }
+
+  function syncMaxHpFromLevelUps() {
+    try {
+      var levelSaved = localStorage.getItem('sbtf-level-' + config.characterSlug);
+      if (levelSaved) {
+        var levelData = JSON.parse(levelSaved);
+        var appliedLevelUps = levelData.appliedLevelUps || [];
+        var hpFromLevelUps = 0;
+        for (var i = 0; i < appliedLevelUps.length; i++) {
+          hpFromLevelUps += appliedLevelUps[i].hpGained || 0;
+        }
+        var derivedMax = config.baseMaxHp + hpFromLevelUps;
+        if (derivedMax > state.maxHp) {
+          state.maxHp = derivedMax;
+        }
+      }
+    } catch (e) { /* ignore */ }
+  }
+
+  function saveState() {
+    localStorage.setItem(storageKey, JSON.stringify({
+      currentHp: state.currentHp,
+      maxHp: state.maxHp
+    }));
+  }
+
+  // --- Rendering ---
+  function renderHP() {
+    var pct = state.maxHp > 0 ? Math.round((state.currentHp / state.maxHp) * 100) : 100;
+    hpCurrent.textContent = state.currentHp;
+    hpMax.textContent = state.maxHp;
+    barFill.style.width = pct + '%';
+    barFill.className = 'hp-bar-fill ' + (pct > 60 ? 'healthy' : pct > 30 ? 'wounded' : '');
+  }
+
+  // --- HP changes ---
+  function changeHP(delta) {
+    state.currentHp = Math.max(0, Math.min(state.maxHp, state.currentHp + delta));
+    saveState();
+    renderHP();
+    document.dispatchEvent(new CustomEvent('sbtf-hp-changed', {
+      detail: { slug: config.characterSlug, currentHp: state.currentHp, maxHp: state.maxHp }
+    }));
+  }
+
+  // --- Custom input ---
+  function showCustomInput(mode) {
+    customMode = mode;
+    customInput.value = '';
+    customWrap.style.display = 'flex';
+    customDmg.style.display = mode === 'damage' ? 'flex' : 'none';
+    customHeal.style.display = mode === 'heal' ? 'flex' : 'none';
+    customInput.focus();
+  }
+
+  function hideCustomInput() {
+    customMode = null;
+    customWrap.style.display = 'none';
+    customInput.value = '';
+  }
+
+  function applyCustom() {
+    var val = parseInt(customInput.value);
+    if (!isNaN(val) && val > 0) {
+      changeHP(customMode === 'damage' ? -val : val);
+    }
+    hideCustomInput();
+  }
+
+  // --- Event listeners ---
+  dmgBtn.addEventListener('click', function(e) {
+    if (e.shiftKey) {
+      showCustomInput('damage');
+    } else {
+      hideCustomInput();
+      changeHP(-1);
+    }
+  });
+
+  healBtn.addEventListener('click', function(e) {
+    if (e.shiftKey) {
+      showCustomInput('heal');
+    } else {
+      hideCustomInput();
+      changeHP(1);
+    }
+  });
+
+  customDmg.addEventListener('click', applyCustom);
+  customHeal.addEventListener('click', applyCustom);
+
+  customInput.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') applyCustom();
+    if (e.key === 'Escape') hideCustomInput();
+  });
+
+  // Long-press support
+  var pressTimer;
+  dmgBtn.addEventListener('pointerdown', function() {
+    pressTimer = setTimeout(function() { showCustomInput('damage'); }, 500);
+  });
+  dmgBtn.addEventListener('pointerup', function() { clearTimeout(pressTimer); });
+  dmgBtn.addEventListener('pointerleave', function() { clearTimeout(pressTimer); });
+
+  healBtn.addEventListener('pointerdown', function() {
+    pressTimer = setTimeout(function() { showCustomInput('heal'); }, 500);
+  });
+  healBtn.addEventListener('pointerup', function() { clearTimeout(pressTimer); });
+  healBtn.addEventListener('pointerleave', function() { clearTimeout(pressTimer); });
+
+  // Reset button
+  resetBtn.addEventListener('click', function() {
+    state.currentHp = state.maxHp;
+    saveState();
+    renderHP();
+    document.dispatchEvent(new CustomEvent('sbtf-hp-changed', {
+      detail: { slug: config.characterSlug, currentHp: state.currentHp, maxHp: state.maxHp }
+    }));
+  });
+
+  // Listen for level-up changes to update maxHp
+  document.addEventListener('sbtf-level-changed', function() {
+    syncMaxHpFromLevelUps();
+    if (state.currentHp > state.maxHp) state.currentHp = state.maxHp;
+    saveState();
+    renderHP();
+  });
+
+  // Init
+  loadState();
+  renderHP();
+})();
+</script>

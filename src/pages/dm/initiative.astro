@@ -72,6 +72,7 @@ function mod(score: number | undefined) {
           <div
             class="init-card"
             data-name={d.name}
+            data-slug={c.slug}
             data-dex={dexMod}
             data-ac={d.ac}
             data-hp={d.maxHp}
@@ -205,6 +206,15 @@ function mod(score: number | undefined) {
     bar.style.background = pct > 60 ? '#27ae60' : pct > 30 ? '#f39c12' : '#c0392b';
     text.textContent = hp + ' / ' + maxHp;
     card.classList.toggle('downed', hp === 0);
+    // Sync PC HP changes back to localStorage
+    if (card.dataset.type === 'pc' && card.dataset.slug) {
+      try {
+        localStorage.setItem('sbtf-hp-' + card.dataset.slug, JSON.stringify({
+          currentHp: hp,
+          maxHp: maxHp
+        }));
+      } catch(e) { /* ignore */ }
+    }
   }
 
   function highlightCurrent() {
@@ -555,6 +565,21 @@ function mod(score: number | undefined) {
   }
 
   getAllCards().forEach(card => setupHPButtons(card));
+
+  // Sync PC HP from localStorage (picks up HP set on character pages)
+  getAllCards().forEach(card => {
+    if (card.dataset.type !== 'pc' || !card.dataset.slug) return;
+    try {
+      var saved = localStorage.getItem('sbtf-hp-' + card.dataset.slug);
+      if (!saved) return;
+      var data = JSON.parse(saved);
+      if (data.currentHp != null && data.maxHp != null) {
+        card.dataset.hp = String(data.currentHp);
+        card.dataset.maxHp = String(data.maxHp);
+        updateHP(card, 0); // re-render with delta 0
+      }
+    } catch(e) { /* ignore */ }
+  });
 
   // Pick up pending enemies from localStorage (from Encounter Planner or Monster detail pages)
   try {
